@@ -4,7 +4,7 @@
 
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Menu, RefreshCw, Download } from 'lucide-react';
+import { Menu, RefreshCw, Download, LogOut } from 'lucide-react';
 import { format } from 'date-fns';
 
 const pageTitles = {
@@ -14,9 +14,10 @@ const pageTitles = {
   '/admin/orders': { title: 'Orders', sub: 'View and manage orders' },
   '/admin/site-editor': { title: 'Site Editor', sub: 'Customize your storefront' },
   '/admin/ai-insights': { title: 'AI Insights', sub: 'AI-powered reports & recommendations' },
+  '/admin/account': { title: 'Account', sub: 'Password and session controls' },
 };
 
-export default function TopBar({ onMenuClick, onRefresh }) {
+export default function TopBar({ onMenuClick, onRefresh, onLogout }) {
   const location = useLocation();
   const [now, setNow] = useState(new Date());
   const info = pageTitles[location.pathname] || pageTitles['/admin'];
@@ -64,6 +65,14 @@ export default function TopBar({ onMenuClick, onRefresh }) {
         >
           <Download size={13} />
           Export
+        </button>
+        <button
+          type="button"
+          onClick={onLogout}
+          className="p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/8 transition-all"
+          title="Logout"
+        >
+          <LogOut size={16} />
         </button>
       </div>
     </header>

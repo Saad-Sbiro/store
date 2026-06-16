@@ -12,7 +12,7 @@ export function completeLocalLogin() {
 }
 
 export function canUseLocalLogin(password) {
-  return password === LOCAL_ADMIN_PASSWORD || password === LEGACY_ADMIN_PASSWORD;
+  return import.meta.env.DEV && (password === LOCAL_ADMIN_PASSWORD || password === LEGACY_ADMIN_PASSWORD);
 }
 
 export function isAuthenticated() {

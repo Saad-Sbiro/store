@@ -5,9 +5,8 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Users, Package, ShoppingBag,
-  Settings, Sparkles, ExternalLink, Menu, X
+  Settings, Sparkles, ExternalLink, X, KeyRound, LogOut
 } from 'lucide-react';
-import { useState } from 'react';
 
 const navItems = [
   { to: '/admin', label: 'Overview', icon: LayoutDashboard, exact: true },
@@ -16,9 +15,10 @@ const navItems = [
   { to: '/admin/orders', label: 'Orders', icon: ShoppingBag },
   { to: '/admin/site-editor', label: 'Site Editor', icon: Settings },
   { to: '/admin/ai-insights', label: 'AI Insights', icon: Sparkles },
+  { to: '/admin/account', label: 'Account', icon: KeyRound },
 ];
 
-export default function Sidebar({ collapsed, setCollapsed }) {
+export default function Sidebar({ collapsed, setCollapsed, onLogout }) {
   return (
     <>
       {/* Mobile overlay */}
@@ -96,6 +96,14 @@ export default function Sidebar({ collapsed, setCollapsed }) {
             <ExternalLink size={16} className="flex-shrink-0" />
             <span className={`${collapsed ? 'lg:hidden' : ''}`}>View Store</span>
           </a>
+          <button
+            type="button"
+            onClick={onLogout}
+            className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-white/40 transition-all duration-200 hover:bg-white/5 hover:text-white/80 ${collapsed ? 'lg:justify-center' : ''}`}
+          >
+            <LogOut size={16} className="flex-shrink-0" />
+            <span className={`${collapsed ? 'lg:hidden' : ''}`}>Logout</span>
+          </button>
           <div className={`px-3 py-2 ${collapsed ? 'lg:hidden' : ''}`}>
             <p className="text-[10px] text-white/20">Admin Dashboard v1.0</p>
           </div>

@@ -59,6 +59,16 @@ class AuthController extends Controller
             ]);
         }
 
+        if (
+            app()->isProduction()
+            && $user->isAdmin()
+            && in_array($validated['password'], ['password123', 'admin2024'], true)
+        ) {
+            throw ValidationException::withMessages([
+                'password' => ['The default admin password is disabled in production.'],
+            ]);
+        }
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -86,5 +96,36 @@ class AuthController extends Controller
     public function me(Request $request)
     {
         return response()->json($request->user());
+    }
+
+    /**
+     * Update the authenticated user's password.
+     */
+    public function updatePassword(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user->isAdmin()) {
+            return response()->json(['error' => 'Unauthorized Access.'], 403);
+        }
+
+        $validated = $request->validate([
+            'current_password' => 'required|string',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        if (!Hash::check($validated['current_password'], $user->password)) {
+            throw ValidationException::withMessages([
+                'current_password' => ['The current password is incorrect.'],
+            ]);
+        }
+
+        $user->forceFill([
+            'password' => Hash::make($validated['password']),
+        ])->save();
+
+        return response()->json([
+            'message' => 'Password updated successfully.',
+        ]);
     }
 }

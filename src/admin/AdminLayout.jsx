@@ -19,7 +19,7 @@ export default function AdminLayout({ children, onLogout }) {
       className="min-h-screen bg-[#141414] text-white flex"
       style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
     >
-      <Sidebar collapsed={sidebarCollapsed} setCollapsed={setSidebarCollapsed} />
+      <Sidebar collapsed={sidebarCollapsed} setCollapsed={setSidebarCollapsed} onLogout={onLogout} />
 
       {/* Main content */}
       <div
@@ -30,6 +30,7 @@ export default function AdminLayout({ children, onLogout }) {
         <TopBar
           onMenuClick={() => setSidebarCollapsed(v => !v)}
           onRefresh={handleRefresh}
+          onLogout={onLogout}
         />
         <main
           key={refreshKey}

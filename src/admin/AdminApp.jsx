@@ -7,6 +7,7 @@ import { useState, useCallback } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import AdminLogin from './AdminLogin';
 import { isAuthenticated, logout } from './auth';
+import { api } from '../services/api';
 import AdminLayout from './AdminLayout';
 import OverviewPage from './pages/OverviewPage';
 import VisitorsPage from './pages/VisitorsPage';
@@ -14,11 +15,13 @@ import ProductsPage from './pages/ProductsPage';
 import OrdersPage from './pages/OrdersPage';
 import SiteEditorPage from './pages/SiteEditorPage';
 import AIInsightsPage from './pages/AIInsightsPage';
+import AccountPage from './pages/AccountPage';
 
 export default function AdminApp() {
   const [authed, setAuthed] = useState(() => isAuthenticated());
 
-  const handleLogout = useCallback(() => {
+  const handleLogout = useCallback(async () => {
+    await api.logout();
     logout();
     setAuthed(false);
   }, []);
@@ -36,6 +39,7 @@ export default function AdminApp() {
         <Route path="orders" element={<OrdersPage />} />
         <Route path="site-editor" element={<SiteEditorPage />} />
         <Route path="ai-insights" element={<AIInsightsPage />} />
+        <Route path="account" element={<AccountPage />} />
         <Route path="*" element={<Navigate to="/admin" replace />} />
       </Routes>
     </AdminLayout>

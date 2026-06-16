@@ -44,6 +44,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // We will verify admin role inside the controllers or using middleware.
     // For robust safety, the controller functions already enforce $request->user()->isAdmin() checks.
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index']);
+    Route::put('/admin/password', [AuthController::class, 'updatePassword']);
     
     Route::post('/products', [ProductController::class, 'store']);
     Route::put('/products/{id}', [ProductController::class, 'update']);

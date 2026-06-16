@@ -286,6 +286,19 @@ export const api = {
     return handleResponse(res);
   },
 
+  async updateAdminPassword(currentPassword, password, passwordConfirmation) {
+    const res = await fetch(`${API_BASE_URL}/admin/password`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify({
+        current_password: currentPassword,
+        password,
+        password_confirmation: passwordConfirmation,
+      }),
+    });
+    return handleResponse(res);
+  },
+
   // ── Analytics ──
   async logEvent(eventType, page = null, productId = null, metadata = {}) {
     try {

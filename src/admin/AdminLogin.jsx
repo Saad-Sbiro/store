@@ -114,9 +114,11 @@ export default function AdminLogin({ onSuccess }) {
             </button>
           </form>
 
-          <p className="text-white/20 text-xs text-center mt-6">
-            Default password: <span className="text-white/40 font-mono">{LOCAL_ADMIN_PASSWORD}</span>
-          </p>
+          {import.meta.env.DEV && (
+            <p className="text-white/20 text-xs text-center mt-6">
+              Local password: <span className="text-white/40 font-mono">{LOCAL_ADMIN_PASSWORD}</span>
+            </p>
+          )}
         </div>
       </div>
 
