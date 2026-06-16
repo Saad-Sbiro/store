@@ -1,0 +1,250 @@
+// ─────────────────────────────────────────────
+// FILE: src/pages/ShopPage.jsx
+// Full product catalog with filters, search, sort
+// ─────────────────────────────────────────────
+
+import { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Search, SlidersHorizontal, ChevronDown, Grid3X3, LayoutList, X } from 'lucide-react';
+import { api } from '../services/api';
+import ProductCard from '../components/ui/ProductCard';
+import SkeletonCard from '../components/ui/SkeletonCard';
+
+const fadeUp = {
+  hidden: { y: 20, opacity: 0 },
+  visible: (i = 0) => ({
+    y: 0, opacity: 1,
+    transition: { duration: 0.45, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] },
+  }),
+};
+
+const SORT_OPTIONS = [
+  { value: 'newest', label: 'Newest' },
+  { value: 'price-low', label: 'Price: Low to High' },
+  { value: 'price-high', label: 'Price: High to Low' },
+  { value: 'rating', label: 'Top Rated' },
+  { value: 'name', label: 'Alphabetical' },
+];
+
+export default function ShopPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialCategory = searchParams.get('category') || 'All';
+  const initialSearch = searchParams.get('search') || '';
+
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState(initialSearch);
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
+  const [sortBy, setSortBy] = useState('newest');
+  const [showFilters, setShowFilters] = useState(false);
+  const [viewMode, setViewMode] = useState('grid'); // grid | list
+
+  useEffect(() => {
+    setSearch(searchParams.get('search') || '');
+  }, [searchParams]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [productsRes, categoriesRes] = await Promise.all([
+          api.getProducts({ per_page: 100 }),
+          api.getCategories(),
+        ]);
+        setProducts(productsRes?.data || productsRes || []);
+        setCategories(categoriesRes || []);
+      } catch (err) {
+        console.error('Failed to load shop data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  // Update URL params when category changes
+  const handleCategoryChange = (cat) => {
+    setSelectedCategory(cat);
+    if (cat === 'All') {
+      searchParams.delete('category');
+    } else {
+      searchParams.set('category', cat);
+    }
+    setSearchParams(searchParams);
+  };
+
+  // Filtered & sorted products
+  const displayProducts = useMemo(() => {
+    let result = [...products];
+
+    // Category filter
+    if (selectedCategory !== 'All') {
+      result = result.filter((p) => {
+        const catName = typeof p.category === 'object' ? p.category?.name : p.category;
+        return catName === selectedCategory;
+      });
+    }
+
+    // Search filter
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      result = result.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          (p.description || '').toLowerCase().includes(q) ||
+          (typeof p.category === 'string' && p.category.toLowerCase().includes(q))
+      );
+    }
+
+    // Sort
+    switch (sortBy) {
+      case 'price-low':
+        result.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+        break;
+      case 'price-high':
+        result.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+        break;
+      case 'rating':
+        result.sort((a, b) => parseFloat(b.rating || 0) - parseFloat(a.rating || 0));
+        break;
+      case 'name':
+        result.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        break;
+      default: // newest
+        result.sort((a, b) => (b.id || 0) - (a.id || 0));
+    }
+
+    return result;
+  }, [products, selectedCategory, search, sortBy]);
+
+  const categoryNames = ['All', ...categories.map((c) => c.name)];
+
+  return (
+    <div className="min-h-screen bg-surface-50" style={{ paddingTop: '108px' }}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* ── Header ── */}
+        <motion.div initial={{ y: 16, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="mb-8">
+          <h1 className="font-hero text-section-sm md:text-section font-bold text-ink-900" style={{ letterSpacing: '-0.03em' }}>
+            Shop
+          </h1>
+          <p className="text-body text-ink-400 mt-1">
+            {loading ? 'Loading products...' : `${displayProducts.length} product${displayProducts.length !== 1 ? 's' : ''}`}
+          </p>
+        </motion.div>
+
+        {/* ── Toolbar ── */}
+        <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={0} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-6">
+          {/* Search */}
+          <div className="relative flex-1 max-w-md">
+            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-400" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search products..."
+              className="input-field pl-10"
+            />
+            {search && (
+              <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-400 hover:text-ink-600">
+                <X size={14} />
+              </button>
+            )}
+          </div>
+
+          {/* Sort */}
+          <div className="relative">
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="input-field appearance-none pr-9 cursor-pointer text-caption min-w-[180px]"
+            >
+              {SORT_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-400 pointer-events-none" />
+          </div>
+
+          {/* View toggle */}
+          <div className="flex rounded-btn border border-surface-200 overflow-hidden">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`p-2.5 transition-colors ${viewMode === 'grid' ? 'bg-ink-900 text-white' : 'bg-white text-ink-400 hover:bg-surface-50'}`}
+            >
+              <Grid3X3 size={16} />
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`p-2.5 transition-colors ${viewMode === 'list' ? 'bg-ink-900 text-white' : 'bg-white text-ink-400 hover:bg-surface-50'}`}
+            >
+              <LayoutList size={16} />
+            </button>
+          </div>
+
+          {/* Mobile filter toggle */}
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="sm:hidden inline-flex items-center gap-2 px-4 py-2.5 rounded-btn border border-surface-200 text-caption font-medium text-ink-600"
+          >
+            <SlidersHorizontal size={14} /> Filters
+          </button>
+        </motion.div>
+
+        {/* ── Category Filters ── */}
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          custom={1}
+          className={`flex flex-wrap gap-2 mb-8 ${showFilters ? '' : 'hidden sm:flex'}`}
+        >
+          {categoryNames.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => handleCategoryChange(cat)}
+              className={`px-4 py-2 rounded-pill text-caption font-medium transition-all duration-200 ${
+                selectedCategory === cat
+                  ? 'bg-ink-900 text-white shadow-sm'
+                  : 'bg-white text-ink-600 border border-surface-200 hover:border-ink-400 hover:text-ink-900'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </motion.div>
+
+        {/* ── Product Grid ── */}
+        {loading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </div>
+        ) : displayProducts.length === 0 ? (
+          <div className="text-center py-20">
+            <div className="w-16 h-16 rounded-full bg-surface-100 flex items-center justify-center mx-auto mb-4">
+              <Search size={24} className="text-ink-400" />
+            </div>
+            <h3 className="font-hero text-lg font-bold text-ink-900 mb-1">No products found</h3>
+            <p className="text-caption text-ink-400">Try adjusting your search or filters.</p>
+            <button
+              onClick={() => { setSearch(''); setSelectedCategory('All'); }}
+              className="mt-4 text-caption font-semibold text-brand-500 hover:text-brand-600"
+            >
+              Clear all filters
+            </button>
+          </div>
+        ) : (
+          <div className={viewMode === 'grid' ? 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6' : 'grid grid-cols-1 sm:grid-cols-2 gap-4'}>
+            {displayProducts.map((product, i) => (
+              <motion.div key={product.id} variants={fadeUp} initial="hidden" animate="visible" custom={i % 8}>
+                <ProductCard product={product} />
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
