@@ -5,7 +5,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, Heart, Search, X, ChevronRight, ArrowUpRight } from 'lucide-react';
+import { ShoppingBag, Heart, Search, X, ChevronRight, ArrowUpRight, Star } from 'lucide-react';
 
 import { useCartStore } from '../../store/useCartStore';
 import { useWishlistStore } from '../../store/useWishlistStore';
@@ -275,21 +275,6 @@ function SearchOverlay({ open, onClose }) {
               <Search size={22} />
             </button>
           </form>
-          <div className="mt-8 w-full">
-            <p className="mb-4 text-[11px] uppercase tracking-[0.18em] text-ink-400">Popular</p>
-            <div className="flex flex-wrap gap-2">
-              {['Monitor stand', 'Mechanical keyboard', 'USB-C dock', 'Desk lamp', 'Noise-cancelling audio'].map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => handleSearchSubmit(t)}
-                  className="rounded-pill border border-surface-200 px-4 py-2 text-[13px] text-ink-600 transition-all duration-200 hover:border-ink-900 hover:text-ink-900"
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
       </SheetContent>
     </Sheet>
@@ -441,6 +426,21 @@ export default function Navbar() {
 
               {/* Search */}
               <ExpandableSearchBar onSearch={handleInlineSearch} />
+
+              {/* Reviews */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link
+                    to="/reviews"
+                    id="nav-reviews"
+                    aria-label="My reviews"
+                    className="relative w-10 h-10 flex items-center justify-center transition-all duration-200 text-white hover:bg-white/10 rounded"
+                  >
+                    <Star size={17} strokeWidth={1.75} />
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent>My reviews</TooltipContent>
+              </Tooltip>
 
               {/* Wishlist */}
               <Tooltip>
@@ -660,6 +660,14 @@ export default function Navbar() {
                   <Search size={16} strokeWidth={1.75} />
                   Search products
                 </button>
+                <Link
+                  to="/reviews"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-3 text-[13px] text-ink-600 hover:text-ink-900 transition-colors"
+                >
+                  <Star size={16} strokeWidth={1.75} />
+                  My reviews
+                </Link>
                 <div className="flex items-center gap-4 pt-2">
                   <button
                     onClick={() => { setMobileOpen(false); toggleCart(); }}

@@ -3,7 +3,7 @@
 // ─────────────────────────────────────────────
 
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 
 import Navbar from './components/layout/Navbar';
@@ -13,6 +13,7 @@ import ProductPage from './pages/ProductPage';
 import ShopPage from './pages/ShopPage';
 import CheckoutPage from './pages/CheckoutPage';
 import OrderConfirmationPage from './pages/OrderConfirmationPage';
+import ReviewsPage from './pages/ReviewsPage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import WishlistPage from './pages/WishlistPage';
@@ -39,6 +40,24 @@ const mixHex = (from, to, amount) => {
   const b = normalizeHex(to).slice(1).match(/.{2}/g).map((part) => parseInt(part, 16));
   const mixed = a.map((channel, index) => Math.round(channel + (b[index] - channel) * amount));
   return `#${mixed.map((channel) => channel.toString(16).padStart(2, '0')).join('')}`;
+};
+
+const HOME_SPLASH_KEY = 'voidstore_home_splash_seen';
+
+const hasSeenHomeSplash = () => {
+  try {
+    return window.sessionStorage.getItem(HOME_SPLASH_KEY) === 'true';
+  } catch {
+    return true;
+  }
+};
+
+const markHomeSplashSeen = () => {
+  try {
+    window.sessionStorage.setItem(HOME_SPLASH_KEY, 'true');
+  } catch {
+    // Ignore storage failures; the splash should never block navigation.
+  }
 };
 
 // Scroll to top on route change
@@ -104,12 +123,35 @@ function SiteSettingsBridge() {
   return null;
 }
 
+function HomeSplashGate() {
+  const location = useLocation();
+  const [showSplash, setShowSplash] = useState(() => location.pathname === '/' && !hasSeenHomeSplash());
+
+  useEffect(() => {
+    if (location.pathname !== '/') {
+      setShowSplash(false);
+      return;
+    }
+
+    if (!hasSeenHomeSplash()) {
+      setShowSplash(true);
+    }
+  }, [location.pathname]);
+
+  const handleComplete = useCallback(() => {
+    markHomeSplashSeen();
+    setShowSplash(false);
+  }, []);
+
+  return showSplash ? <SplashScreen onComplete={handleComplete} /> : null;
+}
+
 // Storefront layout (with Navbar + Footer)
 function StoreFront() {
   return (
     <TooltipProvider>
       <div className="flex flex-col min-h-screen">
-        <SplashScreen />
+        <HomeSplashGate />
         <VisitorTracker />
         <Navbar />
         <AnimatePresence mode="wait">
@@ -119,6 +161,7 @@ function StoreFront() {
             <Route path="/product/:slug" element={<ProductPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
+            <Route path="/reviews" element={<ReviewsPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/wishlist" element={<WishlistPage />} />

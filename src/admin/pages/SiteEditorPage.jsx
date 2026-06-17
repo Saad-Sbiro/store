@@ -159,7 +159,7 @@ export default function SiteEditorPage() {
         <Section icon={Bell} title="Announcement & Social">
           <Toggle checked={siteSettings.showAnnouncementBar} onChange={v => set('showAnnouncementBar', v)} label="Show Announcement Bar" />
           <Field label="Announcement Text">
-            <Input value={siteSettings.announcementBar} onChange={e => set('announcementBar', e.target.value)} placeholder="Free shipping on orders over $150..." />
+            <Input value={siteSettings.announcementBar} onChange={e => set('announcementBar', e.target.value)} placeholder="New setup essentials available now..." />
           </Field>
           <Field label="Instagram URL"><Input value={siteSettings.footerInstagram} onChange={e => set('footerInstagram', e.target.value)} placeholder="https://instagram.com/yourstore" mono /></Field>
           <Field label="Twitter / X URL"><Input value={siteSettings.footerTwitter} onChange={e => set('footerTwitter', e.target.value)} placeholder="https://twitter.com/yourstore" mono /></Field>

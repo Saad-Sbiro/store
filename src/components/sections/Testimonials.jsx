@@ -7,51 +7,9 @@ import { motion, useInView, useReducedMotion } from 'framer-motion';
 import { Quote, Check } from 'lucide-react';
 import RatingStars from '../ui/RatingStars';
 import { slideLeft } from '../../utils/motionVariants';
+import { customerReviews } from '../../data/reviews';
 
-const testimonials = [
-  {
-    id: 1,
-    quote: 'l stand dyal screen n9a liya bureau bzzaf daba kolchi mrteb w l hub kaykhdem mzyan',
-    author: 'Youssef El Idrissi',
-    city: 'Casa',
-    rating: 5,
-  },
-  {
-    id: 2,
-    quote: 'clavier kayban premium w sout dyalo hani khfif f lkhdma w kaytconnecta bsr3a',
-    author: 'Fatim-Zahra Alami',
-    city: 'Rbat',
-    rating: 5,
-  },
-  {
-    id: 3,
-    quote: 'casque 3awenni f bureau mli kaykon dda9a kay7bes sda3 w kayb9a mrta7',
-    author: 'Amine Mansouri',
-    city: 'Marrakech',
-    rating: 5,
-  },
-  {
-    id: 4,
-    quote: 'tawsil ja bsr3a w packaging n9i l dock khdem m3a joj screens mn nhar lowel',
-    author: 'Khadija Bennani',
-    city: 'Tanger',
-    rating: 5,
-  },
-  {
-    id: 5,
-    quote: 'lampe sahl tbadal dow dyalha daba nkhdem b lil bla ma t3ya 3iniya',
-    author: 'Anass El Moudene',
-    city: 'Tetouan',
-    rating: 5,
-  },
-  {
-    id: 6,
-    quote: 'fan hani f lbit ma kaydirch sda3 w kaydwer l hawa mzyan',
-    author: 'Chaimae Boutaleb',
-    city: 'Agadir',
-    rating: 4,
-  },
-];
+const testimonials = customerReviews;
 
 export default function Testimonials() {
   const sectionRef = useRef(null);
@@ -139,29 +97,29 @@ export default function Testimonials() {
           {duplicatedTestimonials.map((t, index) => (
             <div
               key={`${t.id}-${index}`}
-              className="flex w-[min(82vw,320px)] shrink-0 flex-col gap-5 rounded-panel border border-surface-200 bg-surface-50 p-6 shadow-sm transition-all duration-300 ease-expo hover:-translate-y-1 hover:shadow-md sm:w-[400px] sm:p-7"
+              className="flex w-[min(78vw,260px)] shrink-0 flex-col gap-3 rounded-card border border-surface-200 bg-surface-50 p-4 shadow-sm transition-all duration-300 ease-expo hover:-translate-y-1 hover:shadow-md sm:w-[380px] sm:gap-5 sm:rounded-panel sm:p-6"
             >
               {/* Quote icon */}
-              <Quote size={28} className="text-brand-400 shrink-0" />
+              <Quote size={22} className="shrink-0 text-brand-400 sm:h-7 sm:w-7" />
 
               {/* Rating */}
-              <RatingStars rating={t.rating} showCount={false} size="md" />
+              <RatingStars rating={t.rating} showCount={false} size="sm" />
 
               {/* Quote text */}
-              <blockquote className="text-body text-ink-600 leading-relaxed flex-1">
+              <blockquote className="flex-1 text-[13px] leading-relaxed text-ink-600 sm:text-body">
                 {t.quote}
               </blockquote>
 
               {/* Author */}
-              <div className="flex items-center gap-3 pt-3 border-t border-surface-200">
-                <div className="w-10 h-10 rounded-pill bg-brand-500/10 text-brand-500 flex items-center justify-center font-bold text-xs shrink-0 uppercase">
+              <div className="flex items-center gap-2.5 border-t border-surface-200 pt-3 sm:gap-3">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-pill bg-brand-500/10 text-[10px] font-bold uppercase text-brand-500 sm:h-10 sm:w-10 sm:text-xs">
                   {t.author.split(' ').map(n => n[0]).join('').slice(0, 2)}
                 </div>
                 <div>
-                  <p className="text-[14px] font-semibold text-ink-900 leading-none">
+                  <p className="text-[12px] font-semibold leading-none text-ink-900 sm:text-[14px]">
                     {t.author}
                   </p>
-                  <p className="text-caption text-ink-400 mt-0.5">{t.city}</p>
+                  <p className="mt-0.5 text-[11px] text-ink-400 sm:text-caption">{t.city}</p>
                 </div>
               </div>
             </div>

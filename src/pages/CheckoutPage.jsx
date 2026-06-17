@@ -155,6 +155,9 @@ export default function CheckoutPage() {
       navigate('/order-confirmation', {
         state: {
           orderNumber: result?.order?.order_number || result?.order_number || 'VS-' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '-' + Math.floor(Math.random() * 9000 + 1000),
+          orderId: result?.order?.id || result?.id || null,
+          orderStatus: result?.order?.status || result?.status || 'pending',
+          createdAt: result?.order?.created_at || new Date().toISOString(),
           total: grandTotal,
           items: items,
           shippingAddress: form,
@@ -422,7 +425,7 @@ export default function CheckoutPage() {
 
               {shipping > 0 && (
                 <p className="mt-2 text-center text-[11px] text-ink-400">
-                  Free shipping on orders over {formatPrice(500)}
+                  Delivery is calculated before confirmation
                 </p>
               )}
             </motion.div>

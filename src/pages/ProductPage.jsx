@@ -34,32 +34,18 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '..
 import { RadioGroup, RadioGroupItem } from '../components/ui/RadioGroup';
 import { useToastStore } from '../store/useToastStore';
 import { getProductReviewSummary } from '../utils/reviews';
+import { customerReviews } from '../data/reviews';
 
 // ─── Tab component ───────────────────────────
 function ProductInfoAccordion({ product, reviewSummary }) {
   const tags = getProductTags(product);
   const savedReviews = reviewSummary.localReviews;
-  const sampleReviews = [
-    {
-      rating: 5,
-      title: 'Incredible quality',
-      body: 'Build quality is top-notch - solid materials, premium finish, and everything just works.',
-      author: 'Emma R.',
-    },
-    {
-      rating: 4,
-      title: 'Great daily driver',
-      body: 'A true daily driver. Setup was effortless and it integrates perfectly into my workflow.',
-      author: 'Michael T.',
-    },
-    {
-      rating: 3,
-      title: 'Worth every penny',
-      body: 'After 3 months of heavy use, this still looks and performs like day one.',
-      author: 'Lara K.',
-    },
-  ];
-  const reviews = [...savedReviews, ...sampleReviews];
+  const publicReviews = customerReviews.map((review) => ({
+    ...review,
+    body: review.quote,
+    verified: true,
+  }));
+  const reviews = [...savedReviews, ...publicReviews];
 
   return (
     <Accordion type="multiple" defaultValue={['description', 'reviews']} className="rounded-card border border-surface-200 bg-white px-4">
@@ -82,15 +68,15 @@ function ProductInfoAccordion({ product, reviewSummary }) {
             )}
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="rounded-card bg-surface-50 p-4">
-                <p className="text-btn font-semibold text-ink-900">Shipping</p>
+                <p className="text-btn font-semibold text-ink-900">Livraison</p>
                 <p className="mt-1 text-caption leading-relaxed text-ink-500">
-                  Free shipping on orders over 500 DH. Most orders arrive in 24 to 48 hours across major Moroccan cities.
+                  Livraison estimee entre 24 et 48 heures dans les grandes villes du Maroc.
                 </p>
               </div>
               <div className="rounded-card bg-surface-50 p-4">
-                <p className="text-btn font-semibold text-ink-900">Returns</p>
+                <p className="text-btn font-semibold text-ink-900">Retours</p>
                 <p className="mt-1 text-caption leading-relaxed text-ink-500">
-                  Returns are available within 14 days when the item is unused and still in its original packaging.
+                  Retour possible sous 14 jours si le produit est non utilise et garde son emballage d'origine.
                 </p>
               </div>
             </div>
@@ -99,16 +85,16 @@ function ProductInfoAccordion({ product, reviewSummary }) {
       </AccordionItem>
 
       <AccordionItem value="specifications">
-        <AccordionTrigger>Specifications</AccordionTrigger>
+        <AccordionTrigger>Details techniques</AccordionTrigger>
         <AccordionContent>
           <div className="space-y-3 pb-2">
             {[
-              ['Brand', 'VOIDSTORE'],
-              ['Warranty', '2-year manufacturer warranty'],
-              ['Connectivity', 'USB-C / Bluetooth / Wi-Fi'],
-              ['Weight', 'Varies by model'],
-              ['Material', 'Premium aluminum & ABS'],
-              ['In the Box', 'Product, USB-C cable, manual'],
+              ['Marque', 'VOIDSTORE'],
+              ['Garantie', 'Garantie fabricant de 2 ans'],
+              ['Connectivite', 'USB-C / Bluetooth / Wi-Fi'],
+              ['Poids', 'Selon le modele'],
+              ['Materiaux', 'Aluminium premium et ABS'],
+              ['Dans la boite', 'Produit, cable USB-C, manuel'],
             ].map(([key, val]) => (
               <div key={key} className="flex flex-col gap-1 border-b border-surface-100 py-2 last:border-0 sm:flex-row sm:items-start sm:gap-4">
                 <span className="text-caption text-ink-400 sm:w-32 sm:shrink-0">{key}</span>
@@ -120,29 +106,29 @@ function ProductInfoAccordion({ product, reviewSummary }) {
       </AccordionItem>
 
       <AccordionItem value="reviews" id="product-reviews">
-        <AccordionTrigger>Reviews</AccordionTrigger>
+        <AccordionTrigger>Avis</AccordionTrigger>
         <AccordionContent>
-          <div className="space-y-6 pb-2">
-            <div className="flex items-center gap-4 rounded-panel bg-surface-50 p-4">
+          <div className="space-y-3 pb-2 sm:space-y-5">
+            <div className="flex items-center gap-4 rounded-card bg-surface-50 p-3 sm:rounded-panel sm:p-4">
               <div className="text-center">
-                <p className="text-[40px] font-bold leading-none text-ink-900">{reviewSummary.average}</p>
+                <p className="text-[32px] font-bold leading-none text-ink-900 sm:text-[40px]">{reviewSummary.average}</p>
                 <RatingStars rating={reviewSummary.average} showCount={false} size="sm" />
-                <p className="mt-1 text-caption text-ink-400">{reviewSummary.count} reviews</p>
+                <p className="mt-1 text-caption text-ink-400">{reviewSummary.count} avis</p>
               </div>
             </div>
             {reviews.map((review) => (
-              <div key={review.id || `${review.author}-${review.title}`} className="border-b border-surface-200 pb-5 last:border-0">
-                <div className="mb-2 flex items-center gap-2">
+              <div key={review.id || `${review.author}-${review.body}`} className="rounded-card border border-surface-200 bg-surface-50 p-3 last:border-surface-200 sm:p-4">
+                <div className="mb-2 flex flex-wrap items-center gap-2">
                   <RatingStars rating={review.rating} showCount={false} size="sm" />
-                  <span className="text-caption text-ink-400">{review.title}</span>
+                  {review.title && <span className="text-caption text-ink-400">{review.title}</span>}
                   {review.verified && (
                     <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-600">
-                      Verified
+                      Verifie
                     </span>
                   )}
                 </div>
-                <p className="text-body text-ink-600">{review.body}</p>
-                <p className="mt-2 text-caption text-ink-400">- {review.author}, Verified Purchase</p>
+                <p className="text-[13px] leading-relaxed text-ink-600 sm:text-body">{review.body}</p>
+                <p className="mt-2 text-caption text-ink-400">- {review.author}, Achat verifie</p>
               </div>
             ))}
           </div>
@@ -217,7 +203,7 @@ export default function ProductPage() {
       <div className="min-h-screen flex items-center justify-center pt-16 bg-surface-0">
         <div className="flex flex-col items-center gap-4">
           <RingLoader className="h-24 w-24" />
-          <p className="text-body text-ink-600 font-medium">Loading workspace item...</p>
+          <p className="text-body text-ink-600 font-medium">Chargement du produit...</p>
         </div>
       </div>
     );
@@ -226,9 +212,9 @@ export default function ProductPage() {
   if (!product) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 pt-16 bg-surface-0">
-        <p className="text-section font-display text-ink-900">Product not found</p>
+        <p className="text-section font-display text-ink-900">Produit introuvable</p>
         <Button onClick={() => navigate('/')} variant="primary" id="not-found-back">
-          Back to Home
+          Retour a l'accueil
         </Button>
       </div>
     );
@@ -251,8 +237,8 @@ export default function ProductPage() {
   const validatePurchaseOptions = () => {
     if (isOutOfStock) {
       toast({
-        title: 'Out of Stock',
-        description: `${product.name} is not available right now.`,
+        title: 'Rupture de stock',
+        description: `${product.name} est indisponible pour le moment.`,
         variant: 'warning',
       });
       return false;
@@ -262,8 +248,8 @@ export default function ProductPage() {
       setSizeError(true);
       setTimeout(() => setSizeError(false), 2000);
       toast({
-        title: 'Size Selection Required',
-        description: 'Please choose a size before adding the item to your cart.',
+        title: 'Variante requise',
+        description: "Choisis une variante avant d'ajouter ce produit au panier.",
         variant: 'warning',
       });
       return false;
@@ -284,8 +270,8 @@ export default function ProductPage() {
     setAddedToCart(true);
 
     toast({
-      title: 'Added to Cart',
-      description: `${quantity}x ${product.name} has been added to your cart.`,
+      title: 'Ajoute au panier',
+      description: `${quantity}x ${product.name} a ete ajoute au panier.`,
       variant: 'success',
     });
     setTimeout(() => {
@@ -304,10 +290,10 @@ export default function ProductPage() {
     toggleWishlist(product.id);
     const isNowWishlisted = !wishlisted;
     toast({
-      title: isNowWishlisted ? 'Saved to Wishlist' : 'Removed from Wishlist',
+      title: isNowWishlisted ? 'Ajoute aux favoris' : 'Retire des favoris',
       description: isNowWishlisted
-        ? `${product.name} is now saved.`
-        : `${product.name} has been removed.`,
+        ? `${product.name} est maintenant dans tes favoris.`
+        : `${product.name} a ete retire des favoris.`,
       variant: 'default',
     });
   };
@@ -317,7 +303,7 @@ export default function ProductPage() {
       {/* ── Breadcrumb ── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-1.5 overflow-x-auto text-caption text-ink-400 no-scrollbar">
-          <Link to="/" id="breadcrumb-home" className="shrink-0 hover:text-ink-600 transition-colors">Home</Link>
+          <Link to="/" id="breadcrumb-home" className="shrink-0 hover:text-ink-600 transition-colors">Accueil</Link>
           <ChevronRight size={12} />
           <Link to="/" id="breadcrumb-category" className="shrink-0 hover:text-ink-600 transition-colors">
             {product.category}
@@ -349,7 +335,7 @@ export default function ProductPage() {
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center px-6 text-center text-body text-ink-400">
-                    Product image coming soon
+                    Image du produit bientot disponible
                   </div>
                 )}
               </AnimatePresence>
@@ -365,7 +351,7 @@ export default function ProductPage() {
               <button
                 id="pdp-wishlist"
                 onClick={handleWishlistToggle}
-                aria-label={wishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
+                aria-label={wishlisted ? 'Retirer des favoris' : 'Ajouter aux favoris'}
                 className="absolute top-4 right-4 z-10 w-10 h-10 rounded-pill bg-white/90 backdrop-blur-sm shadow-sm flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-200"
               >
                 <Heart
@@ -384,7 +370,7 @@ export default function ProductPage() {
                   key={i}
                   id={`pdp-thumb-${i}`}
                   onClick={() => setSelectedImage(i)}
-                  aria-label={`View image ${i + 1}`}
+                  aria-label={`Voir l'image ${i + 1}`}
                   className={clsx(
                     'aspect-square rounded-card overflow-hidden border-2 transition-all duration-200',
                     selectedImage === i
@@ -394,7 +380,7 @@ export default function ProductPage() {
                 >
                   <img
                     src={src}
-                    alt={`${product.name} thumbnail ${i + 1}`}
+                    alt={`${product.name} vignette ${i + 1}`}
                     className="w-full h-full object-cover"
                   />
                 </button>
@@ -415,14 +401,14 @@ export default function ProductPage() {
               <motion.div variants={fadeUp}>
                 <span className="inline-flex items-center gap-1.5 text-caption font-medium text-feedback-warning bg-feedback-warning/10 px-3 py-1.5 rounded-tag border border-feedback-warning/20">
                   <span className="w-1.5 h-1.5 rounded-pill bg-feedback-warning animate-pulse-dot" />
-                  Only {stock} left in stock
+                  Plus que {stock} en stock
                 </span>
               </motion.div>
             )}
             {isOutOfStock && (
               <motion.div variants={fadeUp}>
                 <span className="inline-flex items-center gap-1.5 text-caption font-medium text-feedback-danger bg-feedback-danger/10 px-3 py-1.5 rounded-tag border border-feedback-danger/20">
-                  Out of stock
+                  Rupture de stock
                 </span>
               </motion.div>
             )}
@@ -446,7 +432,7 @@ export default function ProductPage() {
                 onClick={() => document.getElementById('product-reviews')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
                 className="text-caption text-brand-500 hover:text-brand-600 underline underline-offset-2 transition-colors"
               >
-                Read reviews
+                Lire les avis
               </button>
             </motion.div>
 
@@ -462,7 +448,7 @@ export default function ProductPage() {
                   </span>
                   {savings > 0 && (
                     <span className="tag bg-feedback-success/10 text-feedback-success border border-feedback-success/20 text-[11px]">
-                      Save {savings}%
+                      Economisez {savings} %
                     </span>
                   )}
                 </>
@@ -472,9 +458,9 @@ export default function ProductPage() {
             {/* Color selector */}
             <motion.div variants={fadeUp}>
               <p className="text-btn font-semibold text-ink-900 mb-3">
-                Color
+                Couleur
                 <span className="ml-2 text-ink-400 font-normal capitalize">
-                  {colors.map((_, i) => ['Black', 'Silver', 'Navy'][i])[selectedColor] || `Option ${selectedColor + 1}`}
+                  {colors.map((_, i) => ['Noir', 'Argent', 'Bleu marine'][i])[selectedColor] || `Option ${selectedColor + 1}`}
                 </span>
               </p>
               <div className="flex items-center gap-3">
@@ -483,7 +469,7 @@ export default function ProductPage() {
                     key={i}
                     id={`pdp-color-${i}`}
                     onClick={() => setSelectedColor(i)}
-                    aria-label={`${selectedColor === i ? 'Selected' : 'Select'} color ${['Black', 'Silver', 'Navy'][i] || `Option ${i + 1}`}`}
+                    aria-label={`${selectedColor === i ? 'Couleur selectionnee' : 'Choisir la couleur'} ${['Noir', 'Argent', 'Bleu marine'][i] || `Option ${i + 1}`}`}
                     aria-pressed={selectedColor === i}
                     className={clsx(
                       'relative grid h-10 w-10 place-items-center rounded-pill border-[3px] transition-all duration-200',
@@ -507,27 +493,27 @@ export default function ProductPage() {
             <motion.div variants={fadeUp}>
               <div className="flex items-center justify-between mb-3">
                 <p className={clsx('text-btn font-semibold', sizeError ? 'text-feedback-danger' : 'text-ink-900')}>
-                  {sizeError ? 'Please select a variant' : 'Variant'}
+                  {sizeError ? 'Choisis une variante' : 'Variante'}
                 </p>
                 <button
                   id="pdp-size-guide"
                   className="text-caption text-brand-500 hover:text-brand-600 underline underline-offset-2 transition-colors"
                 >
-                  Spec Guide
+                  Guide specs
                 </button>
               </div>
               <RadioGroup
                 value={selectedSize || ''}
                 onValueChange={(value) => { setSelectedSize(value); setSizeError(false); }}
                 className="flex flex-wrap gap-2"
-                aria-label="Select product variant"
+                aria-label="Choisir une variante produit"
               >
                 {variants.map((size) => (
                   <RadioGroupItem
                     key={size}
                     id={`pdp-size-${size}`}
                     value={size}
-                    aria-label={`Size ${size}`}
+                    aria-label={`Variante ${size}`}
                     className={clsx(
                       'product-variant-option min-w-[56px]',
                       sizeError && selectedSize !== size && 'product-variant-option--error'
@@ -541,12 +527,12 @@ export default function ProductPage() {
 
             {/* Quantity */}
             <motion.div variants={fadeUp}>
-              <p className="text-btn font-semibold text-ink-900 mb-3">Quantity</p>
+              <p className="text-btn font-semibold text-ink-900 mb-3">Quantite</p>
               <div className="inline-flex items-center border border-surface-200 rounded-btn overflow-hidden">
                 <button
                   id="pdp-qty-minus"
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  aria-label="Decrease quantity"
+                  aria-label="Diminuer la quantite"
                   disabled={quantity <= 1 || isOutOfStock}
                   className="w-11 h-11 flex items-center justify-center text-ink-600 hover:bg-surface-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-150"
                 >
@@ -555,14 +541,14 @@ export default function ProductPage() {
                 <span
                   className="w-12 text-center text-[16px] font-semibold text-ink-900"
                   aria-live="polite"
-                  aria-label={`Quantity: ${quantity}`}
+                  aria-label={`Quantite: ${quantity}`}
                 >
                   {quantity}
                 </span>
                 <button
                   id="pdp-qty-plus"
                   onClick={() => setQuantity((q) => Math.min(stockLimit, q + 1))}
-                  aria-label="Increase quantity"
+                  aria-label="Augmenter la quantite"
                   disabled={quantity >= stockLimit || isOutOfStock}
                   className="w-11 h-11 flex items-center justify-center text-ink-600 hover:bg-surface-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-150"
                 >
@@ -582,7 +568,7 @@ export default function ProductPage() {
                 disabled={isOutOfStock}
                 className="h-auto min-h-[52px] whitespace-normal px-4 py-3 text-center text-[14px] leading-tight sm:text-[15px]"
               >
-                {isOutOfStock ? 'Out of Stock' : `Buy Now - ${formatPrice(price * quantity)}`}
+                {isOutOfStock ? 'Rupture de stock' : `Acheter - ${formatPrice(price * quantity)}`}
               </Button>
 
               <div className="grid grid-cols-2 gap-3">
@@ -597,7 +583,7 @@ export default function ProductPage() {
                   leftIcon={!addedToCart ? <ShoppingBag size={16} /> : undefined}
                   className="h-11 px-3 text-[13px]"
                 >
-                  {addedToCart ? 'Added!' : 'Add to Cart'}
+                  {addedToCart ? 'Ajoute' : 'Ajouter'}
                 </Button>
 
                 <Button
@@ -609,7 +595,7 @@ export default function ProductPage() {
                   leftIcon={<Heart size={16} fill={wishlisted ? 'currentColor' : 'none'} />}
                   className="h-11 px-3 text-[13px]"
                 >
-                  {wishlisted ? 'Saved' : 'Wishlist'}
+                  {wishlisted ? 'Favori' : 'Favoris'}
                 </Button>
               </div>
             </motion.div>
@@ -620,9 +606,9 @@ export default function ProductPage() {
               className="grid grid-cols-1 gap-3 pt-2 border-t border-surface-200 sm:grid-cols-3"
             >
               {[
-                { icon: Truck,     text: 'Free shipping over $200' },
-                { icon: RotateCcw, text: 'Free 30-day returns' },
-                { icon: Shield,    text: '2-year warranty' },
+                { icon: Truck,     text: 'Livraison 24 a 48 h' },
+                { icon: RotateCcw, text: 'Retours sous 14 jours' },
+                { icon: Shield,    text: 'Garantie 2 ans' },
               ].map(({ icon: Icon, text }) => (
                 <div key={text} className="flex flex-col items-center text-center gap-1.5 p-3 rounded-card bg-surface-50">
                   <Icon size={18} className="text-brand-500" />
@@ -648,10 +634,10 @@ export default function ProductPage() {
           >
             <motion.div variants={fadeUp} className="mb-10">
               <p className="text-[11px] font-semibold uppercase tracking-widest text-brand-500 mb-2">
-                You may also like
+                Vous aimerez aussi
               </p>
               <h2 className="font-display font-semibold text-section-sm text-ink-900">
-                Related Products
+                Produits similaires
               </h2>
             </motion.div>
 

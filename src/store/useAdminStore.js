@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { normalizeGeo } from '../utils/geo';
 
-const SITE_SETTINGS_VERSION = 2;
+const SITE_SETTINGS_VERSION = 3;
 
 const defaultSiteSettings = {
   siteSettingsVersion: SITE_SETTINGS_VERSION,
@@ -19,7 +19,7 @@ const defaultSiteSettings = {
   footerInstagram: '#',
   footerTwitter: '#',
   footerPinterest: '#',
-  announcementBar: 'Complimentary shipping on orders over $200 - Free returns',
+  announcementBar: 'New setup essentials available now - Returns within 14 days',
   showAnnouncementBar: false,
 };
 
@@ -32,6 +32,7 @@ const legacySiteDefaults = {
 const normalizeSiteSettings = (settings) => {
   const persistedSettings = settings || {};
   const merged = { ...defaultSiteSettings, ...persistedSettings };
+  const legacyAnnouncement = String(persistedSettings.announcementBar || '').toLowerCase();
 
   if (!persistedSettings.storeName || persistedSettings.storeName === legacySiteDefaults.storeName) {
     merged.storeName = defaultSiteSettings.storeName;
@@ -50,7 +51,7 @@ const normalizeSiteSettings = (settings) => {
   }
   if (
     !persistedSettings.announcementBar
-    || persistedSettings.announcementBar.startsWith('Free shipping on orders over $150')
+    || legacyAnnouncement.includes('shipping on orders over')
   ) {
     merged.announcementBar = defaultSiteSettings.announcementBar;
   }

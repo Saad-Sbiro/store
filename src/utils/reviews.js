@@ -1,5 +1,7 @@
 const PENDING_REVIEW_ORDERS_KEY = 'voidstore_pending_review_orders';
 const PRODUCT_REVIEWS_KEY = 'voidstore_product_reviews';
+const REVIEW_UNLOCK_DELAY_MS = 1000 * 60 * 60 * 48;
+const REVIEW_READY_STATUSES = new Set(['shipped', 'delivered']);
 
 const safeParse = (value, fallback) => {
   try {
@@ -17,6 +19,18 @@ const readStorage = (key, fallback) => {
 const writeStorage = (key, value) => {
   if (typeof window === 'undefined') return;
   window.localStorage.setItem(key, JSON.stringify(value));
+};
+
+const normalizeStatus = (status) => String(status || 'processing').toLowerCase();
+
+const toTime = (value) => {
+  const time = value ? new Date(value).getTime() : NaN;
+  return Number.isFinite(time) ? time : null;
+};
+
+const getFallbackReviewAvailableAt = (order, current) => {
+  const createdAt = toTime(current?.createdAt || order?.createdAt) || Date.now();
+  return new Date(createdAt + REVIEW_UNLOCK_DELAY_MS).toISOString();
 };
 
 export const getProductReviewKey = (product) => {
@@ -52,11 +66,25 @@ export const savePendingReviewOrder = (order) => {
   const existing = getPendingReviewOrders();
   const orderItems = order.items.map(normalizeOrderItem);
   const current = existing.find((item) => item.orderNumber === order.orderNumber);
+  const status = normalizeStatus(current?.status || order.status || order.orderStatus);
+  const shippedAt = current?.shippedAt || order.shippedAt || order.shipped_at || null;
+  const deliveredAt = current?.deliveredAt || order.deliveredAt || order.delivered_at || null;
+  const readyAt = current?.reviewAvailableAt
+    || order.reviewAvailableAt
+    || order.review_available_at
+    || (REVIEW_READY_STATUSES.has(status)
+      ? deliveredAt || shippedAt || new Date().toISOString()
+      : getFallbackReviewAvailableAt(order, current));
   const savedOrder = {
     orderNumber: order.orderNumber,
+    orderId: current?.orderId || order.orderId || order.id || null,
     total: order.total ?? 0,
     paymentMethod: order.paymentMethod ?? 'cod',
     shippingAddress: order.shippingAddress ?? null,
+    status,
+    shippedAt,
+    deliveredAt,
+    reviewAvailableAt: readyAt,
     createdAt: current?.createdAt || order.createdAt || new Date().toISOString(),
     items: current?.items?.length ? current.items : orderItems,
   };
@@ -64,6 +92,50 @@ export const savePendingReviewOrder = (order) => {
   const next = [savedOrder, ...existing.filter((item) => item.orderNumber !== order.orderNumber)];
   writeStorage(PENDING_REVIEW_ORDERS_KEY, next);
   return next;
+};
+
+export const syncPendingReviewOrderStatuses = (remoteOrders = []) => {
+  const remoteByNumber = new Map(
+    remoteOrders
+      .map((order) => [order.order_number || order.orderNumber, order])
+      .filter(([orderNumber]) => orderNumber)
+  );
+
+  const next = getPendingReviewOrders().map((order) => {
+    const remote = remoteByNumber.get(order.orderNumber);
+    if (!remote) return order;
+
+    const status = normalizeStatus(remote.status || order.status);
+    const shippedAt = remote.shipped_at || (status === 'shipped' ? remote.updated_at : null) || order.shippedAt || null;
+    const deliveredAt = remote.delivered_at || (status === 'delivered' ? remote.updated_at : null) || order.deliveredAt || null;
+    const reviewAvailableAt = REVIEW_READY_STATUSES.has(status)
+      ? deliveredAt || shippedAt || order.reviewAvailableAt || new Date().toISOString()
+      : order.reviewAvailableAt;
+
+    return {
+      ...order,
+      orderId: order.orderId || remote.id || null,
+      status,
+      shippedAt,
+      deliveredAt,
+      reviewAvailableAt,
+    };
+  });
+
+  writeStorage(PENDING_REVIEW_ORDERS_KEY, next);
+  return next;
+};
+
+export const getOrderReviewAvailableAt = (order) => (
+  order?.reviewAvailableAt || order?.deliveredAt || order?.shippedAt || null
+);
+
+export const isOrderReviewReady = (order, now = Date.now()) => {
+  if (!order) return false;
+  if (REVIEW_READY_STATUSES.has(normalizeStatus(order.status))) return true;
+
+  const availableAt = toTime(getOrderReviewAvailableAt(order));
+  return availableAt !== null && availableAt <= now;
 };
 
 export const markOrderItemReviewed = (orderNumber, reviewKey) => {
