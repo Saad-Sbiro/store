@@ -10,6 +10,11 @@ import { Search, SlidersHorizontal, ChevronDown, Grid3X3, LayoutList, X } from '
 import { api } from '../services/api';
 import ProductCard from '../components/ui/ProductCard';
 import SkeletonCard from '../components/ui/SkeletonCard';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../components/ui/Accordion';
+import { Popover, PopoverContent, PopoverTrigger } from '../components/ui/Popover';
+import { RadioGroup, RadioGroupItem } from '../components/ui/RadioGroup';
+import { Sheet, SheetContent, SheetTitle } from '../components/ui/Sheet';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../components/ui/Tooltip';
 
 const fadeUp = {
   hidden: { y: 20, opacity: 0 },
@@ -120,6 +125,7 @@ export default function ShopPage() {
   }, [products, selectedCategory, search, sortBy]);
 
   const categoryNames = ['All', ...categories.map((c) => c.name)];
+  const activeSort = SORT_OPTIONS.find((option) => option.value === sortBy) || SORT_OPTIONS[0];
 
   return (
     <div className="min-h-screen bg-surface-50" style={{ paddingTop: '108px' }}>
@@ -153,33 +159,64 @@ export default function ShopPage() {
           </div>
 
           {/* Sort */}
-          <div className="relative">
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="input-field appearance-none pr-9 cursor-pointer text-caption min-w-[180px]"
-            >
-              {SORT_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
-            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-400 pointer-events-none" />
-          </div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                className="input-field inline-flex min-w-[180px] items-center justify-between gap-3 pr-3 text-caption"
+              >
+                {activeSort.label}
+                <ChevronDown size={14} className="text-ink-400" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-[220px]">
+              <div className="grid gap-1">
+                {SORT_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setSortBy(opt.value)}
+                    className={`rounded-[10px] px-3 py-2 text-left text-[13px] font-semibold transition-colors ${
+                      sortBy === opt.value
+                        ? 'bg-white text-ink-900'
+                        : 'text-white/76 hover:bg-white/10 hover:text-white'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
 
           {/* View toggle */}
-          <div className="flex rounded-btn border border-surface-200 overflow-hidden">
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`p-2.5 transition-colors ${viewMode === 'grid' ? 'bg-ink-900 text-white' : 'bg-white text-ink-400 hover:bg-surface-50'}`}
-            >
-              <Grid3X3 size={16} />
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={`p-2.5 transition-colors ${viewMode === 'list' ? 'bg-ink-900 text-white' : 'bg-white text-ink-400 hover:bg-surface-50'}`}
-            >
-              <LayoutList size={16} />
-            </button>
+          <div className="flex overflow-hidden rounded-btn border border-surface-200 bg-white">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Grid view"
+                  onClick={() => setViewMode('grid')}
+                  className={`p-2.5 transition-colors ${viewMode === 'grid' ? 'bg-ink-900 text-white' : 'text-ink-400 hover:bg-surface-50'}`}
+                >
+                  <Grid3X3 size={16} />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>Grid view</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="List view"
+                  onClick={() => setViewMode('list')}
+                  className={`p-2.5 transition-colors ${viewMode === 'list' ? 'bg-ink-900 text-white' : 'text-ink-400 hover:bg-surface-50'}`}
+                >
+                  <LayoutList size={16} />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>List view</TooltipContent>
+            </Tooltip>
           </div>
 
           {/* Mobile filter toggle */}
@@ -197,7 +234,7 @@ export default function ShopPage() {
           initial="hidden"
           animate="visible"
           custom={1}
-          className={`flex flex-wrap gap-2 mb-8 ${showFilters ? '' : 'hidden sm:flex'}`}
+          className="mb-8 hidden flex-wrap gap-2 sm:flex"
         >
           {categoryNames.map((cat) => (
             <button
@@ -215,6 +252,74 @@ export default function ShopPage() {
         </motion.div>
 
         {/* ── Product Grid ── */}
+        <Sheet open={showFilters} onOpenChange={setShowFilters}>
+          <SheetContent side="bottom" className="sm:hidden">
+            <div className="flex items-center justify-between border-b border-surface-100 px-5 py-4">
+              <div>
+                <SheetTitle className="font-hero text-xl font-bold text-ink-900">
+                  Filters
+                </SheetTitle>
+                <p className="mt-1 text-caption text-ink-400">{displayProducts.length} products</p>
+              </div>
+            </div>
+
+            <div className="max-h-[calc(86vh-76px)] overflow-y-auto px-5 py-4">
+              <Accordion type="single" collapsible defaultValue="categories">
+                <AccordionItem value="categories">
+                  <AccordionTrigger>Categories</AccordionTrigger>
+                  <AccordionContent>
+                    <RadioGroup
+                      value={selectedCategory}
+                      onValueChange={(value) => handleCategoryChange(value)}
+                      className="grid grid-cols-2 gap-2 pb-2"
+                    >
+                      {categoryNames.map((cat) => (
+                        <RadioGroupItem
+                          key={cat}
+                          value={cat}
+                          aria-label={`Filter by ${cat}`}
+                          className="min-h-[44px] justify-center rounded-pill px-3 text-[12px]"
+                        >
+                          {cat}
+                        </RadioGroupItem>
+                      ))}
+                    </RadioGroup>
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="sort">
+                  <AccordionTrigger>Sort</AccordionTrigger>
+                  <AccordionContent>
+                    <RadioGroup
+                      value={sortBy}
+                      onValueChange={setSortBy}
+                      className="grid gap-2 pb-2"
+                    >
+                      {SORT_OPTIONS.map((option) => (
+                        <RadioGroupItem
+                          key={option.value}
+                          value={option.value}
+                          aria-label={`Sort by ${option.label}`}
+                          className="min-h-[44px] justify-start rounded-btn px-4 text-[12px]"
+                        >
+                          {option.label}
+                        </RadioGroupItem>
+                      ))}
+                    </RadioGroup>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+
+              <button
+                type="button"
+                onClick={() => setShowFilters(false)}
+                className="mt-5 h-12 w-full rounded-btn bg-ink-900 text-caption font-semibold uppercase tracking-[0.14em] text-white"
+              >
+                Apply
+              </button>
+            </div>
+          </SheetContent>
+        </Sheet>
+
         {loading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
             {Array.from({ length: 8 }).map((_, i) => (

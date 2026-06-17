@@ -5,8 +5,8 @@ export default function SplashScreen() {
   const [leaving, setLeaving] = useState(false);
 
   useEffect(() => {
-    const leaveTimer = window.setTimeout(() => setLeaving(true), 1180);
-    const hideTimer = window.setTimeout(() => setVisible(false), 1680);
+    const leaveTimer = window.setTimeout(() => setLeaving(true), 1550);
+    const hideTimer = window.setTimeout(() => setVisible(false), 2150);
 
     return () => {
       window.clearTimeout(leaveTimer);
@@ -29,10 +29,14 @@ export default function SplashScreen() {
       aria-label="Loading VOIDSTORE"
       role="status"
     >
+      <div className="voidstore-splash__frame" aria-hidden="true" />
       <div className="voidstore-splash__mark">
-        <span className="voidstore-splash__eyebrow">Curated essentials</span>
-        <span className="voidstore-splash__logo">VOIDSTORE</span>
-        <span className="voidstore-splash__line" aria-hidden="true" />
+        <span className="voidstore-splash__eyebrow">VOIDSTORE</span>
+        <span className="voidstore-splash__logo">
+          <span>VOID</span>
+          <span>STORE</span>
+        </span>
+        <span className="voidstore-splash__tagline">Curated desk technology</span>
       </div>
     </div>
   );

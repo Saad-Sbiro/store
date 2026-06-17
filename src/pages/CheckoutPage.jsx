@@ -11,6 +11,7 @@ import { useCartStore } from '../store/useCartStore';
 import { useToastStore } from '../store/useToastStore';
 import { formatPrice } from '../utils/formatPrice';
 import { api } from '../services/api';
+import SlideToConfirm from '../components/ui/SlideToConfirm';
 
 const fadeUp = {
   hidden: { y: 20, opacity: 0 },
@@ -51,18 +52,7 @@ export default function CheckoutPage() {
   }, []);
 
   const total = totalPrice();
-
-  const shipping = items.reduce((sum, item) => {
-    const dbProd = dbProducts.find(p => p.id === item.id) || item;
-    const shippingTag = dbProd.tags?.find(t => t.toLowerCase().startsWith('shipping:'));
-    const fee = shippingTag ? parseFloat(shippingTag.split(':')[1]) || 0 : 0;
-    return sum + fee;
-  }, 0);
-
-  const hasPromoProduct = items.some((item) => {
-    const dbProd = dbProducts.find(p => p.id === item.id) || item;
-    return dbProd.tags?.some(t => t.toLowerCase().startsWith('promo:'));
-  });
+  const shipping = total > 500 ? 0 : 35;
   
   // Calculate discount dynamically based on dbProducts
   let discount = 0;
@@ -368,29 +358,27 @@ export default function CheckoutPage() {
               </div>
 
               {/* Promo Code */}
-              {hasPromoProduct && (
-                <div className="mt-4 pt-4 border-t border-surface-200">
-                  <div className="flex gap-2">
-                    <div className="relative flex-1">
-                      <Tag size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
-                      <input
-                        value={promoCode}
-                        onChange={(e) => setPromoCode(e.target.value)}
-                        disabled={promoApplied}
-                        placeholder="Promo code"
-                        className="input-field pl-9 !py-2.5 text-caption"
-                      />
-                    </div>
-                    <button
-                      onClick={handleApplyPromo}
-                      disabled={promoApplied || !promoCode.trim()}
-                      className="px-4 py-2.5 rounded-btn bg-ink-900 text-white text-caption font-semibold hover:bg-ink-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                    >
-                      {promoApplied ? 'Applied ✓' : 'Apply'}
-                    </button>
+              <div className="mt-4 pt-4 border-t border-surface-200">
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Tag size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+                    <input
+                      value={promoCode}
+                      onChange={(e) => setPromoCode(e.target.value)}
+                      disabled={promoApplied}
+                      placeholder="Promo code"
+                      className="input-field pl-9 !py-2.5 text-caption"
+                    />
                   </div>
+                  <button
+                    onClick={handleApplyPromo}
+                    disabled={promoApplied || !promoCode.trim()}
+                    className="px-4 py-2.5 rounded-btn bg-ink-900 text-white text-caption font-semibold hover:bg-ink-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {promoApplied ? 'Applied ✓' : 'Apply'}
+                  </button>
                 </div>
-              )}
+              </div>
 
               {/* Totals */}
               <div className="mt-4 pt-4 border-t border-surface-200 space-y-2">
@@ -400,7 +388,7 @@ export default function CheckoutPage() {
                 </div>
                 {discount > 0 && (
                   <div className="flex justify-between text-caption text-feedback-success font-medium">
-                    <span>Discount ({appliedPromo.toUpperCase()} — {Math.round((discount / total) * 100)}%)</span>
+                    <span>Discount (10%)</span>
                     <span>-{formatPrice(discount)}</span>
                   </div>
                 )}
@@ -414,11 +402,20 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
+              <div className="mt-6">
+                <SlideToConfirm
+                  text={paymentMethod === 'cod' ? 'Slide to confirm COD' : 'Slide to place order'}
+                  successText="Order confirmed"
+                  onConfirm={handlePlaceOrder}
+                  disabled={loading}
+                />
+              </div>
+
               {/* Place Order Button */}
               <button
                 onClick={handlePlaceOrder}
                 disabled={loading}
-                className="mt-6 w-full h-[52px] rounded-btn bg-ink-900 text-white font-hero text-btn font-bold uppercase tracking-wide hover:bg-ink-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="hidden mt-6 w-full h-[52px] rounded-btn bg-ink-900 text-white font-hero text-btn font-bold uppercase tracking-wide hover:bg-ink-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed items-center justify-center gap-2"
               >
                 {loading ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -437,7 +434,7 @@ export default function CheckoutPage() {
 
               {shipping > 0 && (
                 <p className="mt-2 text-center text-[11px] text-ink-400">
-                  Shipping fee is calculated based on items in your cart
+                  Free shipping on orders over {formatPrice(500)}
                 </p>
               )}
             </motion.div>

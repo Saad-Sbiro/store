@@ -1,5 +1,3 @@
-import { ArrowUpRight } from 'lucide-react';
-
 import { HERO_IMAGE_URL } from '../../constants/media';
 import { useAdminStore } from '../../store/useAdminStore';
 
@@ -63,15 +61,27 @@ export default function Hero() {
             <a
               href="#featured-products"
               id="hero-cta-shop"
-              className="group inline-flex min-h-[68px] w-full items-center justify-between gap-5 rounded-[999px] border border-white/80 bg-white px-6 font-hero text-[14px] font-bold uppercase tracking-[0.08em] text-[#070707] shadow-[0_16px_42px_rgba(255,255,255,0.12)] transition-[background-color,box-shadow] duration-300 ease-expo hover:bg-white/92 hover:shadow-[0_20px_54px_rgba(255,255,255,0.18)] md:min-h-full md:max-w-[230px] md:justify-self-end md:rounded-[30px] md:px-6"
+              className="hero-marquee-button group inline-flex min-h-[66px] w-full items-center overflow-hidden rounded-[999px] border border-white/55 bg-[#d9dfff] font-hero text-[17px] font-black uppercase tracking-[0.06em] text-[#302a72] shadow-[0_16px_42px_rgba(119,132,255,0.18)] transition-transform duration-300 ease-expo hover:scale-[1.025] md:min-h-full md:max-w-[360px] md:justify-self-end md:rounded-[34px]"
             >
-              <span className="text-left leading-tight">
-                Shop
-                <span className="block">essentials</span>
+              <span className="hero-marquee-track" aria-hidden="true">
+                <span className="hero-marquee-group">
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <span key={`a-${index}`} className="hero-marquee-item">
+                      START YOUR JOURNEY!
+                      <span className="hero-marquee-dot">{'\u2022'}</span>
+                    </span>
+                  ))}
+                </span>
+                <span className="hero-marquee-group">
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <span key={`b-${index}`} className="hero-marquee-item">
+                      START YOUR JOURNEY!
+                      <span className="hero-marquee-dot">{'\u2022'}</span>
+                    </span>
+                  ))}
+                </span>
               </span>
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#080808] text-white transition-transform duration-300 ease-expo group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-                <ArrowUpRight size={17} />
-              </span>
+              <span className="sr-only">Shop essentials</span>
             </a>
           </div>
         </div>

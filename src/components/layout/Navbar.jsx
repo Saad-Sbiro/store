@@ -12,6 +12,9 @@ import { useWishlistStore } from '../../store/useWishlistStore';
 import { useAdminStore } from '../../store/useAdminStore';
 import { useScrollY } from '../../hooks/useScrollY';
 import CartDrawer from '../ui/CartDrawer';
+import ExpandableSearchBar from '../ui/ExpandableSearchBar';
+import { Sheet, SheetContent, SheetTitle } from '../ui/Sheet';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/Tooltip';
 import clsx from 'clsx';
 
 // ─── Mega-menu data ───────────────────────────
@@ -244,77 +247,59 @@ function SearchOverlay({ open, onClose }) {
   };
 
   return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          key="search-overlay"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.25 }}
-          className="fixed inset-0 z-[80] bg-white/97 backdrop-blur-md flex flex-col"
-        >
-          {/* Close bar */}
-          <div className="flex items-center justify-end px-6 sm:px-12 pt-6 pb-0">
+    <Sheet open={open} onOpenChange={(next) => { if (!next) onClose(); }}>
+      <SheetContent side="top" className="h-[min(82vh,560px)] max-h-none bg-white/96 backdrop-blur-2xl">
+        <div className="mx-auto flex h-full w-full max-w-3xl flex-col justify-center px-6 pt-14 sm:px-10">
+          <SheetTitle className="mb-6 text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-ink-400">
+            Search
+          </SheetTitle>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSearchSubmit(inputRef.current?.value || '');
+            }}
+            className="relative w-full"
+          >
+            <input
+              ref={inputRef}
+              id="search-input"
+              type="text"
+              placeholder="What are you looking for?"
+              className="w-full bg-transparent border-b-2 border-ink-200 focus:border-ink-900 pb-4 pr-10 text-[28px] font-display font-normal text-ink-900 placeholder-ink-300 outline-none transition-colors duration-300 sm:text-[36px]"
+            />
             <button
-              onClick={onClose}
-              aria-label="Close search"
-              className="flex items-center gap-2 text-[12px] uppercase tracking-[0.16em] text-ink-400 hover:text-ink-900 transition-colors group"
+              type="submit"
+              className="absolute bottom-5 right-0 text-ink-400 transition-colors hover:text-ink-900"
+              aria-label="Submit search"
             >
-              Close
-              <X size={16} className="group-hover:rotate-90 transition-transform duration-300" />
+              <Search size={22} />
             </button>
-          </div>
-
-          {/* Input */}
-          <div className="flex-1 flex flex-col items-center justify-center px-6 sm:px-16 -mt-16">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-ink-400 mb-6">Search</p>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSearchSubmit(inputRef.current?.value || '');
-              }}
-              className="w-full max-w-2xl relative"
-            >
-              <input
-                ref={inputRef}
-                id="search-input"
-                type="text"
-                placeholder="What are you looking for?"
-                className="w-full bg-transparent border-b-2 border-ink-200 focus:border-ink-900 pb-4 text-[28px] sm:text-[36px] font-display font-normal text-ink-900 placeholder-ink-300 outline-none transition-colors duration-300 pr-10"
-              />
-              <button
-                type="submit"
-                className="absolute right-0 bottom-5 text-ink-400 hover:text-ink-900 transition-colors"
-                aria-label="Submit search"
-              >
-                <Search size={22} />
-              </button>
-            </form>
-            <div className="w-full max-w-2xl mt-8">
-              <p className="text-[11px] uppercase tracking-[0.18em] text-ink-400 mb-4">Popular</p>
-              <div className="flex flex-wrap gap-2">
-                {['Monitor stand', 'Mechanical keyboard', 'USB-C dock', 'Desk lamp', 'Noise-cancelling audio'].map((t) => (
-                  <button
-                    key={t}
-                    onClick={() => handleSearchSubmit(t)}
-                    className="px-4 py-2 border border-surface-200 text-[13px] text-ink-600 hover:border-ink-900 hover:text-ink-900 transition-all duration-200"
-                  >
-                    {t}
-                  </button>
-                ))}
-              </div>
+          </form>
+          <div className="mt-8 w-full">
+            <p className="mb-4 text-[11px] uppercase tracking-[0.18em] text-ink-400">Popular</p>
+            <div className="flex flex-wrap gap-2">
+              {['Monitor stand', 'Mechanical keyboard', 'USB-C dock', 'Desk lamp', 'Noise-cancelling audio'].map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => handleSearchSubmit(t)}
+                  className="rounded-pill border border-surface-200 px-4 py-2 text-[13px] text-ink-600 transition-all duration-200 hover:border-ink-900 hover:text-ink-900"
+                >
+                  {t}
+                </button>
+              ))}
             </div>
           </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 }
 
 // ─── Main Component ───────────────────────────
 export default function Navbar() {
   const scrollY = useScrollY();
+  const navigate = useNavigate();
   const [activeMenu, setActiveMenu]       = useState(null); // which mega menu is open
   const [mobileOpen, setMobileOpen]       = useState(false);
   const [searchOpen, setSearchOpen]       = useState(false);
@@ -369,6 +354,11 @@ export default function Navbar() {
   };
   const handleMouseLeave = () => {
     closeTimer.current = setTimeout(() => setActiveMenu(null), 120);
+  };
+
+  const handleInlineSearch = (query) => {
+    navigate(`/shop?search=${encodeURIComponent(query)}`);
+    setActiveMenu(null);
   };
 
   return (
@@ -450,71 +440,79 @@ export default function Navbar() {
             <div className="flex-1 flex items-center justify-end gap-1">
 
               {/* Search */}
-              <button
-                id="nav-search"
-                onClick={() => setSearchOpen(true)}
-                aria-label="Open search"
-                className="w-10 h-10 flex items-center justify-center transition-all duration-200 text-white hover:bg-white/10 rounded"
-              >
-                <Search size={17} strokeWidth={1.75} />
-              </button>
+              <ExpandableSearchBar onSearch={handleInlineSearch} />
 
               {/* Wishlist */}
-              <Link
-                to="/wishlist"
-                id="nav-wishlist"
-                aria-label={`Wishlist (${totalWish} items)`}
-                className="relative w-10 h-10 flex items-center justify-center transition-all duration-200 text-white hover:bg-white/10 rounded"
-              >
-                <Heart size={17} strokeWidth={1.75} />
-                <AnimatePresence>
-                  {totalWish > 0 && (
-                    <motion.span
-                      key="wish-badge"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      exit={{ scale: 0 }}
-                      className="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-pill bg-feedback-danger text-white text-[9px] font-bold flex items-center justify-center leading-none"
-                    >
-                      {totalWish}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </Link>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link
+                    to="/wishlist"
+                    id="nav-wishlist"
+                    aria-label={`Wishlist (${totalWish} items)`}
+                    className="relative w-10 h-10 flex items-center justify-center transition-all duration-200 text-white hover:bg-white/10 rounded"
+                  >
+                    <Heart size={17} strokeWidth={1.75} />
+                    <AnimatePresence>
+                      {totalWish > 0 && (
+                        <motion.span
+                          key="wish-badge"
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          exit={{ scale: 0 }}
+                          className="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-pill bg-feedback-danger text-white text-[9px] font-bold flex items-center justify-center leading-none"
+                        >
+                          {totalWish}
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent>Wishlist</TooltipContent>
+              </Tooltip>
 
               {/* Cart */}
-              <button
-                id="nav-cart"
-                onClick={toggleCart}
-                aria-label={`Cart (${totalItems} items)`}
-                className="relative w-10 h-10 flex items-center justify-center transition-all duration-200 text-white hover:bg-white/10 rounded"
-              >
-                <ShoppingBag size={17} strokeWidth={1.75} />
-                <AnimatePresence>
-                  {totalItems > 0 && (
-                    <motion.span
-                      key="cart-badge"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      exit={{ scale: 0 }}
-                      className="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-pill bg-brand-500 text-white text-[9px] font-bold flex items-center justify-center leading-none"
-                    >
-                      {totalItems}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    id="nav-cart"
+                    onClick={toggleCart}
+                    aria-label={`Cart (${totalItems} items)`}
+                    className="relative w-10 h-10 flex items-center justify-center transition-all duration-200 text-white hover:bg-white/10 rounded"
+                  >
+                    <ShoppingBag size={17} strokeWidth={1.75} />
+                    <AnimatePresence>
+                      {totalItems > 0 && (
+                        <motion.span
+                          key="cart-badge"
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          exit={{ scale: 0 }}
+                          className="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-pill bg-brand-500 text-white text-[9px] font-bold flex items-center justify-center leading-none"
+                        >
+                          {totalItems}
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>Cart</TooltipContent>
+              </Tooltip>
 
               {/* Mobile hamburger */}
-              <button
-                id="nav-hamburger"
-                onClick={() => setMobileOpen((o) => !o)}
-                aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
-                aria-expanded={mobileOpen}
-                className="lg:hidden w-10 h-10 flex items-center justify-center transition-all duration-200 text-white hover:bg-white/10 rounded"
-              >
-                <HamburgerIcon open={mobileOpen} />
-              </button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    id="nav-hamburger"
+                    onClick={() => setMobileOpen((o) => !o)}
+                    aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+                    aria-expanded={mobileOpen}
+                    className="lg:hidden w-10 h-10 flex items-center justify-center transition-all duration-200 text-white hover:bg-white/10 rounded"
+                  >
+                    <HamburgerIcon open={mobileOpen} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>{mobileOpen ? 'Close menu' : 'Open menu'}</TooltipContent>
+              </Tooltip>
             </div>
           </div>
         </header>

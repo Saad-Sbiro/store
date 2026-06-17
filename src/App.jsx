@@ -3,7 +3,7 @@
 // ─────────────────────────────────────────────
 
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 
 import Navbar from './components/layout/Navbar';
@@ -21,6 +21,8 @@ import SplashScreen from './components/ui/SplashScreen';
 import AdminApp from './admin/AdminApp';
 import { useVisitorTracking } from './hooks/useVisitorTracking';
 import { useAdminStore } from './store/useAdminStore';
+import TopLoader from './components/ui/TopLoader';
+import { TooltipProvider } from './components/ui/Tooltip';
 
 const normalizeHex = (value) => {
   if (typeof value !== 'string') return '#6366f1';
@@ -41,8 +43,27 @@ const mixHex = (from, to, amount) => {
 
 // Scroll to top on route change
 function ScrollToTop() {
-  const { pathname } = useLocation();
-  useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' }); }, [pathname]);
+  const { pathname, hash } = useLocation();
+
+  useEffect(() => {
+    if (!hash) {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      return;
+    }
+
+    const id = decodeURIComponent(hash.slice(1));
+    const frame = requestAnimationFrame(() => {
+      const target = document.getElementById(id);
+      if (!target) return;
+
+      const navOffset = 92;
+      const top = target.getBoundingClientRect().top + window.scrollY - navOffset;
+      window.scrollTo({ top: Math.max(top, 0), behavior: 'instant' });
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [pathname, hash]);
+
   return null;
 }
 
@@ -50,6 +71,19 @@ function ScrollToTop() {
 function VisitorTracker() {
   useVisitorTracking();
   return null;
+}
+
+function RouteTopLoader() {
+  const location = useLocation();
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    const timeout = setTimeout(() => setLoading(false), 520);
+    return () => clearTimeout(timeout);
+  }, [location.pathname, location.search]);
+
+  return <TopLoader isLoading={loading} color="var(--site-accent-500)" />;
 }
 
 function SiteSettingsBridge() {
@@ -73,25 +107,27 @@ function SiteSettingsBridge() {
 // Storefront layout (with Navbar + Footer)
 function StoreFront() {
   return (
-    <div className="flex flex-col min-h-screen">
-      <SplashScreen />
-      <VisitorTracker />
-      <Navbar />
-      <AnimatePresence mode="wait">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/shop" element={<ShopPage />} />
-          <Route path="/product/:slug" element={<ProductPage />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/wishlist" element={<WishlistPage />} />
-        </Routes>
-      </AnimatePresence>
-      <Footer />
-      <Toaster />
-    </div>
+    <TooltipProvider>
+      <div className="flex flex-col min-h-screen">
+        <SplashScreen />
+        <VisitorTracker />
+        <Navbar />
+        <AnimatePresence mode="wait">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/shop" element={<ShopPage />} />
+            <Route path="/product/:slug" element={<ProductPage />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/wishlist" element={<WishlistPage />} />
+          </Routes>
+        </AnimatePresence>
+        <Footer />
+        <Toaster />
+      </div>
+    </TooltipProvider>
   );
 }
 
@@ -99,6 +135,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <SiteSettingsBridge />
+      <RouteTopLoader />
       <ScrollToTop />
       <Routes>
         {/* Admin dashboard — completely separate layout */}

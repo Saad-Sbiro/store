@@ -29,122 +29,112 @@ import RatingStars from '../components/ui/RatingStars';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
 import ProductCard from '../components/ui/ProductCard';
+import RingLoader from '../components/ui/RingLoader';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../components/ui/Accordion';
+import { RadioGroup, RadioGroupItem } from '../components/ui/RadioGroup';
+import { Tabs as UiTabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/Tabs';
 import { useToastStore } from '../store/useToastStore';
 
 // ─── Tab component ───────────────────────────
 const TABS = ['Description', 'Specifications', 'Reviews'];
 
-function Tabs({ product }) {
+function ProductInfoTabs({ product }) {
   const [active, setActive] = useState('Description');
   const tags = getProductTags(product);
 
   return (
-    <div>
-      {/* Tab bar */}
-      <div className="flex overflow-x-auto border-b border-surface-200 no-scrollbar" role="tablist">
+    <UiTabs value={active} onValueChange={setActive} className="space-y-5">
+      <TabsList className="w-full overflow-x-auto no-scrollbar">
         {TABS.map((tab) => (
-          <button
-            key={tab}
-            role="tab"
-            id={`tab-${tab.toLowerCase()}`}
-            aria-selected={active === tab}
-            onClick={() => setActive(tab)}
-            className={clsx(
-              'relative shrink-0 pb-3 pr-6 text-btn font-medium transition-colors duration-200',
-              active === tab
-                ? 'text-ink-900'
-                : 'text-ink-400 hover:text-ink-600'
-            )}
-          >
+          <TabsTrigger key={tab} id={`tab-${tab.toLowerCase()}`} value={tab} className="shrink-0">
             {tab}
-            {active === tab && (
-              <motion.span
-                layoutId="tab-underline"
-                className="absolute bottom-0 left-0 right-6 h-[2px] bg-ink-900 rounded-pill"
-              />
-            )}
-          </button>
+          </TabsTrigger>
         ))}
-      </div>
+      </TabsList>
 
-      {/* Tab Content */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={active}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -4 }}
-          transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-          className="pt-6"
-          role="tabpanel"
-          aria-labelledby={`tab-${active.toLowerCase()}`}
-        >
-          {active === 'Description' && (
-            <div className="space-y-4">
-              <p className="text-body text-ink-600 leading-relaxed">{product.description}</p>
-              {tags.length > 0 && (
-                <ul className="space-y-2 pt-2">
-                  {tags.map((tag) => (
-                    <li key={tag} className="flex items-center gap-2 text-body text-ink-600">
-                      <span className="w-1.5 h-1.5 rounded-pill bg-brand-500 shrink-0" />
-                      <span className="capitalize">{tag}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )}
-          {active === 'Specifications' && (
-            <div className="space-y-3">
-              {[
-                ['Brand',      'VOIDSTORE'],
-                ['Warranty',   '2-year manufacturer warranty'],
-                ['Connectivity', 'USB-C / Bluetooth / Wi-Fi'],
-                ['Weight',     'Varies by model'],
-                ['Material',   'Premium aluminum & ABS'],
-                ['In the Box', 'Product, USB-C cable, manual'],
-              ].map(([key, val]) => (
-                <div key={key} className="flex flex-col gap-1 py-2 border-b border-surface-100 last:border-0 sm:flex-row sm:items-start sm:gap-4">
-                  <span className="text-caption text-ink-400 sm:w-32 sm:shrink-0">{key}</span>
-                  <span className="text-body text-ink-900">{val}</span>
-                </div>
+      <TabsContent value="Description">
+        <div className="space-y-4">
+          <p className="text-body text-ink-600 leading-relaxed">{product.description}</p>
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 pt-1">
+              {tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full border border-surface-200 bg-surface-50 px-3 py-1 text-[12px] font-semibold capitalize text-ink-600"
+                >
+                  {tag}
+                </span>
               ))}
             </div>
           )}
-          {active === 'Reviews' && (
-            <div className="space-y-6">
-              <div className="flex items-center gap-4 p-4 bg-surface-50 rounded-panel">
-                <div className="text-center">
-                  <p className="text-[40px] font-bold text-ink-900 leading-none">{product.rating}</p>
-                  <RatingStars rating={product.rating} showCount={false} size="sm" />
-                  <p className="text-caption text-ink-400 mt-1">{product.reviewCount} reviews</p>
-                </div>
+
+          <Accordion type="single" collapsible className="mt-4 rounded-card border border-surface-200 bg-white px-4">
+            <AccordionItem value="shipping">
+              <AccordionTrigger>Shipping</AccordionTrigger>
+              <AccordionContent>
+                Free shipping on orders over 500 DH. Most orders arrive in 24 to 48 hours across major Moroccan cities.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="returns">
+              <AccordionTrigger>Returns</AccordionTrigger>
+              <AccordionContent>
+                You can request a return within 14 days when the item is unused and still in its original packaging.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+      </TabsContent>
+
+      <TabsContent value="Specifications">
+        <div className="space-y-3">
+          {[
+            ['Brand',      'VOIDSTORE'],
+            ['Warranty',   '2-year manufacturer warranty'],
+            ['Connectivity', 'USB-C / Bluetooth / Wi-Fi'],
+            ['Weight',     'Varies by model'],
+            ['Material',   'Premium aluminum & ABS'],
+            ['In the Box', 'Product, USB-C cable, manual'],
+          ].map(([key, val]) => (
+            <div key={key} className="flex flex-col gap-1 py-2 border-b border-surface-100 last:border-0 sm:flex-row sm:items-start sm:gap-4">
+              <span className="text-caption text-ink-400 sm:w-32 sm:shrink-0">{key}</span>
+              <span className="text-body text-ink-900">{val}</span>
+            </div>
+          ))}
+        </div>
+      </TabsContent>
+
+      <TabsContent value="Reviews">
+        <div className="space-y-6">
+          <div className="flex items-center gap-4 p-4 bg-surface-50 rounded-panel">
+            <div className="text-center">
+              <p className="text-[40px] font-bold text-ink-900 leading-none">{product.rating}</p>
+              <RatingStars rating={product.rating} showCount={false} size="sm" />
+              <p className="text-caption text-ink-400 mt-1">{product.reviewCount} reviews</p>
+            </div>
+          </div>
+          {[5, 4, 3].map((stars, i) => (
+            <div key={stars} className="border-b border-surface-200 pb-5 last:border-0">
+              <div className="flex items-center gap-2 mb-2">
+                <RatingStars rating={stars} showCount={false} size="sm" />
+                <span className="text-caption text-ink-400">
+                  {['Incredible quality', 'Great daily driver', 'Worth every penny'][i]}
+                </span>
               </div>
-              {[5, 4, 3].map((stars, i) => (
-                <div key={stars} className="border-b border-surface-200 pb-5 last:border-0">
-                  <div className="flex items-center gap-2 mb-2">
-                    <RatingStars rating={stars} showCount={false} size="sm" />
-                    <span className="text-caption text-ink-400">
-                      {['Incredible quality', 'Great daily driver', 'Worth every penny'][i]}
-                    </span>
-                  </div>
-                  <p className="text-body text-ink-600">
-                    {[
-                      'Build quality is top-notch - solid materials, premium finish, and everything just works. You can tell real engineering went into this.',
-                      'A true daily driver. Setup was effortless and it integrates perfectly into my workflow. Performance is exactly as advertised.',
-                      'After 3 months of heavy use, this still looks and performs like day one. Easily the best purchase I made this year.',
-                    ][i]}
-                  </p>
-                  <p className="text-caption text-ink-400 mt-2">
-                    {['- Emma R., Verified Purchase', '- Michael T., Verified Purchase', '- Lara K., Verified Purchase'][i]}
-                  </p>
-                </div>
-              ))}
+              <p className="text-body text-ink-600">
+                {[
+                  'Build quality is top-notch - solid materials, premium finish, and everything just works.',
+                  'A true daily driver. Setup was effortless and it integrates perfectly into my workflow.',
+                  'After 3 months of heavy use, this still looks and performs like day one.',
+                ][i]}
+              </p>
+              <p className="text-caption text-ink-400 mt-2">
+                {['- Emma R., Verified Purchase', '- Michael T., Verified Purchase', '- Lara K., Verified Purchase'][i]}
+              </p>
             </div>
-          )}
-        </motion.div>
-      </AnimatePresence>
-    </div>
+          ))}
+        </div>
+      </TabsContent>
+    </UiTabs>
   );
 }
 
@@ -213,7 +203,7 @@ export default function ProductPage() {
     return (
       <div className="min-h-screen flex items-center justify-center pt-16 bg-surface-0">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-brand-500 border-t-transparent rounded-pill animate-spin"></div>
+          <RingLoader className="h-24 w-24" />
           <p className="text-body text-ink-600 font-medium">Loading workspace item...</p>
         </div>
       </div>
@@ -490,27 +480,27 @@ export default function ProductPage() {
                   Spec Guide
                 </button>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <RadioGroup
+                value={selectedSize || ''}
+                onValueChange={(value) => { setSelectedSize(value); setSizeError(false); }}
+                className="flex flex-wrap gap-2"
+                aria-label="Select product variant"
+              >
                 {variants.map((size) => (
-                  <button
+                  <RadioGroupItem
                     key={size}
                     id={`pdp-size-${size}`}
-                    onClick={() => { setSelectedSize(size); setSizeError(false); }}
+                    value={size}
                     aria-label={`Size ${size}`}
-                    aria-pressed={selectedSize === size}
                     className={clsx(
-                      'min-w-[48px] h-11 px-4 rounded-btn border text-btn font-medium transition-all duration-200',
-                      selectedSize === size
-                        ? 'bg-brand-500 border-brand-500 text-white shadow-sm'
-                        : sizeError
-                        ? 'border-feedback-danger/40 text-ink-600 hover:border-brand-500 hover:text-brand-500'
-                        : 'border-surface-200 text-ink-600 hover:border-brand-500 hover:text-brand-500'
+                      'product-variant-option min-w-[56px]',
+                      sizeError && selectedSize !== size && 'product-variant-option--error'
                     )}
                   >
                     {size}
-                  </button>
+                  </RadioGroupItem>
                 ))}
-              </div>
+              </RadioGroup>
             </motion.div>
 
             {/* Quantity */}
@@ -593,7 +583,7 @@ export default function ProductPage() {
 
             {/* Tabs */}
             <motion.div variants={fadeUp} className="pt-2">
-              <Tabs product={product} />
+              <ProductInfoTabs product={product} />
             </motion.div>
           </motion.div>
         </div>
@@ -617,7 +607,7 @@ export default function ProductPage() {
 
             <motion.div
               variants={stagger}
-              className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
+              className="grid auto-rows-fr grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
             >
               {related.map((p) => (
                 <ProductCard key={p.id} product={p} />
