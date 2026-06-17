@@ -43,7 +43,7 @@ class OrderController extends Controller
             'shipping_address.street' => 'required|string',
             'shipping_address.city' => 'required|string',
             'shipping_address.state' => 'required|string',
-            'shipping_address.postal_code' => 'required|string',
+            'shipping_address.postal_code' => 'nullable|string',
             'shipping_address.country' => 'required|string',
             'payment_method' => 'required|string',
             'notes' => 'nullable|string',

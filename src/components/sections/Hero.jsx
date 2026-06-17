@@ -43,7 +43,7 @@ export default function Hero() {
             ))}
           </h1>
 
-          <div className="mt-7 grid w-full max-w-[1080px] gap-5 sm:mt-8 md:grid-cols-[minmax(0,1fr)_minmax(190px,230px)] md:items-stretch lg:max-w-[1120px]">
+          <div className="mt-7 grid w-full max-w-[1080px] gap-5 sm:mt-8 md:grid-cols-[minmax(0,1fr)_minmax(280px,420px)] md:items-end lg:max-w-[1120px]">
             <div className="flex min-w-0 flex-col justify-between">
               <p className="max-w-[520px] text-[15px] leading-7 text-white/64 sm:text-[17px]">
                 {subtitle}
@@ -61,7 +61,7 @@ export default function Hero() {
             <a
               href="#featured-products"
               id="hero-cta-shop"
-              className="hero-marquee-button group inline-flex min-h-[66px] w-full items-center overflow-hidden rounded-[999px] border border-white/55 bg-[#d9dfff] font-hero text-[17px] font-black uppercase tracking-[0.06em] text-[#302a72] shadow-[0_16px_42px_rgba(119,132,255,0.18)] transition-transform duration-300 ease-expo hover:scale-[1.025] md:min-h-full md:max-w-[360px] md:justify-self-end md:rounded-[34px]"
+              className="hero-marquee-button group inline-flex h-[62px] min-h-0 w-full items-center overflow-hidden rounded-[999px] border border-white/55 bg-[#d9dfff] font-hero text-[17px] font-black uppercase tracking-[0.06em] text-[#302a72] shadow-[0_16px_42px_rgba(119,132,255,0.18)] transition-transform duration-300 ease-expo hover:scale-[1.025] md:h-[71px] md:max-w-[420px] md:self-end md:justify-self-end"
             >
               <span className="hero-marquee-track" aria-hidden="true">
                 <span className="hero-marquee-group">

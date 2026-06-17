@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
 import {
-  Heart, ShoppingBag, ChevronRight, Minus, Plus,
+  Check, Heart, ShoppingBag, ChevronRight, Minus, Plus,
   Truck, RotateCcw, Shield
 } from 'lucide-react';
 import clsx from 'clsx';
@@ -32,109 +32,123 @@ import ProductCard from '../components/ui/ProductCard';
 import RingLoader from '../components/ui/RingLoader';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../components/ui/Accordion';
 import { RadioGroup, RadioGroupItem } from '../components/ui/RadioGroup';
-import { Tabs as UiTabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/Tabs';
 import { useToastStore } from '../store/useToastStore';
+import { getProductReviewSummary } from '../utils/reviews';
 
 // ─── Tab component ───────────────────────────
-const TABS = ['Description', 'Specifications', 'Reviews'];
-
-function ProductInfoTabs({ product }) {
-  const [active, setActive] = useState('Description');
+function ProductInfoAccordion({ product, reviewSummary }) {
   const tags = getProductTags(product);
+  const savedReviews = reviewSummary.localReviews;
+  const sampleReviews = [
+    {
+      rating: 5,
+      title: 'Incredible quality',
+      body: 'Build quality is top-notch - solid materials, premium finish, and everything just works.',
+      author: 'Emma R.',
+    },
+    {
+      rating: 4,
+      title: 'Great daily driver',
+      body: 'A true daily driver. Setup was effortless and it integrates perfectly into my workflow.',
+      author: 'Michael T.',
+    },
+    {
+      rating: 3,
+      title: 'Worth every penny',
+      body: 'After 3 months of heavy use, this still looks and performs like day one.',
+      author: 'Lara K.',
+    },
+  ];
+  const reviews = [...savedReviews, ...sampleReviews];
 
   return (
-    <UiTabs value={active} onValueChange={setActive} className="space-y-5">
-      <TabsList className="w-full overflow-x-auto no-scrollbar">
-        {TABS.map((tab) => (
-          <TabsTrigger key={tab} id={`tab-${tab.toLowerCase()}`} value={tab} className="shrink-0">
-            {tab}
-          </TabsTrigger>
-        ))}
-      </TabsList>
-
-      <TabsContent value="Description">
-        <div className="space-y-4">
-          <p className="text-body text-ink-600 leading-relaxed">{product.description}</p>
-          {tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 pt-1">
-              {tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-full border border-surface-200 bg-surface-50 px-3 py-1 text-[12px] font-semibold capitalize text-ink-600"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
-
-          <Accordion type="single" collapsible className="mt-4 rounded-card border border-surface-200 bg-white px-4">
-            <AccordionItem value="shipping">
-              <AccordionTrigger>Shipping</AccordionTrigger>
-              <AccordionContent>
-                Free shipping on orders over 500 DH. Most orders arrive in 24 to 48 hours across major Moroccan cities.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="returns">
-              <AccordionTrigger>Returns</AccordionTrigger>
-              <AccordionContent>
-                You can request a return within 14 days when the item is unused and still in its original packaging.
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </div>
-      </TabsContent>
-
-      <TabsContent value="Specifications">
-        <div className="space-y-3">
-          {[
-            ['Brand',      'VOIDSTORE'],
-            ['Warranty',   '2-year manufacturer warranty'],
-            ['Connectivity', 'USB-C / Bluetooth / Wi-Fi'],
-            ['Weight',     'Varies by model'],
-            ['Material',   'Premium aluminum & ABS'],
-            ['In the Box', 'Product, USB-C cable, manual'],
-          ].map(([key, val]) => (
-            <div key={key} className="flex flex-col gap-1 py-2 border-b border-surface-100 last:border-0 sm:flex-row sm:items-start sm:gap-4">
-              <span className="text-caption text-ink-400 sm:w-32 sm:shrink-0">{key}</span>
-              <span className="text-body text-ink-900">{val}</span>
-            </div>
-          ))}
-        </div>
-      </TabsContent>
-
-      <TabsContent value="Reviews">
-        <div className="space-y-6">
-          <div className="flex items-center gap-4 p-4 bg-surface-50 rounded-panel">
-            <div className="text-center">
-              <p className="text-[40px] font-bold text-ink-900 leading-none">{product.rating}</p>
-              <RatingStars rating={product.rating} showCount={false} size="sm" />
-              <p className="text-caption text-ink-400 mt-1">{product.reviewCount} reviews</p>
+    <Accordion type="multiple" defaultValue={['description', 'reviews']} className="rounded-card border border-surface-200 bg-white px-4">
+      <AccordionItem value="description">
+        <AccordionTrigger>Description</AccordionTrigger>
+        <AccordionContent>
+          <div className="space-y-4 pb-2">
+            <p className="text-body leading-relaxed text-ink-600">{product.description}</p>
+            {tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 pt-1">
+                {tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-full border border-surface-200 bg-surface-50 px-3 py-1 text-[12px] font-semibold capitalize text-ink-600"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-card bg-surface-50 p-4">
+                <p className="text-btn font-semibold text-ink-900">Shipping</p>
+                <p className="mt-1 text-caption leading-relaxed text-ink-500">
+                  Free shipping on orders over 500 DH. Most orders arrive in 24 to 48 hours across major Moroccan cities.
+                </p>
+              </div>
+              <div className="rounded-card bg-surface-50 p-4">
+                <p className="text-btn font-semibold text-ink-900">Returns</p>
+                <p className="mt-1 text-caption leading-relaxed text-ink-500">
+                  Returns are available within 14 days when the item is unused and still in its original packaging.
+                </p>
+              </div>
             </div>
           </div>
-          {[5, 4, 3].map((stars, i) => (
-            <div key={stars} className="border-b border-surface-200 pb-5 last:border-0">
-              <div className="flex items-center gap-2 mb-2">
-                <RatingStars rating={stars} showCount={false} size="sm" />
-                <span className="text-caption text-ink-400">
-                  {['Incredible quality', 'Great daily driver', 'Worth every penny'][i]}
-                </span>
+        </AccordionContent>
+      </AccordionItem>
+
+      <AccordionItem value="specifications">
+        <AccordionTrigger>Specifications</AccordionTrigger>
+        <AccordionContent>
+          <div className="space-y-3 pb-2">
+            {[
+              ['Brand', 'VOIDSTORE'],
+              ['Warranty', '2-year manufacturer warranty'],
+              ['Connectivity', 'USB-C / Bluetooth / Wi-Fi'],
+              ['Weight', 'Varies by model'],
+              ['Material', 'Premium aluminum & ABS'],
+              ['In the Box', 'Product, USB-C cable, manual'],
+            ].map(([key, val]) => (
+              <div key={key} className="flex flex-col gap-1 border-b border-surface-100 py-2 last:border-0 sm:flex-row sm:items-start sm:gap-4">
+                <span className="text-caption text-ink-400 sm:w-32 sm:shrink-0">{key}</span>
+                <span className="text-body text-ink-900">{val}</span>
               </div>
-              <p className="text-body text-ink-600">
-                {[
-                  'Build quality is top-notch - solid materials, premium finish, and everything just works.',
-                  'A true daily driver. Setup was effortless and it integrates perfectly into my workflow.',
-                  'After 3 months of heavy use, this still looks and performs like day one.',
-                ][i]}
-              </p>
-              <p className="text-caption text-ink-400 mt-2">
-                {['- Emma R., Verified Purchase', '- Michael T., Verified Purchase', '- Lara K., Verified Purchase'][i]}
-              </p>
+            ))}
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+
+      <AccordionItem value="reviews" id="product-reviews">
+        <AccordionTrigger>Reviews</AccordionTrigger>
+        <AccordionContent>
+          <div className="space-y-6 pb-2">
+            <div className="flex items-center gap-4 rounded-panel bg-surface-50 p-4">
+              <div className="text-center">
+                <p className="text-[40px] font-bold leading-none text-ink-900">{reviewSummary.average}</p>
+                <RatingStars rating={reviewSummary.average} showCount={false} size="sm" />
+                <p className="mt-1 text-caption text-ink-400">{reviewSummary.count} reviews</p>
+              </div>
             </div>
-          ))}
-        </div>
-      </TabsContent>
-    </UiTabs>
+            {reviews.map((review) => (
+              <div key={review.id || `${review.author}-${review.title}`} className="border-b border-surface-200 pb-5 last:border-0">
+                <div className="mb-2 flex items-center gap-2">
+                  <RatingStars rating={review.rating} showCount={false} size="sm" />
+                  <span className="text-caption text-ink-400">{review.title}</span>
+                  {review.verified && (
+                    <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-600">
+                      Verified
+                    </span>
+                  )}
+                </div>
+                <p className="text-body text-ink-600">{review.body}</p>
+                <p className="mt-2 text-caption text-ink-400">- {review.author}, Verified Purchase</p>
+              </div>
+            ))}
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
   );
 }
 
@@ -155,7 +169,6 @@ export default function ProductPage() {
   const [sizeError, setSizeError] = useState(false);
 
   const addItem = useCartStore((s) => s.addItem);
-  const toggleOpen = useCartStore((s) => s.toggleOpen);
   const { isWishlisted, toggleWishlist } = useWishlistStore();
   const toast = useToastStore((s) => s.toast);
 
@@ -233,15 +246,16 @@ export default function ProductPage() {
   const isLowStock = stock !== null && stock > 0 && stock <= 5;
   const savings = calcSavings(price, originalPrice);
   const wishlisted = isWishlisted(product.id);
+  const reviewSummary = getProductReviewSummary(product);
 
-  const handleAddToCart = () => {
+  const validatePurchaseOptions = () => {
     if (isOutOfStock) {
       toast({
         title: 'Out of Stock',
         description: `${product.name} is not available right now.`,
         variant: 'warning',
       });
-      return;
+      return false;
     }
 
     if (!selectedSize) {
@@ -252,13 +266,22 @@ export default function ProductPage() {
         description: 'Please choose a size before adding the item to your cart.',
         variant: 'warning',
       });
-      return;
+      return false;
     }
+
+    return true;
+  };
+
+  const addCurrentSelectionToCart = () => {
     addItem(product, quantity, colors[selectedColor] || colors[0], selectedSize);
-    setAddedToCart(true);
-    
-    // Log cart addition
     api.logEvent('add_to_cart', window.location.pathname, product.id, { quantity, size: selectedSize, color: colors[selectedColor] || colors[0] });
+  };
+
+  const handleAddToCart = () => {
+    if (!validatePurchaseOptions()) return;
+
+    addCurrentSelectionToCart();
+    setAddedToCart(true);
 
     toast({
       title: 'Added to Cart',
@@ -267,8 +290,14 @@ export default function ProductPage() {
     });
     setTimeout(() => {
       setAddedToCart(false);
-      toggleOpen();
     }, 1000);
+  };
+
+  const handleBuyNow = () => {
+    if (!validatePurchaseOptions()) return;
+
+    addCurrentSelectionToCart();
+    navigate('/checkout');
   };
 
   const handleWishlistToggle = () => {
@@ -410,11 +439,11 @@ export default function ProductPage() {
 
             {/* Rating */}
             <motion.div variants={fadeUp} className="flex items-center gap-3">
-              <RatingStars rating={product.rating} reviewCount={product.reviewCount} size="md" />
+              <RatingStars rating={reviewSummary.average} reviewCount={reviewSummary.count} size="md" />
               <span className="text-caption text-ink-400">|</span>
               <button
                 id="pdp-view-reviews"
-                onClick={() => document.getElementById('tab-reviews')?.click()}
+                onClick={() => document.getElementById('product-reviews')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
                 className="text-caption text-brand-500 hover:text-brand-600 underline underline-offset-2 transition-colors"
               >
                 Read reviews
@@ -454,15 +483,22 @@ export default function ProductPage() {
                     key={i}
                     id={`pdp-color-${i}`}
                     onClick={() => setSelectedColor(i)}
-                    aria-label={`Select color ${['Black', 'Silver', 'Navy'][i] || `Option ${i + 1}`}`}
+                    aria-label={`${selectedColor === i ? 'Selected' : 'Select'} color ${['Black', 'Silver', 'Navy'][i] || `Option ${i + 1}`}`}
+                    aria-pressed={selectedColor === i}
                     className={clsx(
-                      'w-9 h-9 rounded-pill border-2 transition-all duration-200',
+                      'relative grid h-10 w-10 place-items-center rounded-pill border-[3px] transition-all duration-200',
                       selectedColor === i
-                        ? 'border-ink-900 scale-110 shadow-md'
-                        : 'border-surface-200 hover:border-ink-400 hover:scale-105'
+                        ? 'scale-110 border-white shadow-[0_0_0_2px_#111111,0_12px_24px_rgba(17,17,17,0.18)]'
+                        : 'border-white shadow-[0_0_0_1px_rgba(17,17,17,0.14)] hover:scale-105 hover:shadow-[0_0_0_2px_rgba(17,17,17,0.36)]'
                     )}
                     style={{ backgroundColor: color }}
-                  />
+                  >
+                    {selectedColor === i && (
+                      <span className="absolute -bottom-1 -right-1 grid h-5 w-5 place-items-center rounded-full border-2 border-white bg-ink-900 text-white shadow-sm">
+                        <Check size={11} strokeWidth={3} />
+                      </span>
+                    )}
+                  </button>
                 ))}
               </div>
             </motion.div>
@@ -535,33 +571,47 @@ export default function ProductPage() {
               </div>
             </motion.div>
 
-            {/* Add to Cart */}
+            {/* Purchase actions */}
             <motion.div variants={fadeUp} className="space-y-3 pt-2">
               <Button
-                id="pdp-add-to-cart"
+                id="pdp-buy-now"
                 variant="primary"
                 size="xl"
                 fullWidth
-                onClick={handleAddToCart}
+                onClick={handleBuyNow}
                 disabled={isOutOfStock}
-                loading={addedToCart}
-                leftIcon={!addedToCart ? <ShoppingBag size={18} /> : undefined}
                 className="h-auto min-h-[52px] whitespace-normal px-4 py-3 text-center text-[14px] leading-tight sm:text-[15px]"
               >
-                {isOutOfStock ? 'Out of Stock' : addedToCart ? 'Added!' : `Add to Cart - ${formatPrice(price * quantity)}`}
+                {isOutOfStock ? 'Out of Stock' : `Buy Now - ${formatPrice(price * quantity)}`}
               </Button>
 
-              <Button
-                id="pdp-wishlist-btn"
-                variant="secondary"
-                size="xl"
-                fullWidth
-                onClick={handleWishlistToggle}
-                leftIcon={<Heart size={16} fill={wishlisted ? 'currentColor' : 'none'} />}
-                className="h-[52px] text-[15px]"
-              >
-                {wishlisted ? 'Saved to Wishlist' : 'Save to Wishlist'}
-              </Button>
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  id="pdp-add-to-cart"
+                  variant="secondary"
+                  size="lg"
+                  fullWidth
+                  onClick={handleAddToCart}
+                  disabled={isOutOfStock}
+                  loading={addedToCart}
+                  leftIcon={!addedToCart ? <ShoppingBag size={16} /> : undefined}
+                  className="h-11 px-3 text-[13px]"
+                >
+                  {addedToCart ? 'Added!' : 'Add to Cart'}
+                </Button>
+
+                <Button
+                  id="pdp-wishlist-btn"
+                  variant="secondary"
+                  size="lg"
+                  fullWidth
+                  onClick={handleWishlistToggle}
+                  leftIcon={<Heart size={16} fill={wishlisted ? 'currentColor' : 'none'} />}
+                  className="h-11 px-3 text-[13px]"
+                >
+                  {wishlisted ? 'Saved' : 'Wishlist'}
+                </Button>
+              </div>
             </motion.div>
 
             {/* Trust signals */}
@@ -581,9 +631,9 @@ export default function ProductPage() {
               ))}
             </motion.div>
 
-            {/* Tabs */}
+            {/* Product info */}
             <motion.div variants={fadeUp} className="pt-2">
-              <ProductInfoTabs product={product} />
+              <ProductInfoAccordion product={product} reviewSummary={reviewSummary} />
             </motion.div>
           </motion.div>
         </div>

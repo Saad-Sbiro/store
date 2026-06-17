@@ -1,9 +1,7 @@
-import { lazy, Suspense, useRef } from 'react';
+import { useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, useInView, useReducedMotion } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
-
-const MagicRings = lazy(() => import('../ui/MagicRings'));
 
 const CATEGORY_CARDS = [
   {
@@ -74,24 +72,9 @@ function BounceCard({ category }) {
   );
 }
 
-function CategoryGridPlaceholder() {
-  return (
-    <div className="grid grid-cols-12 gap-4">
-      {CATEGORY_CARDS.map((card) => (
-        <div
-          key={card.title}
-          className={`col-span-12 min-h-[300px] animate-pulse rounded-card border border-surface-200 bg-[#dbe9ff] ${card.className}`}
-        />
-      ))}
-    </div>
-  );
-}
-
 export default function Categories() {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-80px' });
-  const isNearView = useInView(sectionRef, { once: true, margin: '0px 0px 420px 0px' });
-  const reduceMotion = useReducedMotion();
 
   return (
     <section
@@ -100,38 +83,6 @@ export default function Categories() {
       ref={sectionRef}
       className="relative isolate overflow-x-clip overflow-y-visible bg-transparent py-16 md:py-24"
     >
-      <div className="pointer-events-none absolute inset-x-0 -top-72 -bottom-[720px] z-0 overflow-visible sm:-bottom-[860px]" aria-hidden="true">
-        <div className="absolute left-1/2 top-[42%] h-full min-h-[1400px] w-[165vw] -translate-x-1/2 -translate-y-1/2 scale-x-[1.12] opacity-70 mix-blend-multiply sm:w-[150vw] lg:w-[135vw]">
-          {isNearView && !reduceMotion && (
-            <Suspense fallback={null}>
-              <MagicRings
-                color="#0F172A"
-                colorTwo="#7C3AED"
-                ringCount={7}
-                speed={0.34}
-                attenuation={8.6}
-                lineThickness={2}
-                baseRadius={0.18}
-                radiusStep={0.104}
-                scaleRate={0.11}
-                opacity={0.9}
-                blur={0}
-                noiseAmount={0.01}
-                rotation={-14}
-                ringGap={1.36}
-                fadeIn={0.82}
-                fadeOut={0.55}
-                followMouse
-                mouseInfluence={0.07}
-                hoverScale={1.04}
-                parallax={0.025}
-                clickBurst
-              />
-            </Suspense>
-          )}
-        </div>
-      </div>
-
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
           <motion.div
@@ -153,15 +104,11 @@ export default function Categories() {
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
           transition={{ delay: 0.14, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         >
-          {isNearView ? (
-            <div className="grid grid-cols-12 gap-4">
-              {CATEGORY_CARDS.map((category) => (
-                <BounceCard key={category.title} category={category} />
-              ))}
-            </div>
-          ) : (
-            <CategoryGridPlaceholder />
-          )}
+          <div className="grid grid-cols-12 gap-4">
+            {CATEGORY_CARDS.map((category) => (
+              <BounceCard key={category.title} category={category} />
+            ))}
+          </div>
         </motion.div>
       </div>
     </section>

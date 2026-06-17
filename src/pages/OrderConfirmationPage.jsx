@@ -3,12 +3,18 @@
 // Post-checkout success page with once-only auto-downloading PDF receipt
 // ─────────────────────────────────────────────
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CheckCircle, Package, ArrowRight, Copy, Download } from 'lucide-react';
+import { CheckCircle, Package, ArrowRight, Copy, Download, Send, Star } from 'lucide-react';
 import { formatPrice } from '../utils/formatPrice';
 import { useToastStore } from '../store/useToastStore';
+import {
+  addProductReview,
+  getPendingReviewOrders,
+  markOrderItemReviewed,
+  savePendingReviewOrder,
+} from '../utils/reviews';
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -37,15 +43,60 @@ const loadJsPDF = () => {
 export default function OrderConfirmationPage() {
   const location = useLocation();
   const toast = useToastStore((s) => s.toast);
-  const state = location.state;
+  const [pendingOrders, setPendingOrders] = useState(() => getPendingReviewOrders());
+  const [reviewForms, setReviewForms] = useState({});
+  const state = location.state || pendingOrders[0];
+  const hasOrder = Boolean(state?.orderNumber);
   const downloadInitiated = useRef(false);
 
-  // If no state (direct access), redirect to home
-  if (!state?.orderNumber) {
-    return <Navigate to="/" replace />;
-  }
+  const { orderNumber, total, items = [], shippingAddress, paymentMethod } = state || {};
+  const currentPendingOrder = pendingOrders.find((order) => order.orderNumber === orderNumber);
+  const pendingReviewItems = currentPendingOrder?.items || [];
 
-  const { orderNumber, total, items, shippingAddress, paymentMethod } = state;
+  const getReviewForm = (reviewKey) => (
+    reviewForms[reviewKey] || {
+      rating: 5,
+      title: '',
+      body: '',
+      author: shippingAddress?.fullName || '',
+    }
+  );
+
+  const updateReviewForm = (reviewKey, patch) => {
+    setReviewForms((current) => ({
+      ...current,
+      [reviewKey]: {
+        ...getReviewForm(reviewKey),
+        ...patch,
+      },
+    }));
+  };
+
+  const submitReview = (item) => {
+    const form = getReviewForm(item.reviewKey);
+    if (!form.body.trim()) {
+      toast({ title: 'Review text required', description: 'Write a short review before submitting.', variant: 'warning' });
+      return;
+    }
+
+    addProductReview({
+      item,
+      orderNumber,
+      rating: form.rating,
+      title: form.title,
+      body: form.body,
+      author: form.author || shippingAddress?.fullName,
+    });
+
+    const nextOrders = markOrderItemReviewed(orderNumber, item.reviewKey);
+    setPendingOrders(nextOrders);
+    setReviewForms((current) => {
+      const next = { ...current };
+      delete next[item.reviewKey];
+      return next;
+    });
+    toast({ title: 'Review added', description: `${item.name} is now reviewed.`, variant: 'success' });
+  };
 
   const downloadReceiptPDF = async (showNotification = false) => {
     try {
@@ -155,8 +206,10 @@ export default function OrderConfirmationPage() {
     }
   };
 
-  // Auto-download receipt ONCE on page mount using sessionStorage and tracking ref
+  // Auto-download receipt only for a fresh checkout, not for restored pending reviews.
   useEffect(() => {
+    if (!hasOrder || !location.state?.orderNumber) return undefined;
+
     const key = `void_downloaded_${orderNumber}`;
     if (sessionStorage.getItem(key) || downloadInitiated.current) return;
 
@@ -169,12 +222,29 @@ export default function OrderConfirmationPage() {
     }, 800);
 
     return () => clearTimeout(delayTimer);
-  }, [orderNumber]);
+  }, [hasOrder, location.state?.orderNumber, orderNumber]);
+
+  useEffect(() => {
+    if (!location.state?.orderNumber) return;
+
+    const nextOrders = savePendingReviewOrder({
+      orderNumber,
+      total,
+      items,
+      shippingAddress,
+      paymentMethod,
+    });
+    setPendingOrders(nextOrders);
+  }, [location.state?.orderNumber, orderNumber]);
 
   const copyOrderNumber = () => {
     navigator.clipboard.writeText(String(orderNumber));
     toast({ title: 'Copied!', description: 'Order code copied to clipboard.', variant: 'default' });
   };
+
+  if (!hasOrder) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <div className="min-h-screen bg-surface-50 flex items-center justify-center px-4" style={{ paddingTop: '108px', paddingBottom: '48px' }}>
@@ -270,7 +340,7 @@ export default function OrderConfirmationPage() {
               <p className="text-caption font-semibold text-ink-600 uppercase tracking-wide mb-2">Shipping To</p>
               <p className="text-[13px] text-ink-900 font-medium">{shippingAddress?.fullName}</p>
               <p className="text-[12px] text-ink-400 mt-0.5">{shippingAddress?.address}</p>
-              <p className="text-[12px] text-ink-400">{shippingAddress?.city} {shippingAddress?.postalCode}</p>
+              <p className="text-[12px] text-ink-400">{shippingAddress?.city}</p>
               <p className="text-[12px] text-ink-400">{shippingAddress?.phone}</p>
             </div>
             <div>
@@ -287,9 +357,87 @@ export default function OrderConfirmationPage() {
           {/* Total */}
           <div className="p-6 flex justify-between items-center bg-surface-50">
             <p className="text-caption font-semibold text-ink-600 uppercase tracking-wide">Total Paid</p>
-            <p className="font-hero text-[20px] font-bold text-ink-900">{formatPrice(total)}</p>
+          <p className="font-hero text-[20px] font-bold text-ink-900">{formatPrice(total)}</p>
           </div>
         </motion.div>
+
+        {pendingReviewItems.length > 0 && (
+          <motion.div
+            initial={{ y: 16, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.58, duration: 0.5, ease }}
+            className="mt-5 rounded-panel border border-surface-200 bg-white p-5"
+          >
+            <div className="mb-4">
+              <p className="text-caption font-semibold uppercase tracking-wide text-brand-500">Pending reviews</p>
+              <h2 className="mt-1 font-hero text-card-title font-bold text-ink-900">Review your order</h2>
+            </div>
+
+            <div className="space-y-4">
+              {pendingReviewItems.map((item) => {
+                const form = getReviewForm(item.reviewKey);
+                return (
+                  <div key={item.reviewKey} className="rounded-card border border-surface-200 bg-surface-50 p-4">
+                    <div className="mb-3 flex items-start gap-3">
+                      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-btn bg-white text-ink-400">
+                        <Package size={16} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-[13px] font-semibold text-ink-900">{item.name}</p>
+                        <p className="text-[11px] text-ink-400">Qty: {item.quantity}</p>
+                      </div>
+                    </div>
+
+                    <div className="mb-3 flex gap-1">
+                      {[1, 2, 3, 4, 5].map((rating) => (
+                        <button
+                          key={rating}
+                          type="button"
+                          onClick={() => updateReviewForm(item.reviewKey, { rating })}
+                          aria-label={`${rating} star review`}
+                          className={`grid h-9 w-9 place-items-center rounded-full transition-colors ${
+                            rating <= form.rating ? 'bg-amber-100 text-amber-500' : 'bg-white text-ink-300'
+                          }`}
+                        >
+                          <Star size={17} fill={rating <= form.rating ? 'currentColor' : 'none'} />
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="grid gap-2">
+                      <input
+                        value={form.title}
+                        onChange={(event) => updateReviewForm(item.reviewKey, { title: event.target.value })}
+                        className="input-field !py-2.5 text-[13px]"
+                        placeholder="Review title"
+                      />
+                      <textarea
+                        value={form.body}
+                        onChange={(event) => updateReviewForm(item.reviewKey, { body: event.target.value })}
+                        rows={3}
+                        className="input-field resize-none text-[13px]"
+                        placeholder="Write your review"
+                      />
+                      <input
+                        value={form.author}
+                        onChange={(event) => updateReviewForm(item.reviewKey, { author: event.target.value })}
+                        className="input-field !py-2.5 text-[13px]"
+                        placeholder="Your name"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => submitReview(item)}
+                        className="mt-1 inline-flex h-10 items-center justify-center gap-2 rounded-btn bg-ink-900 px-4 text-caption font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:bg-ink-600"
+                      >
+                        Submit review <Send size={14} />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
 
         {/* Actions */}
         <motion.div

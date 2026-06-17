@@ -21,12 +21,6 @@ const fadeUp = {
   }),
 };
 
-const MOROCCAN_CITIES = [
-  'Casablanca', 'Rabat', 'Marrakech', 'Fez', 'Tangier', 'Agadir', 'Meknes',
-  'Oujda', 'Kenitra', 'Tetouan', 'Safi', 'El Jadida', 'Nador', 'Beni Mellal',
-  'Taza', 'Mohammedia', 'Khouribga', 'Settat', 'Berrechid', 'Khemisset',
-];
-
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const { items, updateQuantity, removeItem, totalPrice, clearCart } = useCartStore();
@@ -34,8 +28,7 @@ export default function CheckoutPage() {
 
   const [form, setForm] = useState({
     fullName: '', phone: '', email: '',
-    address: '', city: 'Casablanca', postalCode: '',
-    notes: '',
+    address: '', city: '',
   });
   const [paymentMethod, setPaymentMethod] = useState('cod');
   const [promoCode, setPromoCode] = useState('');
@@ -80,6 +73,13 @@ export default function CheckoutPage() {
 
   const validate = () => {
     const e = {};
+    if (!form.fullName.trim()) e.fullName = 'Dkhl smitek';
+    if (!form.phone.trim()) e.phone = 'Dkhl nmer dyal telephone';
+    else if (!/^(0[5-7]\d{8}|\+212[5-7]\d{8})$/.test(form.phone.replace(/\s/g, ''))) e.phone = 'Dkhl nmer telephone mghribi s7i7';
+    if (!form.address.trim()) e.address = 'Dkhl l adresse';
+    if (!form.city.trim()) e.city = 'Dkhl smit lmdina';
+    setErrors(e);
+    return Object.keys(e).length === 0;
     if (!form.fullName.trim()) e.fullName = 'الاسم الكامل مطلوب';
     if (!form.phone.trim()) e.phone = 'رقم الهاتف مطلوب';
     else if (!/^(0[5-7]\d{8}|\+212[5-7]\d{8})$/.test(form.phone.replace(/\s/g, ''))) e.phone = 'أدخل رقم هاتف مغربي صحيح';
@@ -141,9 +141,7 @@ export default function CheckoutPage() {
           street: form.address,
           city: form.city,
           state: form.city,
-          postal_code: form.postalCode,
           country: 'MA',
-          notes: form.notes,
         },
         payment_method: paymentMethod === 'cod' ? 'Cash on Delivery' : 'Card',
         discount_amount: discount,
@@ -229,37 +227,27 @@ export default function CheckoutPage() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2">
                   <label className="block text-caption font-medium text-ink-600 mb-1.5">Full Name *</label>
-                  <input value={form.fullName} onChange={(e) => set('fullName', e.target.value)} className="input-field" placeholder="Youssef El Idrissi" />
+                  <input value={form.fullName} onChange={(e) => set('fullName', e.target.value)} className="input-field" placeholder="Dkhl smitek hna" />
                   {errors.fullName && <p className="text-caption text-feedback-danger mt-1">{errors.fullName}</p>}
                 </div>
                 <div>
                   <label className="block text-caption font-medium text-ink-600 mb-1.5">Phone *</label>
-                  <input value={form.phone} onChange={(e) => set('phone', e.target.value)} className="input-field" placeholder="06 12 34 56 78" />
+                  <input value={form.phone} onChange={(e) => set('phone', e.target.value)} className="input-field" placeholder="Dkhl nmer dyal telephone" />
                   {errors.phone && <p className="text-caption text-feedback-danger mt-1">{errors.phone}</p>}
                 </div>
                 <div>
                   <label className="block text-caption font-medium text-ink-600 mb-1.5">Email</label>
-                  <input type="email" value={form.email} onChange={(e) => set('email', e.target.value)} className="input-field" placeholder="email@example.com" />
+                  <input type="email" value={form.email} onChange={(e) => set('email', e.target.value)} className="input-field" placeholder="Dkhl email ila bghiti" />
                 </div>
                 <div className="sm:col-span-2">
                   <label className="block text-caption font-medium text-ink-600 mb-1.5">Address *</label>
-                  <input value={form.address} onChange={(e) => set('address', e.target.value)} className="input-field" placeholder="123 Rue Mohammed V, Apt 4" />
+                  <input value={form.address} onChange={(e) => set('address', e.target.value)} className="input-field" placeholder="Dkhl l'adresse hna" />
                   {errors.address && <p className="text-caption text-feedback-danger mt-1">{errors.address}</p>}
                 </div>
-                <div>
-                  <label className="block text-caption font-medium text-ink-600 mb-1.5">City *</label>
-                  <select value={form.city} onChange={(e) => set('city', e.target.value)} className="input-field">
-                    {MOROCCAN_CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                  {errors.city && <p className="text-caption text-feedback-danger mt-1">{errors.city}</p>}
-                </div>
-                <div>
-                  <label className="block text-caption font-medium text-ink-600 mb-1.5">Postal Code</label>
-                  <input value={form.postalCode} onChange={(e) => set('postalCode', e.target.value)} className="input-field" placeholder="20000" />
-                </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-caption font-medium text-ink-600 mb-1.5">Delivery Notes</label>
-                  <textarea value={form.notes} onChange={(e) => set('notes', e.target.value)} rows={2} className="input-field resize-none" placeholder="E.g. Call before delivery, leave at door..." />
+                  <label className="block text-caption font-medium text-ink-600 mb-1.5">City *</label>
+                  <input value={form.city} onChange={(e) => set('city', e.target.value)} className="input-field" placeholder="Dkhl smit lmdina hna" />
+                  {errors.city && <p className="text-caption text-feedback-danger mt-1">{errors.city}</p>}
                 </div>
               </div>
             </motion.div>
