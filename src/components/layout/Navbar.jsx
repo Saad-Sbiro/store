@@ -10,6 +10,7 @@ import { ShoppingBag, Heart, Search, X, ChevronRight, ArrowUpRight, Star } from 
 import { useCartStore } from '../../store/useCartStore';
 import { useWishlistStore } from '../../store/useWishlistStore';
 import { useAdminStore } from '../../store/useAdminStore';
+import logoImg from '../../assets/logo.png';
 import { useScrollY } from '../../hooks/useScrollY';
 import { getPendingReviewOrders } from '../../utils/reviews';
 import CartDrawer from '../ui/CartDrawer';
