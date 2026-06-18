@@ -11,6 +11,7 @@ import { useCartStore } from '../../store/useCartStore';
 import { useWishlistStore } from '../../store/useWishlistStore';
 import { useAdminStore } from '../../store/useAdminStore';
 import { useScrollY } from '../../hooks/useScrollY';
+import { getPendingReviewOrders } from '../../utils/reviews';
 import CartDrawer from '../ui/CartDrawer';
 import ExpandableSearchBar from '../ui/ExpandableSearchBar';
 import { Sheet, SheetContent, SheetTitle } from '../ui/Sheet';
@@ -296,6 +297,7 @@ export default function Navbar() {
   const toggleCart   = useCartStore((s) => s.toggleOpen);
   const totalItems   = useCartStore((s) => s.totalItems());
   const totalWish    = useWishlistStore((s) => s.totalWishlisted());
+  const hasOrders    = getPendingReviewOrders().length > 0;
 
   const location = useLocation();
   const isHome = location.pathname === '/';
@@ -427,20 +429,22 @@ export default function Navbar() {
               {/* Search */}
               <ExpandableSearchBar onSearch={handleInlineSearch} />
 
-              {/* Reviews */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Link
-                    to="/reviews"
-                    id="nav-reviews"
-                    aria-label="My reviews"
-                    className="relative w-10 h-10 flex items-center justify-center transition-all duration-200 text-white hover:bg-white/10 rounded"
-                  >
-                    <Star size={17} strokeWidth={1.75} />
-                  </Link>
-                </TooltipTrigger>
-                <TooltipContent>My reviews</TooltipContent>
-              </Tooltip>
+              {/* Reviews — only shown after the user has placed an order */}
+              {hasOrders && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link
+                      to="/reviews"
+                      id="nav-reviews"
+                      aria-label="My reviews"
+                      className="relative w-10 h-10 flex items-center justify-center transition-all duration-200 text-white hover:bg-white/10 rounded"
+                    >
+                      <Star size={17} strokeWidth={1.75} />
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent>My reviews</TooltipContent>
+                </Tooltip>
+              )}
 
               {/* Wishlist */}
               <Tooltip>
@@ -660,14 +664,16 @@ export default function Navbar() {
                   <Search size={16} strokeWidth={1.75} />
                   Search products
                 </button>
-                <Link
-                  to="/reviews"
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-3 text-[13px] text-ink-600 hover:text-ink-900 transition-colors"
-                >
-                  <Star size={16} strokeWidth={1.75} />
-                  My reviews
-                </Link>
+                {hasOrders && (
+                  <Link
+                    to="/reviews"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-3 text-[13px] text-ink-600 hover:text-ink-900 transition-colors"
+                  >
+                    <Star size={16} strokeWidth={1.75} />
+                    My reviews
+                  </Link>
+                )}
                 <div className="flex items-center gap-4 pt-2">
                   <button
                     onClick={() => { setMobileOpen(false); toggleCart(); }}

@@ -106,10 +106,18 @@ function SiteSettingsBridge() {
   return null;
 }
 
+const SPLASH_KEY = 'voidstore_splash_seen';
+
 function HomeSplashGate() {
   const location = useLocation();
+  const [show] = useState(() => {
+    if (location.pathname !== '/') return false;
+    if (sessionStorage.getItem(SPLASH_KEY)) return false;
+    sessionStorage.setItem(SPLASH_KEY, '1');
+    return true;
+  });
 
-  return location.pathname === '/' ? <SplashScreen key={location.key || location.pathname} /> : null;
+  return show ? <SplashScreen /> : null;
 }
 
 // Storefront layout (with Navbar + Footer)

@@ -180,6 +180,17 @@
 
 /* ─── Utility Layer ─── */
 @layer utilities {
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-none .product-card-hover-shell {
+    box-shadow: none !important;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
   .ease-expo {
     transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   }

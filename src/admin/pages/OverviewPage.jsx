@@ -13,12 +13,13 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { Clock, DollarSign, Percent, ShoppingBag, TrendingUp, Users } from 'lucide-react';
+import { Clock, DollarSign, Info, Percent, ShoppingBag, TrendingUp, Users } from 'lucide-react';
 
 import ChartCard from '../components/ChartCard';
 import StatCard from '../components/StatCard';
 import { api } from '../../services/api';
 import { formatPrice } from '../../utils/formatPrice';
+import { isLocalSession } from '../auth';
 
 const COLORS = ['#ffffff', '#a3a3a3', '#737373', '#525252', '#404040'];
 
@@ -148,6 +149,12 @@ export default function OverviewPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    // Local dev login uses a fake token — skip the protected API call.
+    if (isLocalSession()) {
+      setLoading(false);
+      return;
+    }
+
     api.getAdminDashboard()
       .then((data) => {
         setDbData(data);
@@ -173,8 +180,19 @@ export default function OverviewPage() {
   const recentOrders = (dbData?.recent_orders ?? []).map(normalizeOrder);
   const topProducts = (dbData?.top_products ?? []).map(normalizeProduct);
 
+  const localOnly = isLocalSession();
+
   return (
     <div className="space-y-6">
+      {localOnly && (
+        <div className="flex items-start gap-3 rounded-2xl border border-blue-500/20 bg-blue-500/10 px-4 py-3 text-sm text-blue-300">
+          <Info size={16} className="mt-0.5 flex-shrink-0" />
+          <span>
+            You are signed in with the <strong>local dev password</strong>. Live dashboard data requires a real backend login.
+            Create an admin account via the backend and log in with those credentials to see live stats.
+          </span>
+        </div>
+      )}
       {error && (
         <div className="rounded-2xl border border-rose-500/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">
           {error}

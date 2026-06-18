@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   ArrowRight,
@@ -50,7 +50,7 @@ const getFormKey = (orderNumber, reviewKey) => `${orderNumber}:${reviewKey}`;
 
 function RatingInput({ value, onChange }) {
   return (
-    <div className="flex gap-1" aria-label="Choose review rating">
+    <div className="flex justify-center gap-1.5" aria-label="Choose review rating">
       {[1, 2, 3, 4, 5].map((rating) => (
         <button
           key={rating}
@@ -58,10 +58,10 @@ function RatingInput({ value, onChange }) {
           onClick={() => onChange(rating)}
           aria-label={`${rating} star review`}
           className={`grid h-9 w-9 place-items-center rounded-full transition-colors ${
-            rating <= value ? 'bg-amber-100 text-amber-500' : 'bg-surface-100 text-ink-400 hover:text-ink-600'
+            rating <= value ? 'text-amber-500' : 'text-ink-300 hover:text-amber-400'
           }`}
         >
-          <Star size={17} fill={rating <= value ? 'currentColor' : 'none'} />
+          <Star size={20} fill={rating <= value ? 'currentColor' : 'none'} />
         </button>
       ))}
     </div>
@@ -195,6 +195,9 @@ export default function ReviewsPage() {
     });
   };
 
+  // Block access until the user has placed at least one order
+  if (orders.length === 0) return <Navigate to="/" replace />;
+
   return (
     <div className="min-h-screen bg-surface-50" style={{ paddingTop: '108px', paddingBottom: '72px' }}>
       <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8">
@@ -312,12 +315,7 @@ export default function ReviewsPage() {
                                 value={form.rating}
                                 onChange={(rating) => updateReviewForm(order, item, { rating })}
                               />
-                              <input
-                                value={form.title}
-                                onChange={(event) => updateReviewForm(order, item, { title: event.target.value })}
-                                className="input-field !py-2.5 text-[13px]"
-                                placeholder="Review title"
-                              />
+
                               <textarea
                                 value={form.body}
                                 onChange={(event) => updateReviewForm(order, item, { body: event.target.value })}

@@ -34,8 +34,8 @@ export default function CheckoutPage() {
   const toast = useToastStore((s) => s.toast);
 
   const [form, setForm] = useState({
-    fullName: '', phone: '', email: '',
-    address: '', city: '',
+    fullName: '', phone: '',
+    address: '', city: ''
   });
   const [paymentMethod, setPaymentMethod] = useState('cod');
   const [promoCode, setPromoCode] = useState('');
@@ -52,7 +52,7 @@ export default function CheckoutPage() {
   }, []);
 
   const total = totalPrice();
-  const shipping = total > 500 ? 0 : 35;
+  const shipping = 0;
   
   // Calculate discount dynamically based on dbProducts
   let discount = 0;
@@ -80,11 +80,11 @@ export default function CheckoutPage() {
 
   const validate = () => {
     const e = {};
-    if (!form.fullName.trim()) e.fullName = 'Dkhl smitek';
-    if (!form.phone.trim()) e.phone = 'Dkhl nmer dyal telephone';
-    else if (!/^(0[5-7]\d{8}|\+212[5-7]\d{8})$/.test(form.phone.replace(/\s/g, ''))) e.phone = 'Dkhl nmer telephone mghribi s7i7';
-    if (!form.address.trim()) e.address = 'Dkhl l adresse';
-    if (!form.city.trim()) e.city = 'Dkhl smit lmdina';
+    if (!form.fullName.trim()) e.fullName = 'أدخل اسمك';
+    if (!form.phone.trim()) e.phone = 'أدخل رقم الهاتف';
+    else if (!/^(0[5-7]\d{8}|\+212[5-7]\d{8})$/.test(form.phone.replace(/\s/g, ''))) e.phone = 'رقم غير صحيح';
+    if (!form.address.trim()) e.address = 'أدخل عنوانك';
+    if (!form.city.trim()) e.city = 'أدخل المدينة';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -116,7 +116,7 @@ export default function CheckoutPage() {
   };
 
   const handlePlaceOrder = async () => {
-    if (!validate()) return;
+    if (!validate()) throw new Error('Validation failed');
     if (items.length === 0) return;
     setLoading(true);
 
@@ -137,7 +137,6 @@ export default function CheckoutPage() {
         shipping_address: {
           name: form.fullName,
           phone: form.phone,
-          email: form.email,
           street: form.address,
           city: form.city,
           state: form.city,
@@ -216,7 +215,7 @@ export default function CheckoutPage() {
           {/* ── LEFT: Forms ── */}
           <div className="space-y-6">
             {/* Shipping Info */}
-            <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={0} className="bg-white rounded-panel border border-surface-200 p-6">
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={0} className="bg-white rounded-panel border border-surface-200 p-4 sm:p-6">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 rounded-btn bg-ink-900 flex items-center justify-center text-white">
                   <Truck size={18} />
@@ -229,120 +228,81 @@ export default function CheckoutPage() {
 
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2">
-                  <label className="block text-caption font-medium text-ink-600 mb-1.5">Full Name *</label>
-                  <input value={form.fullName} onChange={(e) => set('fullName', e.target.value)} className="input-field" placeholder="Dkhl smitek hna" />
+                  <label className="block text-caption font-medium text-ink-600 mb-1.5">الاسم الكامل *</label>
+                  <input value={form.fullName} onChange={(e) => set('fullName', e.target.value)} className="input-field" placeholder="أدخل اسمك" dir="rtl" />
                   {errors.fullName && <p className="text-caption text-feedback-danger mt-1">{errors.fullName}</p>}
                 </div>
-                <div>
-                  <label className="block text-caption font-medium text-ink-600 mb-1.5">Phone *</label>
-                  <input value={form.phone} onChange={(e) => set('phone', e.target.value)} className="input-field" placeholder="Dkhl nmer dyal telephone" />
+                <div className="sm:col-span-2">
+                  <label className="block text-caption font-medium text-ink-600 mb-1.5">رقم الهاتف *</label>
+                  <input value={form.phone} onChange={(e) => set('phone', e.target.value)} className="input-field" placeholder="أدخل رقم الهاتف" dir="rtl" />
                   {errors.phone && <p className="text-caption text-feedback-danger mt-1">{errors.phone}</p>}
                 </div>
-                <div>
-                  <label className="block text-caption font-medium text-ink-600 mb-1.5">Email</label>
-                  <input type="email" value={form.email} onChange={(e) => set('email', e.target.value)} className="input-field" placeholder="Dkhl email ila bghiti" />
-                </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-caption font-medium text-ink-600 mb-1.5">Address *</label>
-                  <input value={form.address} onChange={(e) => set('address', e.target.value)} className="input-field" placeholder="Dkhl l'adresse hna" />
+                  <label className="block text-caption font-medium text-ink-600 mb-1.5">العنوان *</label>
+                  <input value={form.address} onChange={(e) => set('address', e.target.value)} className="input-field" placeholder="أدخل عنوانك" dir="rtl" />
                   {errors.address && <p className="text-caption text-feedback-danger mt-1">{errors.address}</p>}
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-caption font-medium text-ink-600 mb-1.5">City *</label>
-                  <input value={form.city} onChange={(e) => set('city', e.target.value)} className="input-field" placeholder="Dkhl smit lmdina hna" />
+                  <label className="block text-caption font-medium text-ink-600 mb-1.5">المدينة *</label>
+                  <input value={form.city} onChange={(e) => set('city', e.target.value)} className="input-field" placeholder="أدخل المدينة" dir="rtl" />
                   {errors.city && <p className="text-caption text-feedback-danger mt-1">{errors.city}</p>}
                 </div>
               </div>
             </motion.div>
 
-            {/* Payment Method */}
-            <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={1} className="bg-white rounded-panel border border-surface-200 p-6">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-btn bg-ink-900 flex items-center justify-center text-white">
-                  <CreditCard size={18} />
-                </div>
-                <div>
-                  <h2 className="font-hero text-card-title font-bold text-ink-900">Payment Method</h2>
-                  <p className="text-caption text-ink-400">Choose how you'd like to pay</p>
-                </div>
-              </div>
-
-              <div className="grid sm:grid-cols-2 gap-3">
-                {/* Cash on Delivery */}
-                <button
-                  onClick={() => setPaymentMethod('cod')}
-                  className={`flex items-center gap-4 p-4 rounded-card border-2 transition-all duration-200 text-left ${
-                    paymentMethod === 'cod'
-                      ? 'border-ink-900 bg-surface-50 shadow-sm'
-                      : 'border-surface-200 hover:border-surface-300'
-                  }`}
-                >
-                  <div className={`w-10 h-10 rounded-btn flex items-center justify-center flex-shrink-0 ${paymentMethod === 'cod' ? 'bg-ink-900 text-white' : 'bg-surface-100 text-ink-400'}`}>
-                    <Banknote size={20} />
-                  </div>
-                  <div>
-                    <p className="text-[14px] font-semibold text-ink-900">Cash on Delivery</p>
-                    <p className="text-[12px] text-ink-400 mt-0.5">الدفع عند الاستلام</p>
-                  </div>
-                </button>
-
-                {/* Card */}
-                <button
-                  onClick={() => setPaymentMethod('card')}
-                  className={`flex items-center gap-4 p-4 rounded-card border-2 transition-all duration-200 text-left ${
-                    paymentMethod === 'card'
-                      ? 'border-ink-900 bg-surface-50 shadow-sm'
-                      : 'border-surface-200 hover:border-surface-300'
-                  }`}
-                >
-                  <div className={`w-10 h-10 rounded-btn flex items-center justify-center flex-shrink-0 ${paymentMethod === 'card' ? 'bg-ink-900 text-white' : 'bg-surface-100 text-ink-400'}`}>
-                    <CreditCard size={20} />
-                  </div>
-                  <div>
-                    <p className="text-[14px] font-semibold text-ink-900">Credit / Debit Card</p>
-                    <p className="text-[12px] text-ink-400 mt-0.5">Visa, Mastercard, CMI</p>
-                  </div>
-                </button>
-              </div>
-
-              {paymentMethod === 'card' && (
-                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className="mt-4 p-4 bg-surface-50 rounded-card border border-surface-200">
-                  <p className="text-caption text-ink-400 text-center">Card payment integration coming soon. Please use Cash on Delivery for now.</p>
-                </motion.div>
-              )}
-            </motion.div>
+            
           </div>
 
           {/* ── RIGHT: Order Summary ── */}
           <div className="lg:sticky lg:top-28 lg:self-start">
-            <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={2} className="bg-white rounded-panel border border-surface-200 p-6">
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={2} className="bg-white rounded-panel border border-surface-200 p-4 sm:p-6">
               <h2 className="font-hero text-card-title font-bold text-ink-900 mb-4">Order Summary</h2>
 
               {/* Items */}
               <div className="space-y-3 max-h-[300px] overflow-y-auto scrollbar-thin pr-1">
                 {items.map((item) => (
-                  <div key={`${item.id}-${item.color}-${item.size}`} className="flex items-center gap-3 p-2 rounded-card bg-surface-50">
-                    <img src={item.image || item.images?.[0]} alt={item.name} className="w-14 h-14 rounded-btn object-cover flex-shrink-0 bg-surface-100" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[13px] font-semibold text-ink-900 truncate">{item.name}</p>
-                      <p className="text-[11px] text-ink-400">
-                        {item.size && <span>{item.size}</span>}
-                        {item.size && item.color && <span> · </span>}
-                        {item.color && <span className="inline-block w-2.5 h-2.5 rounded-full border border-surface-300" style={{ backgroundColor: item.color }} />}
-                      </p>
-                      <p className="text-[13px] font-semibold text-ink-600 mt-0.5">{formatPrice(item.price)}</p>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <button onClick={() => updateQuantity(item.id, item.color, item.size, Math.max(1, item.quantity - 1))} className="w-7 h-7 rounded-btn bg-surface-100 flex items-center justify-center hover:bg-surface-200 transition-colors">
-                        <Minus size={12} />
-                      </button>
-                      <span className="w-7 text-center text-caption font-semibold">{item.quantity}</span>
-                      <button onClick={() => updateQuantity(item.id, item.color, item.size, item.quantity + 1)} className="w-7 h-7 rounded-btn bg-surface-100 flex items-center justify-center hover:bg-surface-200 transition-colors">
-                        <Plus size={12} />
-                      </button>
-                      <button onClick={() => removeItem(item.id, item.color, item.size)} className="w-7 h-7 rounded-btn flex items-center justify-center text-ink-400 hover:text-feedback-danger hover:bg-red-50 transition-colors ml-1">
-                        <Trash2 size={12} />
-                      </button>
+                  <div key={`${item.id}-${item.color}-${item.size}`} className="flex gap-3 p-3 rounded-card bg-surface-50">
+                    <img src={item.image || item.images?.[0]} alt={item.name} className="w-16 h-16 rounded-btn object-cover flex-shrink-0 bg-surface-100" />
+                    
+                    <div className="flex-1 min-w-0 flex flex-col justify-between">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="text-[13px] font-semibold text-ink-900 truncate">{item.name}</p>
+                          <p className="text-[11px] text-ink-400 flex items-center gap-1.5 mt-0.5">
+                            {item.size && <span>{item.size}</span>}
+                            {item.size && item.color && <span> · </span>}
+                            {item.color && <span className="inline-block w-2.5 h-2.5 rounded-full border border-surface-300" style={{ backgroundColor: item.color }} />}
+                          </p>
+                        </div>
+                        
+                        <button 
+                          onClick={() => removeItem(item.id, item.color, item.size)} 
+                          className="w-7 h-7 rounded-btn flex items-center justify-center text-ink-400 hover:text-feedback-danger hover:bg-red-50 transition-colors flex-shrink-0"
+                          aria-label="Remove item"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+
+                      <div className="flex items-center justify-between mt-2 pt-1">
+                        <p className="text-[13px] font-semibold text-ink-600">{formatPrice(item.price)}</p>
+                        
+                        <div className="flex items-center gap-0.5 bg-white border border-surface-200 rounded-btn p-0.5 shadow-sm">
+                          <button 
+                            onClick={() => updateQuantity(item.id, item.color, item.size, Math.max(1, item.quantity - 1))} 
+                            className="w-6 h-6 rounded-btn flex items-center justify-center hover:bg-surface-100 transition-colors"
+                          >
+                            <Minus size={10} />
+                          </button>
+                          <span className="w-6 text-center text-caption font-semibold">{item.quantity}</span>
+                          <button 
+                            onClick={() => updateQuantity(item.id, item.color, item.size, item.quantity + 1)} 
+                            className="w-6 h-6 rounded-btn flex items-center justify-center hover:bg-surface-100 transition-colors"
+                          >
+                            <Plus size={10} />
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -395,8 +355,8 @@ export default function CheckoutPage() {
 
               <div className="mt-6">
                 <SlideToConfirm
-                  text={paymentMethod === 'cod' ? 'Slide to confirm COD' : 'Slide to place order'}
-                  successText="Order confirmed"
+                  text="مرر لتأكيد الطلب"
+                  successText="تم تأكيد الطلب"
                   onConfirm={handlePlaceOrder}
                   disabled={loading}
                 />

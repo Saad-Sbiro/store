@@ -35,6 +35,8 @@ import { RadioGroup, RadioGroupItem } from '../components/ui/RadioGroup';
 import { useToastStore } from '../store/useToastStore';
 import { getProductReviewSummary } from '../utils/reviews';
 import { customerReviews } from '../data/reviews';
+import { products } from '../data/products';
+import RecommendedProducts from '../components/ui/RecommendedProducts';
 
 // ─── Tab component ───────────────────────────
 function ProductInfoAccordion({ product, reviewSummary }) {
@@ -48,7 +50,7 @@ function ProductInfoAccordion({ product, reviewSummary }) {
   const reviews = [...savedReviews, ...publicReviews];
 
   return (
-    <Accordion type="multiple" defaultValue={['description', 'reviews']} className="rounded-card border border-surface-200 bg-white px-4">
+    <Accordion type="multiple" defaultValue={['description']} className="rounded-card border border-surface-200 bg-white px-4">
       <AccordionItem value="description">
         <AccordionTrigger>Description</AccordionTrigger>
         <AccordionContent>
@@ -158,8 +160,7 @@ export default function ProductPage() {
   const { isWishlisted, toggleWishlist } = useWishlistStore();
   const toast = useToastStore((s) => s.toast);
 
-  const relatedRef = useRef(null);
-  const relatedInView = useInView(relatedRef, { once: true, margin: '-80px' });
+
 
   useEffect(() => {
     let cancelled = false;
@@ -172,7 +173,7 @@ export default function ProductPage() {
         if (cancelled) return;
 
         setProduct(data.product);
-        setRelated(data.related || []);
+        setRelated(products.filter((p) => String(p.id) !== String(data.product.id)));
         const variants = getProductVariants(data.product);
         setSelectedImage(0);
         setSelectedColor(0);
@@ -626,30 +627,15 @@ export default function ProductPage() {
 
         {/* ── Related Products ── */}
         {related.length > 0 && (
-          <div ref={relatedRef} className="mt-16 pt-12 border-t border-surface-200 sm:mt-20 sm:pt-16">
-          <motion.div
-            variants={stagger}
-            initial="hidden"
-            animate={relatedInView ? 'visible' : 'hidden'}
-          >
-            <motion.div variants={fadeUp} className="mb-10">
-              <p className="text-[11px] font-semibold uppercase tracking-widest text-brand-500 mb-2">
-                Vous aimerez aussi
-              </p>
-              <h2 className="font-display font-semibold text-section-sm text-ink-900">
-                Produits similaires
-              </h2>
-            </motion.div>
-
+          <div className="mt-16 pt-12 border-t border-surface-200 sm:mt-20 sm:pt-16">
             <motion.div
               variants={stagger}
-              className="grid auto-rows-fr grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-20px" }}
             >
-              {related.map((p) => (
-                <ProductCard key={p.id} product={p} />
-              ))}
+              <RecommendedProducts products={related} />
             </motion.div>
-          </motion.div>
           </div>
         )}
       </div>

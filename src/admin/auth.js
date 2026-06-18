@@ -1,14 +1,21 @@
 export const LOCAL_ADMIN_PASSWORD = 'passpass';
 export const LEGACY_ADMIN_PASSWORD = 'admin2024';
 
+export const LOCAL_TOKEN_VALUE = 'local-admin-token';
+
 export function completeLocalLogin() {
-  localStorage.setItem('voidstore_token', 'local-admin-token');
+  localStorage.setItem('voidstore_token', LOCAL_TOKEN_VALUE);
   localStorage.setItem('voidstore_user', JSON.stringify({
     id: 'local-admin',
     name: 'Admin',
     email: 'admin@voidstore.com',
     role: 'admin',
   }));
+}
+
+/** Returns true when signed in with the local dev-only fake token. */
+export function isLocalSession() {
+  return localStorage.getItem('voidstore_token') === LOCAL_TOKEN_VALUE;
 }
 
 export function canUseLocalLogin(password) {

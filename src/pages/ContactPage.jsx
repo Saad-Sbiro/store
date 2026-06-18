@@ -5,7 +5,7 @@
 
 import { useState, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { Mail, Phone, MapPin, MessageCircle, Send, ChevronDown, Clock } from 'lucide-react';
+import { Mail, Phone, MapPin, MessageCircle, Send, ChevronDown } from 'lucide-react';
 import { useToastStore } from '../store/useToastStore';
 
 const ease = [0.22, 1, 0.36, 1];
@@ -22,7 +22,6 @@ const CONTACT_INFO = [
   { icon: Phone, label: 'Phone', value: '+212 6 12 34 56 78', href: 'tel:+212612345678' },
   { icon: MessageCircle, label: 'WhatsApp', value: 'Chat with us', href: 'https://wa.me/212612345678', accent: true },
   { icon: MapPin, label: 'Address', value: 'Casablanca, Morocco', href: null },
-  { icon: Clock, label: 'Hours', value: 'Mon-Sat: 9AM - 7PM', href: null },
 ];
 
 const FAQ = [
@@ -64,14 +63,14 @@ export default function ContactPage() {
   const faqRef = useRef(null);
   const faqInView = useInView(faqRef, { once: true, margin: '-60px' });
 
-  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
+  const [form, setForm] = useState({ name: '', phone: '', subject: '', message: '' });
   const [sending, setSending] = useState(false);
 
   const set = (key, val) => setForm((f) => ({ ...f, [key]: val }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name.trim() || !form.email.trim() || !form.message.trim()) {
+    if (!form.name.trim() || !form.phone.trim() || !form.message.trim()) {
       toast({ title: 'Missing Fields', description: 'Please fill in all required fields.', variant: 'warning' });
       return;
     }
@@ -79,7 +78,7 @@ export default function ContactPage() {
     // Simulate sending
     await new Promise((r) => setTimeout(r, 1200));
     setSending(false);
-    setForm({ name: '', email: '', subject: '', message: '' });
+    setForm({ name: '', phone: '', subject: '', message: '' });
     toast({ title: 'Message Sent!', description: "We'll get back to you within 24 hours.", variant: 'success' });
   };
 
@@ -128,8 +127,8 @@ export default function ContactPage() {
                   <input value={form.name} onChange={(e) => set('name', e.target.value)} className="input-field" placeholder="Your name" />
                 </div>
                 <div>
-                  <label className="block text-caption font-medium text-ink-600 mb-1.5">Email *</label>
-                  <input type="email" value={form.email} onChange={(e) => set('email', e.target.value)} className="input-field" placeholder="you@example.com" />
+                  <label className="block text-caption font-medium text-ink-600 mb-1.5">Phone *</label>
+                  <input type="tel" value={form.phone} onChange={(e) => set('phone', e.target.value)} className="input-field" placeholder="+212 6 XX XX XX XX" />
                 </div>
               </div>
               <div>
