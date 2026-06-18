@@ -40,6 +40,7 @@ export default {
         display: ['Comico', 'Georgia', 'serif'],
         comico:  ['Comico', 'Georgia', 'serif'],
         hero:    ['"Space Grotesk"', 'system-ui', 'sans-serif'],
+        clash:   ['"Clash Display"', 'system-ui', 'sans-serif'],
       },
       fontSize: {
         'hero':    ['56px', { lineHeight: '1.1', letterSpacing: '-0.02em' }],
