@@ -18,7 +18,7 @@ const fadeUp = {
 };
 
 const CONTACT_INFO = [
-  { icon: Mail, label: 'Email', value: 'support@voidstore.ma', href: 'mailto:support@voidstore.ma' },
+  { icon: Mail, label: 'Email', value: 'support@cutportal.ma', href: 'mailto:support@cutportal.ma' },
   { icon: Phone, label: 'Phone', value: '+212 6 12 34 56 78', href: 'tel:+212612345678' },
   { icon: MessageCircle, label: 'WhatsApp', value: 'Chat with us', href: 'https://wa.me/212612345678', accent: true },
   { icon: MapPin, label: 'Address', value: 'Casablanca, Morocco', href: null },

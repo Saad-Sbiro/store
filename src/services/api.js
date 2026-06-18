@@ -14,7 +14,7 @@ function getHeaders(extraHeaders = {}) {
     ...extraHeaders,
   };
 
-  const token = localStorage.getItem('voidstore_token');
+  const token = localStorage.getItem('cutportal_token');
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
@@ -145,8 +145,8 @@ export const api = {
     });
     const data = await handleResponse(res);
     if (data.access_token) {
-      localStorage.setItem('voidstore_token', data.access_token);
-      localStorage.setItem('voidstore_user', JSON.stringify(data.user));
+      localStorage.setItem('cutportal_token', data.access_token);
+      localStorage.setItem('cutportal_user', JSON.stringify(data.user));
     }
     return data;
   },
@@ -164,8 +164,8 @@ export const api = {
     });
     const data = await handleResponse(res);
     if (data.access_token) {
-      localStorage.setItem('voidstore_token', data.access_token);
-      localStorage.setItem('voidstore_user', JSON.stringify(data.user));
+      localStorage.setItem('cutportal_token', data.access_token);
+      localStorage.setItem('cutportal_user', JSON.stringify(data.user));
     }
     return data;
   },
@@ -180,13 +180,13 @@ export const api = {
     } catch (err) {
       console.error('Logout request failed, cleaning local storage anyway.', err);
     } finally {
-      localStorage.removeItem('voidstore_token');
-      localStorage.removeItem('voidstore_user');
+      localStorage.removeItem('cutportal_token');
+      localStorage.removeItem('cutportal_user');
     }
   },
 
   async getMe() {
-    const token = localStorage.getItem('voidstore_token');
+    const token = localStorage.getItem('cutportal_token');
     if (!token) return null;
 
     try {
@@ -197,8 +197,8 @@ export const api = {
       return await handleResponse(res);
     } catch (err) {
       // Token is invalid/expired
-      localStorage.removeItem('voidstore_token');
-      localStorage.removeItem('voidstore_user');
+      localStorage.removeItem('cutportal_token');
+      localStorage.removeItem('cutportal_user');
       throw err;
     }
   },

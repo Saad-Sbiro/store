@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import logoImg from '../../assets/logo.png';
 
 export default function SplashScreen({ onComplete }) {
   const [visible, setVisible] = useState(true);
@@ -20,20 +21,21 @@ export default function SplashScreen({ onComplete }) {
   useEffect(() => {
     if (!visible) return undefined;
 
-    document.documentElement.classList.add('voidstore-splash-lock');
-    return () => document.documentElement.classList.remove('voidstore-splash-lock');
+    document.documentElement.classList.add('cutportal-splash-lock');
+    return () => document.documentElement.classList.remove('cutportal-splash-lock');
   }, [visible]);
 
   if (!visible) return null;
 
   return (
     <div
-      className={`voidstore-splash ${leaving ? 'voidstore-splash--leave' : ''}`}
+      className={`cutportal-splash ${leaving ? 'cutportal-splash--leave' : ''}`}
       aria-label="Welcome"
       role="status"
     >
-      <div className="voidstore-splash__mark">
-        <span className="voidstore-splash__logo">Welcome</span>
+      <div className="cutportal-splash__mark flex flex-col items-center gap-4">
+        <img src={logoImg} alt="Cutportal Logo" className="h-16 w-auto object-contain brightness-0 invert animate-pulse" />
+        <span className="cutportal-splash__logo tracking-[0.2em] uppercase font-bold text-[14px]">Cutportal</span>
       </div>
     </div>
   );

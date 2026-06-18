@@ -5,6 +5,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import { useAdminStore } from '../../store/useAdminStore';
+import logoImg from '../../assets/logo.png';
 
 const SHOP_LINKS = [
   { label: 'All Products', href: '/shop' },
@@ -45,7 +46,7 @@ const SocialIcons = {
 
 export default function Footer() {
   const siteSettings = useAdminStore((s) => s.siteSettings);
-  const storeName = siteSettings.storeName?.trim() || 'VOIDSTORE';
+  const storeName = siteSettings.storeName?.trim() || 'CUTPORTAL';
   const tagline = siteSettings.tagline?.trim()
     || 'Workspace essentials, smart devices, and refined tech gear for cleaner daily setups.';
   const social = [
@@ -63,7 +64,8 @@ export default function Footer() {
 
           {/* Brand Column */}
           <div className="lg:col-span-1">
-            <Link to="/" id="footer-logo" className="inline-block mb-4">
+            <Link to="/" id="footer-logo" className="flex items-center gap-2 mb-4">
+              <img src={logoImg} alt="${storeName} Logo" className="h-7 w-auto object-contain brightness-0 invert" />
               <span className="font-display font-bold text-2xl text-white hover:text-brand-400 transition-colors duration-200">
                 {storeName}
               </span>

@@ -26,7 +26,7 @@ export default function AdminLogin({ onSuccess }) {
         return;
       }
 
-      const data = await api.login('admin@voidstore.com', password);
+      const data = await api.login('admin@cutportal.com', password);
       if (data.user && data.user.role === 'admin') {
         onSuccess();
         return;

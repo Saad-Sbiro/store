@@ -91,7 +91,7 @@ function ProductInfoAccordion({ product, reviewSummary }) {
         <AccordionContent>
           <div className="space-y-3 pb-2">
             {[
-              ['Marque', 'VOIDSTORE'],
+              ['Marque', 'CUTPORTAL'],
               ['Garantie', 'Garantie fabricant de 2 ans'],
               ['Connectivite', 'USB-C / Bluetooth / Wi-Fi'],
               ['Poids', 'Selon le modele'],

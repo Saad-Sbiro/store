@@ -122,7 +122,7 @@ export default function CheckoutPage() {
 
     try {
       // Ensure auth
-      let token = localStorage.getItem('voidstore_token');
+      let token = localStorage.getItem('cutportal_token');
       if (!token) {
         await api.login('john@example.com', 'passpass');
       }

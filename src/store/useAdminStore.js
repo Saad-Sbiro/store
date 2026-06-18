@@ -6,7 +6,7 @@ const SITE_SETTINGS_VERSION = 3;
 
 const defaultSiteSettings = {
   siteSettingsVersion: SITE_SETTINGS_VERSION,
-  storeName: 'VOIDSTORE',
+  storeName: 'CUTPORTAL',
   tagline: 'Curated desk technology',
   heroTitle: 'Sharper\nSetups',
   heroSubtitle: 'Quiet tools for focused rooms: stands, docks, lighting, and audio chosen for everyday work.',

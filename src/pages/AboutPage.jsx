@@ -69,7 +69,7 @@ export default function AboutPage() {
             transition={{ duration: 0.6, ease, delay: 0.25 }}
             className="text-[16px] sm:text-[18px] text-white/55 mt-6 max-w-2xl mx-auto leading-relaxed"
           >
-            VOIDSTORE was born from a simple belief: your workspace should inspire your best work. We curate premium desk goods, tech accessories, and workspace essentials — shipping across Morocco.
+            CUTPORTAL was born from a simple belief: your workspace should inspire your best work. We curate premium desk goods, tech accessories, and workspace essentials — shipping across Morocco.
           </motion.p>
         </div>
       </section>

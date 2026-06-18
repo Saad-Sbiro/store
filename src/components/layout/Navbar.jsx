@@ -166,7 +166,10 @@ function CardMegaMenu({ data }) {
         className="overflow-hidden rounded-[8px] border border-surface-200 bg-white shadow-xl"
       >
         <div className="h-[60px] px-4 flex items-center justify-between border-b border-surface-200">
-          <span className="font-comico text-[20px] tracking-wide text-ink-900">VOIDSTORE</span>
+          <div className="flex items-center gap-2">
+            <img src={logoImg} alt="Cutportal Logo" className="h-5 w-auto object-contain" />
+            <span className="font-comico text-[20px] tracking-wide text-ink-900">{siteSettings.storeName}</span>
+          </div>
           <Link
             to={data.featured.href}
             className="inline-flex h-10 items-center gap-2 rounded-[6px] bg-ink-900 px-4 text-[12px] font-semibold uppercase tracking-[0.13em] text-white hover:bg-ink-600 transition-colors"
@@ -384,9 +387,10 @@ export default function Navbar() {
               <Link
                 to="/"
                 id="nav-logo"
-                aria-label="VOIDSTORE - Home"
-                className="inline-block text-white"
+                aria-label="${siteSettings.storeName} - Home"
+                className="flex items-center gap-2 text-white"
               >
+                <img src={logoImg} alt="${siteSettings.storeName} Logo" className="h-6 w-auto object-contain brightness-0 invert" />
                 <span className="font-comico text-[21px] tracking-wide">
                   {siteSettings.storeName}
                 </span>

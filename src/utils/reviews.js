@@ -1,5 +1,5 @@
-const PENDING_REVIEW_ORDERS_KEY = 'voidstore_pending_review_orders';
-const PRODUCT_REVIEWS_KEY = 'voidstore_product_reviews';
+const PENDING_REVIEW_ORDERS_KEY = 'cutportal_pending_review_orders';
+const PRODUCT_REVIEWS_KEY = 'cutportal_product_reviews';
 const REVIEW_UNLOCK_DELAY_MS = 1000 * 60 * 60 * 48;
 const REVIEW_READY_STATUSES = new Set(['shipped', 'delivered']);
 

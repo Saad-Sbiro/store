@@ -58,7 +58,7 @@ export default function OrderConfirmationPage() {
       doc.setFont('Helvetica', 'bold');
       doc.setFontSize(22);
       doc.setTextColor(10, 10, 10);
-      doc.text('VOIDSTORE', 20, 32);
+      doc.text('CUTPORTAL', 20, 32);
 
       doc.setFontSize(10);
       doc.setFont('Helvetica', 'normal');

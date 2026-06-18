@@ -106,7 +106,7 @@ function SiteSettingsBridge() {
   return null;
 }
 
-const SPLASH_KEY = 'voidstore_splash_seen';
+const SPLASH_KEY = 'cutportal_splash_seen';
 
 function HomeSplashGate() {
   const location = useLocation();

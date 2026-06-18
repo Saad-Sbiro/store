@@ -60,8 +60,8 @@
     background-color: #fafafa;
   }
 
-  html.voidstore-splash-lock,
-  html.voidstore-splash-lock body {
+  html.cutportal-splash-lock,
+  html.cutportal-splash-lock body {
     overflow-x: hidden;
   }
 
@@ -568,7 +568,7 @@
 }
 
 /* ─── Splash Scroll Lock ─── */
-.voidstore-splash {
+.cutportal-splash {
   position: fixed;
   inset: 0;
   z-index: 120;
@@ -585,20 +585,20 @@
     transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.voidstore-splash--leave {
+.cutportal-splash--leave {
   opacity: 0;
   transform: translate3d(0, -18px, 0) scale(1.015);
   pointer-events: none;
 }
 
-.voidstore-splash__mark {
+.cutportal-splash__mark {
   display: grid;
   justify-items: center;
   gap: 14px;
   animation: splash-mark-in 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.voidstore-splash__eyebrow {
+.cutportal-splash__eyebrow {
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.28em;
@@ -607,7 +607,7 @@
   color: rgba(255, 255, 255, 0.34);
 }
 
-.voidstore-splash__logo {
+.cutportal-splash__logo {
   font-family: "Space Grotesk", Manrope, system-ui, sans-serif;
   font-size: clamp(2rem, 6vw, 4rem);
   font-weight: 700;
@@ -616,14 +616,14 @@
   text-transform: uppercase;
 }
 
-.voidstore-splash__line {
+.cutportal-splash__line {
   width: min(240px, 54vw);
   height: 1px;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.12);
 }
 
-.voidstore-splash__line::after {
+.cutportal-splash__line::after {
   content: '';
   display: block;
   width: 38%;
@@ -653,15 +653,15 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .voidstore-splash,
-  .voidstore-splash__mark,
-  .voidstore-splash__line::after {
+  .cutportal-splash,
+  .cutportal-splash__mark,
+  .cutportal-splash__line::after {
     animation: none;
     transition: opacity 180ms ease;
   }
 }
 
-.voidstore-splash-lock {
+.cutportal-splash-lock {
   scrollbar-gutter: stable;
 }
 
@@ -694,7 +694,7 @@
   stroke: #f42582;
 }
 
-.voidstore-splash {
+.cutportal-splash {
   background:
     linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
@@ -707,12 +707,12 @@
     transform 620ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.voidstore-splash--leave {
+.cutportal-splash--leave {
   filter: blur(10px);
   transform: translate3d(0, -18px, 0) scale(1.018);
 }
 
-.voidstore-splash::before {
+.cutportal-splash::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -722,7 +722,7 @@
   animation: splash-sheen 1320ms cubic-bezier(0.16, 1, 0.3, 1) 180ms both;
 }
 
-.voidstore-splash__frame {
+.cutportal-splash__frame {
   position: absolute;
   width: min(900px, calc(100vw - 48px));
   height: min(380px, 56vh);
@@ -733,8 +733,8 @@
   animation: splash-frame-in 900ms cubic-bezier(0.16, 1, 0.3, 1) 80ms both;
 }
 
-.voidstore-splash__frame::before,
-.voidstore-splash__frame::after {
+.cutportal-splash__frame::before,
+.cutportal-splash__frame::after {
   content: '';
   position: absolute;
   left: 50%;
@@ -744,22 +744,22 @@
   transform: translateX(-50%);
 }
 
-.voidstore-splash__frame::before {
+.cutportal-splash__frame::before {
   top: -1px;
 }
 
-.voidstore-splash__frame::after {
+.cutportal-splash__frame::after {
   bottom: -1px;
 }
 
-.voidstore-splash__mark {
+.cutportal-splash__mark {
   position: relative;
   z-index: 1;
   gap: 18px;
   width: min(960px, calc(100vw - 32px));
 }
 
-.voidstore-splash__eyebrow {
+.cutportal-splash__eyebrow {
   font-size: clamp(10px, 1.5vw, 13px);
   font-weight: 800;
   letter-spacing: 0.32em;
@@ -769,7 +769,7 @@
   animation: splash-small-in 720ms cubic-bezier(0.16, 1, 0.3, 1) 240ms both;
 }
 
-.voidstore-splash__logo {
+.cutportal-splash__logo {
   overflow: hidden;
   display: flex;
   justify-content: center;
@@ -786,15 +786,15 @@
   animation: splash-word-reveal 980ms cubic-bezier(0.16, 1, 0.3, 1) 150ms both;
 }
 
-.voidstore-splash__logo span:first-child {
+.cutportal-splash__logo span:first-child {
   animation: splash-word-left 920ms cubic-bezier(0.16, 1, 0.3, 1) 180ms both;
 }
 
-.voidstore-splash__logo span:last-child {
+.cutportal-splash__logo span:last-child {
   animation: splash-word-right 920ms cubic-bezier(0.16, 1, 0.3, 1) 180ms both;
 }
 
-.voidstore-splash__tagline {
+.cutportal-splash__tagline {
   font-size: clamp(13px, 1.8vw, 18px);
   font-weight: 700;
   line-height: 1;
@@ -906,7 +906,7 @@
 }
 
 @media (max-width: 560px) {
-  .voidstore-splash__logo {
+  .cutportal-splash__logo {
     display: grid;
     gap: 0.03em;
     letter-spacing: -0.055em;
@@ -1070,16 +1070,16 @@
 
 @media (prefers-reduced-motion: reduce) {
   .ring-loader__ring,
-  .voidstore-splash::before,
-  .voidstore-splash__frame,
-  .voidstore-splash__logo,
-  .voidstore-splash__eyebrow,
-  .voidstore-splash__tagline {
+  .cutportal-splash::before,
+  .cutportal-splash__frame,
+  .cutportal-splash__logo,
+  .cutportal-splash__eyebrow,
+  .cutportal-splash__tagline {
     animation: none;
   }
 }
 
-.voidstore-splash {
+.cutportal-splash {
   position: fixed;
   inset: 0;
   z-index: 120;
@@ -1099,7 +1099,7 @@
     transform 640ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.voidstore-splash::before {
+.cutportal-splash::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -1110,10 +1110,10 @@
   background-size: 100% 100%, 80px 80px, 80px 80px;
   opacity: 0;
   transform: translate3d(-16%, 0, 0);
-  animation: voidstore-splash-sheen 1300ms cubic-bezier(0.16, 1, 0.3, 1) 140ms both;
+  animation: cutportal-splash-sheen 1300ms cubic-bezier(0.16, 1, 0.3, 1) 140ms both;
 }
 
-.voidstore-splash__grain {
+.cutportal-splash__grain {
   position: absolute;
   inset: -50%;
   width: 200%;
@@ -1123,14 +1123,14 @@
   pointer-events: none;
 }
 
-.voidstore-splash--leave {
+.cutportal-splash--leave {
   opacity: 0;
   filter: blur(8px);
   transform: translate3d(0, -10px, 0) scale(1.01);
   pointer-events: none;
 }
 
-.voidstore-splash__frame {
+.cutportal-splash__frame {
   position: absolute;
   width: min(760px, calc(100vw - 40px));
   height: min(340px, calc(100vh - 96px));
@@ -1138,11 +1138,11 @@
   border-radius: 8px;
   opacity: 0;
   transform: scaleX(0.96) scaleY(0.9);
-  animation: voidstore-frame-in 880ms cubic-bezier(0.16, 1, 0.3, 1) 90ms both;
+  animation: cutportal-frame-in 880ms cubic-bezier(0.16, 1, 0.3, 1) 90ms both;
 }
 
-.voidstore-splash__frame::before,
-.voidstore-splash__frame::after {
+.cutportal-splash__frame::before,
+.cutportal-splash__frame::after {
   content: '';
   position: absolute;
   left: 50%;
@@ -1152,15 +1152,15 @@
   transform: translateX(-50%);
 }
 
-.voidstore-splash__frame::before {
+.cutportal-splash__frame::before {
   top: -1px;
 }
 
-.voidstore-splash__frame::after {
+.cutportal-splash__frame::after {
   bottom: -1px;
 }
 
-.voidstore-splash__mark {
+.cutportal-splash__mark {
   position: relative;
   z-index: 1;
   display: grid;
@@ -1170,7 +1170,7 @@
   text-align: center;
 }
 
-.voidstore-splash__seal {
+.cutportal-splash__seal {
   display: grid;
   width: 44px;
   height: 44px;
@@ -1185,10 +1185,10 @@
   line-height: 1;
   opacity: 0;
   transform: translate3d(0, 10px, 0) scale(0.96);
-  animation: voidstore-seal-in 720ms cubic-bezier(0.16, 1, 0.3, 1) 160ms both;
+  animation: cutportal-seal-in 720ms cubic-bezier(0.16, 1, 0.3, 1) 160ms both;
 }
 
-.voidstore-splash__eyebrow {
+.cutportal-splash__eyebrow {
   color: rgba(255, 255, 255, 0.42);
   font-size: 11px;
   font-weight: 700;
@@ -1197,10 +1197,10 @@
   opacity: 0;
   text-transform: uppercase;
   transform: translate3d(0, 8px, 0);
-  animation: voidstore-copy-in 680ms cubic-bezier(0.16, 1, 0.3, 1) 260ms both;
+  animation: cutportal-copy-in 680ms cubic-bezier(0.16, 1, 0.3, 1) 260ms both;
 }
 
-.voidstore-splash__logo {
+.cutportal-splash__logo {
   display: block;
   color: rgba(255, 255, 255, 0.98);
   font-family: "Clash Display", "Space Grotesk", Manrope, system-ui, sans-serif;
@@ -1212,10 +1212,10 @@
   overflow: hidden;
   text-shadow: 0 22px 80px rgba(255, 255, 255, 0.08);
   transform: translate3d(0, 18px, 0);
-  animation: voidstore-wordmark-in 860ms cubic-bezier(0.16, 1, 0.3, 1) 220ms both;
+  animation: cutportal-wordmark-in 860ms cubic-bezier(0.16, 1, 0.3, 1) 220ms both;
 }
 
-.voidstore-splash__tagline {
+.cutportal-splash__tagline {
   color: rgba(255, 255, 255, 0.68);
   font-size: 15px;
   font-weight: 600;
@@ -1223,10 +1223,10 @@
   line-height: 1.35;
   opacity: 0;
   transform: translate3d(0, 8px, 0);
-  animation: voidstore-copy-in 700ms cubic-bezier(0.16, 1, 0.3, 1) 540ms both;
+  animation: cutportal-copy-in 700ms cubic-bezier(0.16, 1, 0.3, 1) 540ms both;
 }
 
-.voidstore-splash__progress {
+.cutportal-splash__progress {
   position: relative;
   display: block;
   width: min(220px, 62vw);
@@ -1235,19 +1235,19 @@
   overflow: hidden;
   background: rgba(255, 255, 255, 0.14);
   opacity: 0;
-  animation: voidstore-progress-shell 520ms ease 620ms both;
+  animation: cutportal-progress-shell 520ms ease 620ms both;
 }
 
-.voidstore-splash__progress::after {
+.cutportal-splash__progress::after {
   content: '';
   position: absolute;
   inset: 0;
   background: #ffffff;
   transform: translate3d(-100%, 0, 0);
-  animation: voidstore-progress-fill 1320ms cubic-bezier(0.16, 1, 0.3, 1) 640ms both;
+  animation: cutportal-progress-fill 1320ms cubic-bezier(0.16, 1, 0.3, 1) 640ms both;
 }
 
-@keyframes voidstore-splash-sheen {
+@keyframes cutportal-splash-sheen {
   0% {
     opacity: 0;
     transform: translate3d(-16%, 0, 0);
@@ -1261,7 +1261,7 @@
   }
 }
 
-@keyframes voidstore-frame-in {
+@keyframes cutportal-frame-in {
   from {
     opacity: 0;
     transform: scaleX(0.96) scaleY(0.9);
@@ -1272,7 +1272,7 @@
   }
 }
 
-@keyframes voidstore-seal-in {
+@keyframes cutportal-seal-in {
   from {
     opacity: 0;
     transform: translate3d(0, 10px, 0) scale(0.96);
@@ -1283,7 +1283,7 @@
   }
 }
 
-@keyframes voidstore-copy-in {
+@keyframes cutportal-copy-in {
   from {
     opacity: 0;
     transform: translate3d(0, 8px, 0);
@@ -1294,7 +1294,7 @@
   }
 }
 
-@keyframes voidstore-wordmark-in {
+@keyframes cutportal-wordmark-in {
   from {
     clip-path: inset(0 50% 0 50%);
     opacity: 0;
@@ -1307,56 +1307,56 @@
   }
 }
 
-@keyframes voidstore-progress-shell {
+@keyframes cutportal-progress-shell {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-@keyframes voidstore-progress-fill {
+@keyframes cutportal-progress-fill {
   from { transform: translate3d(-100%, 0, 0); }
   to { transform: translate3d(0, 0, 0); }
 }
 
 @media (max-width: 640px) {
-  .voidstore-splash__frame {
+  .cutportal-splash__frame {
     width: calc(100vw - 28px);
     height: min(300px, calc(100vh - 88px));
   }
 
-  .voidstore-splash__logo {
+  .cutportal-splash__logo {
     font-size: 40px;
   }
 
-  .voidstore-splash__tagline {
+  .cutportal-splash__tagline {
     font-size: 13px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .voidstore-splash,
-  .voidstore-splash::before,
-  .voidstore-splash__frame,
-  .voidstore-splash__seal,
-  .voidstore-splash__eyebrow,
-  .voidstore-splash__logo,
-  .voidstore-splash__tagline,
-  .voidstore-splash__progress,
-  .voidstore-splash__progress::after {
+  .cutportal-splash,
+  .cutportal-splash::before,
+  .cutportal-splash__frame,
+  .cutportal-splash__seal,
+  .cutportal-splash__eyebrow,
+  .cutportal-splash__logo,
+  .cutportal-splash__tagline,
+  .cutportal-splash__progress,
+  .cutportal-splash__progress::after {
     animation: none;
     transition: opacity 180ms ease;
   }
 
-  .voidstore-splash__frame,
-  .voidstore-splash__seal,
-  .voidstore-splash__eyebrow,
-  .voidstore-splash__logo,
-  .voidstore-splash__tagline,
-  .voidstore-splash__progress {
+  .cutportal-splash__frame,
+  .cutportal-splash__seal,
+  .cutportal-splash__eyebrow,
+  .cutportal-splash__logo,
+  .cutportal-splash__tagline,
+  .cutportal-splash__progress {
     opacity: 1;
     transform: none;
   }
 
-  .voidstore-splash__progress::after {
+  .cutportal-splash__progress::after {
     transform: none;
   }
 }
@@ -1427,7 +1427,7 @@
 }
 
 /* Basic garage-door splash */
-.voidstore-splash {
+.cutportal-splash {
   position: fixed;
   inset: 0;
   z-index: 120;
@@ -1445,18 +1445,18 @@
   will-change: transform;
 }
 
-.voidstore-splash::before,
-.voidstore-splash::after,
-.voidstore-splash__grain,
-.voidstore-splash__frame,
-.voidstore-splash__progress,
-.voidstore-splash__eyebrow,
-.voidstore-splash__seal,
-.voidstore-splash__tagline {
+.cutportal-splash::before,
+.cutportal-splash::after,
+.cutportal-splash__grain,
+.cutportal-splash__frame,
+.cutportal-splash__progress,
+.cutportal-splash__eyebrow,
+.cutportal-splash__seal,
+.cutportal-splash__tagline {
   display: none;
 }
 
-.voidstore-splash--leave {
+.cutportal-splash--leave {
   opacity: 1;
   filter: none;
   transform: translate3d(0, -101%, 0);
@@ -1464,14 +1464,14 @@
   box-shadow: 0 32px 80px rgba(0, 0, 0, 0.42);
 }
 
-.voidstore-splash__mark {
+.cutportal-splash__mark {
   display: grid;
   place-items: center;
   width: auto;
   text-align: center;
 }
 
-.voidstore-splash__logo {
+.cutportal-splash__logo {
   display: block;
   color: #ffffff;
   font-family: "Bricolage Grotesque", "Space Grotesk", Manrope, system-ui, sans-serif;
@@ -1497,22 +1497,22 @@
 }
 
 @media (max-width: 640px) {
-  .voidstore-splash__logo {
+  .cutportal-splash__logo {
     font-size: 40px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .voidstore-splash {
+  .cutportal-splash {
     transition: opacity 180ms ease;
   }
 
-  .voidstore-splash--leave {
+  .cutportal-splash--leave {
     opacity: 0;
     transform: none;
   }
 
-  .voidstore-splash__logo {
+  .cutportal-splash__logo {
     animation: none;
     opacity: 1;
     transform: none;
