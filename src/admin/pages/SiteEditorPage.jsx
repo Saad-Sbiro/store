@@ -176,7 +176,7 @@ export default function SiteEditorPage() {
           <div>
             <h4 className="text-amber-300 font-semibold text-sm mb-1">Admin Password</h4>
             <p className="text-amber-400/70 text-xs leading-relaxed">
-              The current local admin password is <code className="font-mono bg-amber-500/15 px-1.5 py-0.5 rounded text-amber-300">password123</code>.
+              The current local admin password is <code className="font-mono bg-amber-500/15 px-1.5 py-0.5 rounded text-amber-300">passpass</code>.
               To change it, update the <code className="font-mono">LOCAL_ADMIN_PASSWORD</code> constant in <code className="font-mono">src/admin/AdminLogin.jsx</code>.
               Backend login is still used when available.
             </p>

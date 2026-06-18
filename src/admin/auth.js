@@ -1,4 +1,4 @@
-export const LOCAL_ADMIN_PASSWORD = 'password123';
+export const LOCAL_ADMIN_PASSWORD = 'passpass';
 export const LEGACY_ADMIN_PASSWORD = 'admin2024';
 
 export function completeLocalLogin() {

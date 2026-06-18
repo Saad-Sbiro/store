@@ -3,7 +3,7 @@
 // ─────────────────────────────────────────────
 
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 
 import Navbar from './components/layout/Navbar';
@@ -42,24 +42,6 @@ const mixHex = (from, to, amount) => {
   return `#${mixed.map((channel) => channel.toString(16).padStart(2, '0')).join('')}`;
 };
 
-const HOME_SPLASH_KEY = 'voidstore_home_splash_seen';
-
-const hasSeenHomeSplash = () => {
-  try {
-    return window.sessionStorage.getItem(HOME_SPLASH_KEY) === 'true';
-  } catch {
-    return true;
-  }
-};
-
-const markHomeSplashSeen = () => {
-  try {
-    window.sessionStorage.setItem(HOME_SPLASH_KEY, 'true');
-  } catch {
-    // Ignore storage failures; the splash should never block navigation.
-  }
-};
-
 // Scroll to top on route change
 function ScrollToTop() {
   const { pathname, hash } = useLocation();
@@ -94,13 +76,14 @@ function VisitorTracker() {
 
 function RouteTopLoader() {
   const location = useLocation();
-  const [loading, setLoading] = useState(false);
+  const routeKey = `${location.pathname}${location.search}`;
+  const [settledRouteKey, setSettledRouteKey] = useState(routeKey);
+  const loading = settledRouteKey !== routeKey;
 
   useEffect(() => {
-    setLoading(true);
-    const timeout = setTimeout(() => setLoading(false), 520);
+    const timeout = setTimeout(() => setSettledRouteKey(routeKey), 520);
     return () => clearTimeout(timeout);
-  }, [location.pathname, location.search]);
+  }, [routeKey]);
 
   return <TopLoader isLoading={loading} color="var(--site-accent-500)" />;
 }
@@ -125,25 +108,8 @@ function SiteSettingsBridge() {
 
 function HomeSplashGate() {
   const location = useLocation();
-  const [showSplash, setShowSplash] = useState(() => location.pathname === '/' && !hasSeenHomeSplash());
 
-  useEffect(() => {
-    if (location.pathname !== '/') {
-      setShowSplash(false);
-      return;
-    }
-
-    if (!hasSeenHomeSplash()) {
-      setShowSplash(true);
-    }
-  }, [location.pathname]);
-
-  const handleComplete = useCallback(() => {
-    markHomeSplashSeen();
-    setShowSplash(false);
-  }, []);
-
-  return showSplash ? <SplashScreen onComplete={handleComplete} /> : null;
+  return location.pathname === '/' ? <SplashScreen key={location.key || location.pathname} /> : null;
 }
 
 // Storefront layout (with Navbar + Footer)

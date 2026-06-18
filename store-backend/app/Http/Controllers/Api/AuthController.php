@@ -62,7 +62,7 @@ class AuthController extends Controller
         if (
             app()->isProduction()
             && $user->isAdmin()
-            && in_array($validated['password'], ['password123', 'admin2024'], true)
+            && in_array($validated['password'], ['passpass', 'password123', 'admin2024'], true)
         ) {
             throw ValidationException::withMessages([
                 'password' => ['The default admin password is disabled in production.'],

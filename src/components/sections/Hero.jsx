@@ -1,49 +1,21 @@
-import { useCallback, useState } from 'react';
 import { HERO_IMAGE_URL } from '../../constants/media';
 import { useAdminStore } from '../../store/useAdminStore';
-import { TextLoop } from '../core/text-loop';
 
 export default function Hero() {
   const siteSettings = useAdminStore((s) => s.siteSettings);
-  const [loopDirection, setLoopDirection] = useState(-1);
   const titleLines = (siteSettings.heroTitle?.trim() || 'Sharper\nSetups')
     .split(/\n+/)
     .map((line) => line.trim())
     .filter(Boolean);
-  const titleLead = titleLines[0] || 'Sharper';
-  const titleTail = titleLines[1] || 'Setups';
   const eyebrow = siteSettings.tagline?.trim() || 'Curated desk technology';
   const subtitle = siteSettings.heroSubtitle?.trim()
     || 'Quiet tools for focused rooms: stands, docks, lighting, and audio chosen for everyday work.';
-  const handleLoopIndexChange = useCallback((index) => {
-    setLoopDirection(index === 0 ? -1 : 1);
-  }, []);
-  const titleLoopVariants = {
-    initial: {
-      y: -loopDirection * 24,
-      rotateX: -loopDirection * 88,
-      opacity: 0,
-      filter: 'blur(6px)',
-    },
-    animate: {
-      y: 0,
-      rotateX: 0,
-      opacity: 1,
-      filter: 'blur(0px)',
-    },
-    exit: {
-      y: -loopDirection * 24,
-      rotateX: -loopDirection * 88,
-      opacity: 0,
-      filter: 'blur(6px)',
-    },
-  };
 
   return (
     <section
       id="hero"
       aria-label="Workspace essentials"
-      className="relative isolate flex h-[92svh] min-h-[650px] max-h-[900px] overflow-hidden bg-[#050505] text-white"
+      className="relative isolate flex h-[100svh] min-h-[100svh] overflow-hidden bg-[#050505] text-white"
     >
       <div className="absolute inset-0 -z-10" aria-hidden="true">
         <img
@@ -63,27 +35,15 @@ export default function Hero() {
             {eyebrow}
           </p>
 
-          <h1 className="hero-title-font max-w-[1120px] text-[62px] font-extrabold uppercase leading-[0.88] tracking-normal text-white sm:text-[82px] lg:text-[118px] xl:text-[138px]">
-            <span className="block">{titleLead}</span>
-            <span className="mt-1 flex flex-wrap items-baseline gap-x-4 gap-y-1 sm:gap-x-6">
-              <TextLoop
-                className="hero-title-loop"
-                transition={{
-                  type: 'spring',
-                  stiffness: 150,
-                  damping: 19,
-                  mass: 1.2,
-                }}
-                interval={2.5}
-                onIndexChange={handleLoopIndexChange}
-                variants={titleLoopVariants}
-              >
-                <span>Focused</span>
-                <span>Refined</span>
-                <span>Connected</span>
-              </TextLoop>
-              <span className="text-white/80">{titleTail}</span>
-            </span>
+          <h1
+            className="hero-title-font max-w-[1120px] text-[64px] font-extrabold uppercase leading-[0.88] tracking-normal text-white sm:text-[86px] lg:text-[124px] xl:text-[146px]"
+            aria-label={titleLines.join(' ')}
+          >
+            {titleLines.map((line, index) => (
+              <span key={line} className={index === 0 ? 'block' : 'block text-white/82'}>
+                {line}
+              </span>
+            ))}
           </h1>
 
           <div className="mt-8 grid w-full max-w-[1120px] gap-6 sm:mt-9 md:grid-cols-[minmax(0,620px)_minmax(280px,420px)] md:items-end">

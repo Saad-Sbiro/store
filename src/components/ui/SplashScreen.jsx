@@ -5,11 +5,11 @@ export default function SplashScreen({ onComplete }) {
   const [leaving, setLeaving] = useState(false);
 
   useEffect(() => {
-    const leaveTimer = window.setTimeout(() => setLeaving(true), 1550);
+    const leaveTimer = window.setTimeout(() => setLeaving(true), 950);
     const hideTimer = window.setTimeout(() => {
       setVisible(false);
       onComplete?.();
-    }, 2150);
+    }, 1850);
 
     return () => {
       window.clearTimeout(leaveTimer);
@@ -29,17 +29,11 @@ export default function SplashScreen({ onComplete }) {
   return (
     <div
       className={`voidstore-splash ${leaving ? 'voidstore-splash--leave' : ''}`}
-      aria-label="Loading VOIDSTORE"
+      aria-label="Welcome"
       role="status"
     >
-      <div className="voidstore-splash__grain" aria-hidden="true" />
-      <div className="voidstore-splash__frame" aria-hidden="true" />
       <div className="voidstore-splash__mark">
-        <span className="voidstore-splash__seal" aria-hidden="true">VS</span>
-        <span className="voidstore-splash__eyebrow">VOIDSTORE</span>
-        <span className="voidstore-splash__logo">VOIDSTORE</span>
-        <span className="voidstore-splash__tagline">Curated desk technology</span>
-        <span className="voidstore-splash__progress" aria-hidden="true" />
+        <span className="voidstore-splash__logo">Welcome</span>
       </div>
     </div>
   );

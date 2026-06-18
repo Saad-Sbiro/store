@@ -19,14 +19,14 @@ class DatabaseSeeder extends Seeder
         User::create([
             'name' => 'Admin User',
             'email' => 'admin@voidstore.com',
-            'password' => Hash::make('password123'),
+            'password' => Hash::make('passpass'),
             'role' => 'admin',
         ]);
 
         User::create([
             'name' => 'John Doe',
             'email' => 'john@example.com',
-            'password' => Hash::make('password123'),
+            'password' => Hash::make('passpass'),
             'role' => 'customer',
         ]);
 

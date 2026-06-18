@@ -36,9 +36,9 @@ export default function AboutPage() {
   const valuesInView = useInView(valuesRef, { once: true, margin: '-60px' });
 
   return (
-    <div className="min-h-screen bg-surface-0" style={{ paddingTop: '108px' }}>
+    <div className="min-h-screen bg-surface-0">
       {/* ── Hero Banner ── */}
-      <section className="relative overflow-hidden bg-ink-900 text-white py-20 sm:py-28">
+      <section className="relative overflow-hidden bg-ink-900 pb-20 pt-[132px] text-white sm:pb-28 sm:pt-[148px]">
         <div className="absolute inset-0 opacity-10">
           <div className="hero-grain" />
         </div>

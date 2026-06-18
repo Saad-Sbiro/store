@@ -21,6 +21,13 @@ const fadeUp = {
   }),
 };
 
+const createFallbackOrderNumber = () => {
+  const now = new Date();
+  const date = now.toISOString().slice(0, 10).replace(/-/g, '');
+  const suffix = String(now.getTime()).slice(-4);
+  return `VS-${date}-${suffix}`;
+};
+
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const { items, updateQuantity, removeItem, totalPrice, clearCart } = useCartStore();
@@ -80,13 +87,6 @@ export default function CheckoutPage() {
     if (!form.city.trim()) e.city = 'Dkhl smit lmdina';
     setErrors(e);
     return Object.keys(e).length === 0;
-    if (!form.fullName.trim()) e.fullName = 'الاسم الكامل مطلوب';
-    if (!form.phone.trim()) e.phone = 'رقم الهاتف مطلوب';
-    else if (!/^(0[5-7]\d{8}|\+212[5-7]\d{8})$/.test(form.phone.replace(/\s/g, ''))) e.phone = 'أدخل رقم هاتف مغربي صحيح';
-    if (!form.address.trim()) e.address = 'العنوان مطلوب';
-    if (!form.city) e.city = 'المدينة مطلوبة';
-    setErrors(e);
-    return Object.keys(e).length === 0;
   };
 
   const handleApplyPromo = () => {
@@ -124,7 +124,7 @@ export default function CheckoutPage() {
       // Ensure auth
       let token = localStorage.getItem('voidstore_token');
       if (!token) {
-        await api.login('john@example.com', 'password123');
+        await api.login('john@example.com', 'passpass');
       }
 
       const orderData = {
@@ -154,7 +154,7 @@ export default function CheckoutPage() {
       clearCart();
       navigate('/order-confirmation', {
         state: {
-          orderNumber: result?.order?.order_number || result?.order_number || 'VS-' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '-' + Math.floor(Math.random() * 9000 + 1000),
+          orderNumber: result?.order?.order_number || result?.order_number || createFallbackOrderNumber(),
           orderId: result?.order?.id || result?.id || null,
           orderStatus: result?.order?.status || result?.status || 'pending',
           createdAt: result?.order?.created_at || new Date().toISOString(),

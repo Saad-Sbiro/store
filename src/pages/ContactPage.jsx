@@ -84,9 +84,9 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-surface-50" style={{ paddingTop: '108px' }}>
+    <div className="min-h-screen bg-surface-50">
       {/* ── Header ── */}
-      <section className="bg-surface-0 border-b border-surface-200 py-12 sm:py-16">
+      <section className="border-b border-surface-200 bg-surface-0 pb-12 pt-[116px] sm:pb-16 sm:pt-[132px]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.p
             initial={{ y: 8, opacity: 0 }}
