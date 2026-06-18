@@ -63,19 +63,6 @@ const GEO_TIMEOUT_MS = 3500;
 
 const geoProviders = [
   {
-    url: 'https://ipwho.is/',
-    map: (data) => {
-      if (data.success === false) throw new Error(data.message || 'geo lookup failed');
-      return {
-        country: data.country,
-        countryCode: data.country_code,
-        city: data.city,
-        region: data.region,
-        ip: data.ip,
-      };
-    },
-  },
-  {
     url: 'https://get.geojs.io/v1/ip/geo.json',
     map: (data) => ({
       country: data.country,

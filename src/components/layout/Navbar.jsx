@@ -157,6 +157,7 @@ function AnnouncementBar({ visible, text, onDismiss }) {
 
 /** Compact CardNav-style hover menu */
 function CardMegaMenu({ data }) {
+  const siteSettings = useAdminStore((s) => s.siteSettings);
   return (
     <div className="absolute top-full left-1/2 z-50 w-[min(820px,calc(100vw-2rem))] -translate-x-1/2 pt-3">
       <motion.div
@@ -168,7 +169,7 @@ function CardMegaMenu({ data }) {
       >
         <div className="h-[60px] px-4 flex items-center justify-between border-b border-surface-200">
           <div className="flex items-center gap-2">
-            <img src={logoImg} alt="Cutportal Logo" className="h-5 w-auto object-contain" />
+            <img src={logoImg} alt="Cutportal Logo" className="h-5 w-auto object-contain" draggable="false" />
             <span className="font-comico text-[20px] tracking-wide text-ink-900">{siteSettings.storeName}</span>
           </div>
           <Link
@@ -391,7 +392,7 @@ export default function Navbar() {
                 aria-label="${siteSettings.storeName} - Home"
                 className="flex items-center gap-2 text-white"
               >
-                <img src={logoImg} alt="${siteSettings.storeName} Logo" className="h-6 w-auto object-contain brightness-0 invert" />
+                <img src={logoImg} alt="${siteSettings.storeName} Logo" className="h-6 w-auto object-contain brightness-0 invert" draggable="false" />
                 <span className="font-comico text-[21px] tracking-wide">
                   {siteSettings.storeName}
                 </span>

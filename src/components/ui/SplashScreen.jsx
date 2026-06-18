@@ -34,7 +34,7 @@ export default function SplashScreen({ onComplete }) {
       role="status"
     >
       <div className="cutportal-splash__mark flex flex-col items-center gap-4">
-        <img src={logoImg} alt="Cutportal Logo" className="h-16 w-auto object-contain brightness-0 invert animate-pulse" />
+        <img src={logoImg} alt="Cutportal Logo" className="h-16 w-auto object-contain brightness-0 invert animate-pulse" draggable="false" />
         <span className="cutportal-splash__logo tracking-[0.2em] uppercase font-bold text-[14px]">Cutportal</span>
       </div>
     </div>
