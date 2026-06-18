@@ -34,7 +34,11 @@ const normalizeSiteSettings = (settings) => {
   const merged = { ...defaultSiteSettings, ...persistedSettings };
   const legacyAnnouncement = String(persistedSettings.announcementBar || '').toLowerCase();
 
-  if (!persistedSettings.storeName || persistedSettings.storeName === legacySiteDefaults.storeName) {
+  if (
+    !persistedSettings.storeName
+    || persistedSettings.storeName === legacySiteDefaults.storeName
+    || persistedSettings.storeName === 'VOIDSTORE'
+  ) {
     merged.storeName = defaultSiteSettings.storeName;
   }
   if (!persistedSettings.tagline || persistedSettings.tagline === legacySiteDefaults.tagline) {
