@@ -459,7 +459,7 @@ export default function Navbar() {
                     to="/wishlist"
                     id="nav-wishlist"
                     aria-label={`Wishlist (${totalWish} items)`}
-                    className="relative w-10 h-10 flex items-center justify-center transition-all duration-200 text-white hover:bg-white/10 rounded"
+                    className="relative w-10 h-10 hidden lg:flex items-center justify-center transition-all duration-200 text-white hover:bg-white/10 rounded"
                   >
                     <Heart size={17} strokeWidth={1.75} />
                     <AnimatePresence>
@@ -680,7 +680,7 @@ export default function Navbar() {
                     My reviews
                   </Link>
                 )}
-                <div className="flex items-center gap-4 pt-2">
+                <div className="flex items-center gap-5 pt-2">
                   <button
                     onClick={() => { setMobileOpen(false); toggleCart(); }}
                     className="flex items-center gap-2 text-[13px] font-medium text-ink-600 hover:text-ink-900 transition-colors"
@@ -688,6 +688,14 @@ export default function Navbar() {
                     <ShoppingBag size={16} strokeWidth={1.75} />
                     Cart {totalItems > 0 && `(${totalItems})`}
                   </button>
+                  <Link
+                    to="/wishlist"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-2 text-[13px] font-medium text-ink-600 hover:text-ink-900 transition-colors"
+                  >
+                    <Heart size={16} strokeWidth={1.75} />
+                    Wishlist {totalWish > 0 && `(${totalWish})`}
+                  </Link>
                 </div>
                 {siteSettings.showAnnouncementBar && announcementText && (
                   <p className="text-[10px] uppercase tracking-[0.18em] text-ink-300 pt-2">
