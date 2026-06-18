@@ -10,6 +10,7 @@ import { CheckCircle, Package, ArrowRight, Copy, Download, MessageSquareText } f
 import { formatPrice } from '../utils/formatPrice';
 import { useToastStore } from '../store/useToastStore';
 import { savePendingReviewOrder } from '../utils/reviews';
+import logoImg from '../assets/logo.png';
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -33,6 +34,58 @@ const loadJsPDF = () => {
     script.onerror = () => reject(new Error('jsPDF script failed to load'));
     document.body.appendChild(script);
   });
+};
+
+// Helper to load image as HTMLImageElement
+const loadImage = (src) => {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'Anonymous';
+    img.src = src;
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+  });
+};
+
+// Helper to render text (supporting Arabic/RTL) to a crisp base64 PNG image
+const renderTextToImage = (lines, options = {}) => {
+  const {
+    fontSize = 13,
+    lineHeight = 22,
+    width = 400,
+    height = 110,
+    textColor = '#3c3c3c',
+    align = 'left'
+  } = options;
+
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  
+  // Use scale factor of 4 for retina-grade crispness in PDF
+  const scale = 4;
+  canvas.width = width * scale;
+  canvas.height = height * scale;
+  
+  ctx.scale(scale, scale);
+  ctx.clearRect(0, 0, width, height);
+  
+  // Font stack supporting Arabic/Unicode natively
+  ctx.font = `normal ${fontSize}px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif`;
+  ctx.fillStyle = textColor;
+  ctx.textBaseline = 'top';
+  
+  lines.forEach((line, index) => {
+    const yPos = index * lineHeight + 2;
+    if (align === 'right') {
+      ctx.textAlign = 'right';
+      ctx.fillText(line, width - 4, yPos);
+    } else {
+      ctx.textAlign = 'left';
+      ctx.fillText(line, 4, yPos);
+    }
+  });
+  
+  return canvas.toDataURL('image/png');
 };
 
 export default function OrderConfirmationPage() {
