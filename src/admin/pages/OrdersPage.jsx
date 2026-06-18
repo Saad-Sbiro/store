@@ -119,8 +119,8 @@ export default function OrdersPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <div className="relative flex-1 max-w-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="relative w-full sm:max-w-sm">
           <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
           <input value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} placeholder="Search by name, email, order ID..." className="w-full bg-[#222222]/50 border border-[#3a3a3a] text-white text-xs placeholder-white/30 rounded-xl pl-8 pr-3 py-2.5 outline-none focus:border-white/30" />
         </div>

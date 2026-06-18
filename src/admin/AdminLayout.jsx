@@ -7,7 +7,9 @@ import Sidebar from './components/Sidebar';
 import TopBar from './components/TopBar';
 
 export default function AdminLayout({ children, onLogout }) {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(
+    () => typeof window !== 'undefined' ? window.innerWidth < 1024 : true
+  );
   const [refreshKey, setRefreshKey] = useState(0);
 
   const handleRefresh = useCallback(() => {
@@ -26,6 +28,7 @@ export default function AdminLayout({ children, onLogout }) {
         className={`relative flex-1 flex flex-col min-h-screen transition-all duration-300
           ${sidebarCollapsed ? 'lg:ml-[72px]' : 'lg:ml-64'}
         `}
+        style={{ minWidth: 0 }}
       >
         <TopBar
           onMenuClick={() => setSidebarCollapsed(v => !v)}

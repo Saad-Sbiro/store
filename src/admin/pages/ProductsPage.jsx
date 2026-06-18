@@ -92,8 +92,8 @@ function ProductModal({ product, categories, onSave, onClose }) {
         <div className="overflow-y-auto p-6 space-y-4 flex-1">
           {error && <p className="text-rose-400 text-xs bg-rose-500/10 border border-rose-500/20 rounded-lg px-3 py-2 flex items-center gap-2"><AlertTriangle size={13} />{error}</p>}
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="col-span-full">
               <label className="block text-white/50 text-xs mb-1.5">Product Name *</label>
               <input value={form.name} onChange={e => set('name', e.target.value)} className="w-full bg-[#222222]/50 border border-[#3a3a3a] text-white text-sm rounded-xl px-4 py-2.5 outline-none focus:border-white/30" placeholder="Arc Leather Tote" />
             </div>
@@ -123,11 +123,11 @@ function ProductModal({ product, categories, onSave, onClose }) {
               <label className="block text-white/50 text-xs mb-1.5">Promo Discount (%)</label>
               <input type="number" value={form.promoDiscount || ''} onChange={e => set('promoDiscount', e.target.value)} className="w-full bg-[#222222]/50 border border-[#3a3a3a] text-white text-sm rounded-xl px-4 py-2.5 outline-none focus:border-white/30" placeholder="e.g. 20" />
             </div>
-            <div className="col-span-2">
+            <div className="col-span-full">
               <label className="block text-white/50 text-xs mb-1.5 font-medium">Shipping Fee (DH) - 0 for Free Shipping</label>
               <input type="number" value={form.shippingFee} onChange={e => set('shippingFee', e.target.value)} className="w-full bg-[#222222]/50 border border-[#3a3a3a] text-white text-sm rounded-xl px-4 py-2.5 outline-none focus:border-white/30" placeholder="0 (Free Shipping)" />
             </div>
-            <div className="col-span-2">
+            <div className="col-span-full">
               <label className="block text-white/50 text-xs mb-1.5">Badge</label>
               <div className="flex flex-wrap gap-2">
                 {badgeOptions.map(b => (
@@ -138,7 +138,7 @@ function ProductModal({ product, categories, onSave, onClose }) {
                 ))}
               </div>
             </div>
-            <div className="col-span-2">
+            <div className="col-span-full">
               <label className="block text-white/50 text-xs mb-1.5">Description</label>
               <textarea value={form.description} onChange={e => set('description', e.target.value)} rows={3} className="w-full bg-[#222222]/50 border border-[#3a3a3a] text-white text-sm rounded-xl px-4 py-2.5 outline-none focus:border-white/30 resize-none" placeholder="Product description..." />
             </div>
@@ -190,7 +190,7 @@ function ProductModal({ product, categories, onSave, onClose }) {
                 </div>
               </div>
             ))}
-            <div className="col-span-2">
+            <div className="col-span-full">
               <label className="block text-white/50 text-xs mb-1.5">Slug (auto-generated if blank)</label>
               <input value={form.slug} onChange={e => set('slug', e.target.value)} className="w-full bg-[#222222]/50 border border-[#3a3a3a] text-white text-sm rounded-xl px-4 py-2.5 outline-none focus:border-white/30 font-mono" placeholder="arc-leather-tote" />
             </div>
@@ -574,7 +574,7 @@ function CategoryManagerModal({ onClose, onRefresh }) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-white/50 text-xs mb-1.5 font-medium">Sort Order</label>
                   <input type="number" value={editingCat.sort_order ?? 0} onChange={e => setEditingCat(prev => ({ ...prev, sort_order: e.target.value }))} className="w-full bg-[#222222]/50 border border-[#3a3a3a] text-white text-sm rounded-xl px-4 py-2.5 outline-none focus:border-white/30" placeholder="0" />

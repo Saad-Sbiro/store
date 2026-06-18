@@ -199,7 +199,7 @@ export default function OverviewPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <StatCard title="Total Revenue" value={formatPrice(metrics.total_revenue)} change="From paid orders" trend="neutral" icon={DollarSign} color="neutral" loading={loading} />
         <StatCard title="Total Orders" value={metrics.total_orders} change="Database orders" trend="neutral" icon={ShoppingBag} color="emerald" loading={loading} />
         <StatCard title="Unique Visitors" value={metrics.unique_customers} change="Tracked visitors" trend="neutral" icon={Users} color="neutral" loading={loading} />

@@ -120,7 +120,7 @@ export default function VisitorsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard title="Total Sessions" value={sessionCount} change="Tracked sessions" trend="neutral" icon={Globe} color="neutral" />
         <StatCard title="Avg Time on Site" value={`${Math.floor(avgTime / 60)}m ${avgTime % 60}s`} change="Tracked sessions" trend="neutral" icon={Clock} color="emerald" />
         <StatCard title="Avg Page Load" value={`${(avgLoad / 1000).toFixed(1)}s`} change={sessionCount > 0 ? (avgLoad > 2000 ? 'Needs improvement' : 'Good performance') : 'No sessions yet'} trend={sessionCount > 0 && avgLoad > 2000 ? 'down' : 'neutral'} icon={Zap} color={avgLoad > 2000 ? 'rose' : 'amber'} />
@@ -237,22 +237,24 @@ export default function VisitorsPage() {
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-[#2a2a2a] bg-[#1c1c1c]/60 backdrop-blur-sm">
-        <div className="flex flex-wrap items-center gap-3 border-b border-[#2a2a2a] px-6 py-4">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 border-b border-[#2a2a2a] px-4 sm:px-6 py-4">
           <div>
             <h3 className="text-sm font-semibold text-white">Session Log</h3>
             <p className="mt-0.5 text-xs text-white/40">{filtered.length} sessions</p>
           </div>
-          <div className="ml-auto flex min-w-0 flex-1 items-center gap-2">
-            <div className="relative max-w-xs flex-1">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:ml-auto w-full sm:w-auto">
+            <div className="relative w-full sm:max-w-xs">
               <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
               <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search country, browser..." className="w-full rounded-lg border border-[#3a3a3a] bg-[#222222]/50 py-2 pl-8 pr-3 text-xs text-white outline-none placeholder-white/30 focus:border-white/30" />
             </div>
-            {['All', 'Desktop', 'Mobile', 'Tablet'].map((filter) => (
-              <button key={filter} onClick={() => setDeviceFilter(filter)} className={`rounded-lg border px-3 py-1.5 text-xs transition-all ${deviceFilter === filter ? 'border-white/25 bg-white/15 text-white/80' : 'border-[#3a3a3a] bg-[#222222]/50 text-white/40 hover:text-white/70'}`}>{filter}</button>
-            ))}
-            {sessionCount > 0 && (
-              <button onClick={clearSessions} className="flex items-center gap-1 rounded-lg border border-rose-500/20 bg-rose-500/10 px-3 py-1.5 text-xs text-rose-400 transition-all hover:text-rose-300"><Trash2 size={12} /> Clear</button>
-            )}
+            <div className="flex flex-wrap gap-1.5">
+              {['All', 'Desktop', 'Mobile', 'Tablet'].map((filter) => (
+                <button key={filter} onClick={() => setDeviceFilter(filter)} className={`rounded-lg border px-3 py-1.5 text-xs transition-all ${deviceFilter === filter ? 'border-white/25 bg-white/15 text-white/80' : 'border-[#3a3a3a] bg-[#222222]/50 text-white/40 hover:text-white/70'}`}>{filter}</button>
+              ))}
+              {sessionCount > 0 && (
+                <button onClick={clearSessions} className="flex items-center gap-1 rounded-lg border border-rose-500/20 bg-rose-500/10 px-3 py-1.5 text-xs text-rose-400 transition-all hover:text-rose-300"><Trash2 size={12} /> Clear</button>
+              )}
+            </div>
           </div>
         </div>
         <div className="overflow-x-auto">

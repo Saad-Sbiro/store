@@ -415,7 +415,7 @@ export default function AIInsightsPage() {
       )}
 
       {/* Connected status + config toggle */}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <div className={`flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg border ${aiConfig.apiKey ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-amber-500/10 border-amber-500/20 text-amber-400'}`}>
           <span className={`w-1.5 h-1.5 rounded-full ${aiConfig.apiKey ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
           {aiConfig.apiKey ? `Connected · ${MODELS.find(m => m.id === (aiConfig.model || MODELS[0].id))?.label || MODELS[0].label}` : 'Not configured — add your API key'}
