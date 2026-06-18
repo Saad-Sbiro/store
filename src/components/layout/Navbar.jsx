@@ -170,7 +170,7 @@ function CardMegaMenu({ data }) {
         <div className="h-[60px] px-4 flex items-center justify-between border-b border-surface-200">
           <div className="flex items-center gap-0.5">
             <img src={logoImg} alt="Cutportal Logo" className="h-5 w-auto object-contain -translate-y-[1.5px]" draggable="false" />
-            <span className="font-clash font-black text-[20px] tracking-wide text-ink-900 uppercase">ut portal</span>
+            <span className="font-logo-brand text-[20px] tracking-wide text-ink-900">ut portal</span>
           </div>
           <Link
             to={data.featured.href}
@@ -393,7 +393,7 @@ export default function Navbar() {
                 className="flex items-center gap-0.5 text-white"
               >
                 <img src={logoImg} alt="Cutportal Logo" className="h-6 w-auto object-contain brightness-0 invert -translate-y-[1.5px]" draggable="false" />
-                <span className="font-clash font-black text-[21px] tracking-wide uppercase">
+                <span className="font-logo-brand text-[21px] tracking-wide">
                   ut portal
                 </span>
               </Link>

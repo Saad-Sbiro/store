@@ -3,14 +3,6 @@
    ───────────────────────────────────────────── */
 
 /* Google Fonts */
-/* Comico from Fontshare CDN */
-@import url('https://api.fontshare.com/v2/css?f[]=comico@400&display=swap');
-/* Cabinet Grotesk for bold CTAs */
-@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,900&display=swap');
-/* Clash Display for the splash wordmark */
-@import url('https://api.fontshare.com/v2/css?f[]=clash-display@600,700&display=swap');
-/* Clash Grotesk for the store brand text */
-@import url('https://api.fontshare.com/v2/css?f[]=clash-grotesk@200,300,400,500,600,700&display=swap');
 /* Cormorant Garamond for supporting display text */
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Manrope:wght@300;400;500;600;700&display=swap');
 /* Bricolage Grotesque for the premium hero headline */
@@ -191,6 +183,12 @@
   }
   .scrollbar-none::-webkit-scrollbar {
     display: none;
+  }
+
+  .font-logo-brand {
+    font-family: 'Clash Grotesk', 'Space Grotesk', system-ui, sans-serif !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
   }
 
   .ease-expo {
