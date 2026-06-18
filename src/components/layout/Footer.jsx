@@ -64,9 +64,9 @@ export default function Footer() {
 
           {/* Brand Column */}
           <div className="lg:col-span-1">
-            <Link to="/" id="footer-logo" className="flex items-center gap-0.5 mb-4">
+            <Link to="/" id="footer-logo" className="flex items-center gap-0 mb-4">
               <img src={logoImg} alt="Cutportal Logo" className="h-7 w-auto object-contain brightness-0 invert -translate-y-[1.5px]" draggable="false" />
-              <span className="font-logo-brand text-2xl text-white hover:text-brand-400 transition-colors duration-200">
+              <span className="font-logo-brand text-2xl text-white hover:text-brand-400 transition-colors duration-200 -ml-[2px]">
                 ut portal
               </span>
             </Link>
