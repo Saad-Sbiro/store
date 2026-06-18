@@ -124,7 +124,17 @@ export default function CheckoutPage() {
       // Ensure auth
       let token = localStorage.getItem('cutportal_token');
       if (!token) {
-        await api.login('john@example.com', 'passpass');
+        try {
+          await api.login('john@example.com', 'passpass');
+        } catch (loginErr) {
+          console.warn('Silent login failed, attempting to register guest user...', loginErr);
+          try {
+            await api.register('John Doe', 'john@example.com', 'passpass', 'passpass');
+          } catch (regErr) {
+            console.error('Guest registration failed:', regErr);
+            throw new Error('Could not authenticate guest checkout. Please try again.');
+          }
+        }
       }
 
       const orderData = {
