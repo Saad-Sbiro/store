@@ -55,10 +55,14 @@ export default function OrderConfirmationPage() {
       doc.rect(0, 0, 210, 15, 'F');
 
       // Title/Logo
+      const img = await loadImage(logoImg);
+      if (img) {
+        doc.addImage(img, 'PNG', 20, 22.5, 8.5, 8.5);
+      }
       doc.setFont('Helvetica', 'bold');
-      doc.setFontSize(22);
+      doc.setFontSize(20);
       doc.setTextColor(10, 10, 10);
-      doc.text('CUTPORTAL', 20, 32);
+      doc.text('UT PORTAL', 29.5, 29.5);
 
       doc.setFontSize(10);
       doc.setFont('Helvetica', 'normal');
@@ -89,13 +93,24 @@ export default function OrderConfirmationPage() {
       doc.setTextColor(10, 10, 10);
       doc.text('SHIPPING ADDRESS', 110, 54);
 
-      doc.setFont('Helvetica', 'normal');
-      doc.setFontSize(9.5);
-      doc.setTextColor(60, 60, 60);
-      doc.text(`${shippingAddress?.fullName}`, 110, 62);
-      doc.text(`${shippingAddress?.phone}`, 110, 68);
-      doc.text(`${shippingAddress?.address}`, 110, 74);
-      doc.text(`${shippingAddress?.city}`, 110, 80);
+      // Render shipping address lines to an offscreen canvas to support Arabic/Unicode text
+      const addressLines = [
+        shippingAddress?.fullName || '',
+        shippingAddress?.phone || '',
+        shippingAddress?.address || '',
+        shippingAddress?.city || ''
+      ].filter(Boolean);
+
+      const addressImg = renderTextToImage(addressLines, {
+        fontSize: 13,
+        lineHeight: 22,
+        width: 400,
+        height: 110,
+        textColor: '#3c3c3c',
+        align: 'left'
+      });
+
+      doc.addImage(addressImg, 'PNG', 110, 58, 80, 22);
 
       // Table Line
       doc.line(20, 88, 190, 88);
@@ -344,13 +359,13 @@ export default function OrderConfirmationPage() {
         >
           <Link
             to="/shop"
-            className="flex-1 inline-flex items-center justify-center gap-2 h-12 rounded-btn bg-ink-900 text-white font-hero text-btn font-bold uppercase tracking-wide hover:bg-ink-600 transition-colors"
+            className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-btn bg-ink-900 text-white font-hero text-btn font-bold uppercase tracking-wide hover:bg-ink-600 transition-colors min-h-[48px]"
           >
             Continue Shopping <ArrowRight size={15} />
           </Link>
           <Link
             to="/"
-            className="flex-1 inline-flex items-center justify-center h-12 rounded-btn border border-surface-300 text-ink-600 font-hero text-btn font-bold uppercase tracking-wide hover:border-ink-400 hover:text-ink-900 transition-colors"
+            className="w-full sm:flex-1 inline-flex items-center justify-center py-3.5 px-6 rounded-btn border border-surface-300 text-ink-600 font-hero text-btn font-bold uppercase tracking-wide hover:border-ink-400 hover:text-ink-900 transition-colors min-h-[48px]"
           >
             Back to Home
           </Link>
