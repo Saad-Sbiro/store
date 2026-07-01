@@ -2,73 +2,82 @@
 // FILE: src/components/sections/FeaturedProducts.jsx
 // ─────────────────────────────────────────────
 
-import { useRef, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, useInView } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 
 import ProductCard from '../ui/ProductCard';
 import { api } from '../../services/api';
-import { fadeUp, stagger, slideLeft } from '../../utils/motionVariants';
+import { products as fallbackProducts } from '../../data/products';
 
 export default function FeaturedProducts() {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.getProducts({ featured: true })
-      .then((data) => {
-        // Laravel paginate returns data inside 'data' field
-        const products = Array.isArray(data?.data) ? data.data : data;
-        setFeaturedProducts(Array.isArray(products) ? products : []);
-      })
-      .catch((err) => {
-        console.error('Failed to load featured products:', err);
-        setFeaturedProducts([]);
-      })
-      .finally(() => setLoading(false));
+    let cancelled = false;
+
+    const loadProducts = async () => {
+      try {
+        const featuredResponse = await api.getProducts({ featured: true, per_page: 8 });
+        let products = Array.isArray(featuredResponse?.data)
+          ? featuredResponse.data
+          : featuredResponse;
+
+        if (!Array.isArray(products) || products.length === 0) {
+          const activeResponse = await api.getProducts({ per_page: 8 });
+          products = Array.isArray(activeResponse?.data) ? activeResponse.data : activeResponse;
+        }
+
+        if (!cancelled) {
+          setFeaturedProducts(Array.isArray(products) ? products.slice(0, 8) : []);
+        }
+      } catch (error) {
+        console.warn('Using the local product catalog because the API is unavailable:', error.message);
+        if (!cancelled) {
+          setFeaturedProducts(fallbackProducts.slice(0, 8));
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    loadProducts();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
-  const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, { once: true, margin: '-80px' });
 
   return (
     <section
       id="featured-products"
       aria-label="Featured Products"
-      ref={sectionRef}
-      className="py-16 md:py-24 bg-surface-0"
+      className="relative z-10 -mt-3 bg-surface-0 py-16 md:py-24"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* ── Section Header ── */}
         <div className="flex items-end justify-between mb-10 md:mb-12">
-          <motion.div
-            variants={slideLeft}
-            initial="hidden"
-            animate={isInView ? 'visible' : 'hidden'}
-          >
+          <div>
             <p className="text-[11px] font-semibold uppercase tracking-widest text-brand-500 mb-2">
               Top Picks
             </p>
             <h2 className="font-display font-semibold text-section-sm md:text-section text-ink-900">
               Featured Products
             </h2>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-            transition={{ delay: 0.3, duration: 0.4 }}
-          >
+          <div>
             <Link
-              to="/"
+              to="/shop"
               id="featured-view-all"
               className="hidden sm:inline-flex items-center gap-1.5 text-btn font-medium text-ink-600 hover:text-brand-500 transition-colors duration-200 group"
             >
               View all
               <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform duration-200" />
             </Link>
-          </motion.div>
+          </div>
         </div>
 
         {/* ── Products Grid ── */}
@@ -83,48 +92,33 @@ export default function FeaturedProducts() {
             ))}
           </div>
         ) : featuredProducts.length > 0 ? (
-          <motion.div
-            variants={stagger}
-            initial="hidden"
-            animate={isInView ? 'visible' : 'hidden'}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8"
-          >
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
             {featuredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
-          </motion.div>
+          </div>
         ) : (
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            animate={isInView ? 'visible' : 'hidden'}
-            className="flex min-h-[240px] items-center justify-center rounded-panel border border-surface-200 bg-surface-50 px-6 text-center"
-          >
+          <div className="flex min-h-[240px] items-center justify-center rounded-panel border border-surface-200 bg-surface-50 px-6 text-center">
             <div>
               <p className="font-display text-[24px] text-ink-900">No featured products yet</p>
               <p className="mt-2 max-w-sm text-caption text-ink-600">
                 Products marked as featured in the dashboard will appear here automatically.
               </p>
             </div>
-          </motion.div>
+          </div>
         )}
 
         {/* Mobile View All */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.6, duration: 0.4 }}
-          className="flex justify-center mt-10 sm:hidden"
-        >
+        <div className="flex justify-center mt-10 sm:hidden">
           <Link
-            to="/"
+            to="/shop"
             id="featured-view-all-mobile"
             className="inline-flex items-center gap-2 text-btn font-medium text-brand-500 border border-brand-500 px-6 py-3 rounded-btn hover:bg-brand-50 transition-colors duration-200"
           >
             View All Products
             <ArrowRight size={14} />
           </Link>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

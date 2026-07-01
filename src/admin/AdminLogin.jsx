@@ -4,9 +4,10 @@
 // ─────────────────────────────────────────────
 
 import { useState } from 'react';
-import { Lock, Eye, EyeOff, Zap, AlertCircle } from 'lucide-react';
+import { Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { api } from '../services/api';
 import { LOCAL_ADMIN_PASSWORD, canUseLocalLogin, completeLocalLogin } from './auth';
+import BrandLogo from '../components/ui/BrandLogo';
 
 export default function AdminLogin({ onSuccess }) {
   const [password, setPassword] = useState('');
@@ -26,7 +27,7 @@ export default function AdminLogin({ onSuccess }) {
         return;
       }
 
-      const data = await api.login('admin@cutportal.com', password);
+      const data = await api.login('admin@zadi.ma', password);
       if (data.user && data.user.role === 'admin') {
         onSuccess();
         return;
@@ -68,12 +69,10 @@ export default function AdminLogin({ onSuccess }) {
         <div className="rounded-2xl border border-[#2e2e2e] bg-[#1c1c1c]/60 backdrop-blur-xl p-8 shadow-2xl shadow-black/50">
           {/* Logo */}
           <div className="flex items-center justify-center mb-8">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-neutral-600 to-neutral-700 flex items-center justify-center shadow-2xl shadow-black/20">
-              <Zap size={28} className="text-white" />
-            </div>
+            <BrandLogo inverse size="lg" />
           </div>
 
-          <h1 className="text-white text-2xl font-bold text-center mb-1">Admin Dashboard</h1>
+          <h1 className="text-white text-2xl font-bold text-center mb-1">Zadi Admin</h1>
           <p className="text-white/40 text-sm text-center mb-8">Enter your admin password to continue</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">

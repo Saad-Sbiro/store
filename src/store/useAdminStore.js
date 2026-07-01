@@ -2,14 +2,14 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { normalizeGeo } from '../utils/geo';
 
-const SITE_SETTINGS_VERSION = 3;
+const SITE_SETTINGS_VERSION = 4;
 
 const defaultSiteSettings = {
   siteSettingsVersion: SITE_SETTINGS_VERSION,
-  storeName: 'CUTPORTAL',
-  tagline: 'Curated desk technology',
-  heroTitle: 'Sharper\nSetups',
-  heroSubtitle: 'Quiet tools for focused rooms: stands, docks, lighting, and audio chosen for everyday work.',
+  storeName: 'زادي',
+  tagline: 'اختيارات ذكية لحياة يومية أسهل',
+  heroTitle: 'زادي\nاختياراتك اليومية',
+  heroSubtitle: 'منتجات عملية ومختارة بعناية، مع توصيل سريع إلى جميع أنحاء المغرب.',
   accentColor: '#6366f1',
   showHero: true,
   showFeatured: true,
@@ -19,7 +19,7 @@ const defaultSiteSettings = {
   footerInstagram: '#',
   footerTwitter: '#',
   footerPinterest: '#',
-  announcementBar: 'New setup essentials available now - Returns within 14 days',
+  announcementBar: 'توصيل سريع إلى جميع أنحاء المغرب - استبدال خلال 14 يوماً',
   showAnnouncementBar: false,
 };
 
@@ -38,24 +38,36 @@ const normalizeSiteSettings = (settings) => {
     !persistedSettings.storeName
     || persistedSettings.storeName === legacySiteDefaults.storeName
     || persistedSettings.storeName === 'VOIDSTORE'
+    || persistedSettings.storeName === 'CUTPORTAL'
+    || persistedSettings.storeName === 'Cutportal'
   ) {
     merged.storeName = defaultSiteSettings.storeName;
   }
-  if (!persistedSettings.tagline || persistedSettings.tagline === legacySiteDefaults.tagline) {
+  if (
+    !persistedSettings.tagline
+    || persistedSettings.tagline === legacySiteDefaults.tagline
+    || persistedSettings.tagline === 'Curated desk technology'
+  ) {
     merged.tagline = defaultSiteSettings.tagline;
   }
-  if (!persistedSettings.heroTitle || persistedSettings.heroTitle === legacySiteDefaults.heroTitle) {
+  if (
+    !persistedSettings.heroTitle
+    || persistedSettings.heroTitle === legacySiteDefaults.heroTitle
+    || persistedSettings.heroTitle === 'Sharper\nSetups'
+  ) {
     merged.heroTitle = defaultSiteSettings.heroTitle;
   }
   if (
     !persistedSettings.heroSubtitle
     || persistedSettings.heroSubtitle.startsWith('A curated edit of luxury essentials')
+    || persistedSettings.heroSubtitle.startsWith('Quiet tools for focused rooms')
   ) {
     merged.heroSubtitle = defaultSiteSettings.heroSubtitle;
   }
   if (
     !persistedSettings.announcementBar
     || legacyAnnouncement.includes('shipping on orders over')
+    || legacyAnnouncement.includes('new setup essentials')
   ) {
     merged.announcementBar = defaultSiteSettings.announcementBar;
   }

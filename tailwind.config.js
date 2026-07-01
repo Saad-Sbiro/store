@@ -41,6 +41,9 @@ export default {
         comico:  ['Comico', 'Georgia', 'serif'],
         hero:    ['"Space Grotesk"', 'system-ui', 'sans-serif'],
         clash:   ['"Clash Grotesk"', 'system-ui', 'sans-serif'],
+        arabic:  ['Zain', 'Cairo', 'Tahoma', 'Arial', 'sans-serif'],
+        zain:    ['Zain', 'Cairo', 'Tahoma', 'Arial', 'sans-serif'],
+        lalezar: ['Lalezar', 'Zain', 'Tahoma', 'Arial', 'sans-serif'],
       },
       fontSize: {
         'hero':    ['56px', { lineHeight: '1.1', letterSpacing: '-0.02em' }],

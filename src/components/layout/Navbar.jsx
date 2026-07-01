@@ -10,9 +10,9 @@ import { ShoppingBag, Heart, Search, X, ChevronRight, ArrowUpRight, Star } from 
 import { useCartStore } from '../../store/useCartStore';
 import { useWishlistStore } from '../../store/useWishlistStore';
 import { useAdminStore } from '../../store/useAdminStore';
-import logoImg from '../../assets/logo.png';
 import { useScrollY } from '../../hooks/useScrollY';
 import { getPendingReviewOrders } from '../../utils/reviews';
+import BrandLogo from '../ui/BrandLogo';
 import CartDrawer from '../ui/CartDrawer';
 import ExpandableSearchBar from '../ui/ExpandableSearchBar';
 import { Sheet, SheetContent, SheetTitle } from '../ui/Sheet';
@@ -157,7 +157,6 @@ function AnnouncementBar({ visible, text, onDismiss }) {
 
 /** Compact CardNav-style hover menu */
 function CardMegaMenu({ data }) {
-  const siteSettings = useAdminStore((s) => s.siteSettings);
   return (
     <div className="absolute top-full left-1/2 z-50 w-[min(820px,calc(100vw-2rem))] -translate-x-1/2 pt-3">
       <motion.div
@@ -168,10 +167,7 @@ function CardMegaMenu({ data }) {
         className="overflow-hidden rounded-[8px] border border-surface-200 bg-white shadow-xl"
       >
         <div className="h-[60px] px-4 flex items-center justify-between border-b border-surface-200">
-          <div className="flex items-center gap-0">
-            <img src={logoImg} alt="Cutportal Logo" className="h-5 w-auto object-contain -translate-y-[1.5px]" draggable="false" />
-            <span className="font-logo-brand text-[20px] tracking-wide text-ink-900 -ml-[2px]">ut portal</span>
-          </div>
+          <BrandLogo size="sm" />
           <Link
             to={data.featured.href}
             className="inline-flex h-10 items-center gap-2 rounded-[6px] bg-ink-900 px-4 text-[12px] font-semibold uppercase tracking-[0.13em] text-white hover:bg-ink-600 transition-colors"
@@ -389,13 +385,10 @@ export default function Navbar() {
               <Link
                 to="/"
                 id="nav-logo"
-                aria-label="Cutportal - Home"
-                className="flex items-center gap-0 text-white"
+                aria-label="زادي - الصفحة الرئيسية"
+                className="flex items-center text-white"
               >
-                <img src={logoImg} alt="Cutportal Logo" className="h-6 w-auto object-contain brightness-0 invert -translate-y-[1.5px]" draggable="false" />
-                <span className="font-logo-brand text-[21px] tracking-wide -ml-[2px]">
-                  ut portal
-                </span>
+                <BrandLogo inverse />
               </Link>
             </div>
 
@@ -570,9 +563,7 @@ export default function Navbar() {
             >
               {/* Mobile header */}
               <div className="flex items-center justify-between px-6 h-16 border-b border-surface-100 shrink-0">
-                <span className="font-comico text-[19px] tracking-wide text-ink-900">
-                  {siteSettings.storeName}
-                </span>
+                <BrandLogo size="sm" />
                 <button
                   id="mobile-close"
                   onClick={() => setMobileOpen(false)}

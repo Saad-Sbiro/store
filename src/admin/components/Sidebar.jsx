@@ -2,11 +2,12 @@
 // FILE: src/admin/components/Sidebar.jsx
 // ─────────────────────────────────────────────
 
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard, Users, Package, ShoppingBag,
   Settings, Sparkles, ExternalLink, X, KeyRound, LogOut
 } from 'lucide-react';
+import BrandLogo from '../../components/ui/BrandLogo';
 
 const navItems = [
   { to: '/admin', label: 'Overview', icon: LayoutDashboard, exact: true },
@@ -38,9 +39,8 @@ export default function Sidebar({ collapsed, setCollapsed, onLogout }) {
       >
         {/* Logo area — text only, no icon */}
         <div className={`flex items-center gap-3 px-4 py-5 border-b border-[#2e2e2e] ${collapsed ? 'lg:justify-center' : ''}`}>
-          <span className={`font-bold text-white text-lg tracking-tight transition-all duration-200 ${collapsed ? 'lg:text-sm' : ''}`}>
-            {collapsed ? 'A' : 'Admin'}
-          </span>
+          <BrandLogo inverse compact={collapsed} size="sm" />
+          {!collapsed && <span className="text-xs font-semibold text-white/50">Admin</span>}
           <button
             onClick={() => setCollapsed(true)}
             className="ml-auto text-white/40 hover:text-white transition-colors lg:hidden"

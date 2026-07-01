@@ -6,11 +6,11 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { Link, useLocation, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CheckCircle, Package, ArrowRight, Copy, Download, MessageSquareText } from 'lucide-react';
+import { ArrowLeft, Banknote, CheckCircle, Copy, Download, Package, Truck } from 'lucide-react';
 import { formatPrice } from '../utils/formatPrice';
 import { useToastStore } from '../store/useToastStore';
 import { savePendingReviewOrder } from '../utils/reviews';
-import logoImg from '../assets/logo.png';
+import logoImg from '../assets/logozadi_noback.png';
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -115,12 +115,12 @@ export default function OrderConfirmationPage() {
       doc.setFont('Helvetica', 'bold');
       doc.setFontSize(20);
       doc.setTextColor(10, 10, 10);
-      doc.text('UT PORTAL', 29.5, 29.5);
+      doc.text('ZADI', 29.5, 29.5);
 
       doc.setFontSize(10);
       doc.setFont('Helvetica', 'normal');
       doc.setTextColor(120, 120, 120);
-      doc.text('Premium Workspace Essentials', 20, 38);
+      doc.text('Moroccan Online Store', 20, 38);
 
       // Line Separator
       doc.setDrawColor(230, 230, 230);
@@ -212,11 +212,11 @@ export default function OrderConfirmationPage() {
       doc.save(`Receipt-${orderNumber}.pdf`);
 
       if (showNotification) {
-        toast({ title: 'Receipt Downloaded', description: 'Your PDF receipt has been saved.', variant: 'success' });
+        toast({ title: 'تم تنزيل الوصل', description: 'تم حفظ وصل الطلب بصيغة PDF.', variant: 'success' });
       }
     } catch (e) {
       console.error('Failed to generate receipt PDF:', e);
-      toast({ title: 'Download Failed', description: 'Could not generate receipt PDF.', variant: 'warning' });
+      toast({ title: 'تعذر تنزيل الوصل', description: 'حاول مرة أخرى بعد قليل.', variant: 'warning' });
     }
   }, [items, orderNumber, paymentMethod, shippingAddress, toast, total]);
 
@@ -255,7 +255,7 @@ export default function OrderConfirmationPage() {
 
   const copyOrderNumber = () => {
     navigator.clipboard.writeText(String(orderNumber));
-    toast({ title: 'Copied!', description: 'Order code copied to clipboard.', variant: 'default' });
+    toast({ title: 'تم النسخ', description: 'تم نسخ رقم الطلب.', variant: 'default' });
   };
 
   if (!hasOrder) {
@@ -263,177 +263,133 @@ export default function OrderConfirmationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-surface-50 flex items-center justify-center px-4" style={{ paddingTop: '108px', paddingBottom: '48px' }}>
+    <main
+      className="min-h-screen bg-surface-50 px-4 pb-14 pt-[108px] font-arabic text-ink-900"
+      dir="rtl"
+    >
       <motion.div
-        initial={{ y: 30, opacity: 0 }}
+        initial={{ y: 24, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.7, ease }}
-        className="w-full max-w-lg"
+        transition={{ duration: 0.55, ease }}
+        className="mx-auto w-full max-w-2xl"
       >
-        {/* Success Icon */}
-        <div className="text-center mb-8">
+        <header className="mb-7 text-center sm:mb-8">
           <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.5, ease, delay: 0.2 }}
-            className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-6"
+            initial={{ scale: 0.75, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.4, ease, delay: 0.1 }}
+            className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-full bg-emerald-50 text-emerald-600"
           >
-            <CheckCircle size={40} className="text-emerald-500" />
+            <CheckCircle size={34} />
           </motion.div>
+          <h1 className="text-[28px] font-bold leading-tight sm:text-[34px]">تم تأكيد طلبك</h1>
+          <p className="mx-auto mt-2 max-w-md text-[14px] leading-7 text-ink-500">
+            شكراً لك. توصلنا بطلبك وسنتواصل معك لتأكيد معلومات التوصيل.
+          </p>
+        </header>
 
-          <motion.h1
-            initial={{ y: 12, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.35, duration: 0.5, ease }}
-            className="font-hero text-section-sm md:text-section font-bold text-ink-900"
-            style={{ letterSpacing: '-0.03em' }}
-          >
-            Order Confirmed
-          </motion.h1>
-          <motion.p
-            initial={{ y: 8, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.45, duration: 0.5, ease }}
-            className="text-body text-ink-400 mt-2"
-          >
-            Thank you for your purchase. Your order has been placed successfully.
-          </motion.p>
-        </div>
-
-        {/* Order Details Card */}
-        <motion.div
-          initial={{ y: 16, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.5, ease }}
-          className="bg-white rounded-panel border border-surface-200 overflow-hidden"
-        >
-          {/* Order number */}
-          <div className="p-6 border-b border-surface-200 bg-surface-50 flex items-center justify-between">
+        <section className="overflow-hidden rounded-lg border border-surface-200 bg-white">
+          <div className="flex flex-col gap-4 border-b border-surface-200 bg-surface-50 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
             <div>
-              <p className="text-caption text-ink-400 mb-1">Order Code</p>
-              <div className="flex items-center gap-2">
-                <p className="font-hero text-[18px] sm:text-[20px] font-bold text-ink-900">{orderNumber}</p>
-                <button onClick={copyOrderNumber} className="p-1.5 rounded-btn hover:bg-surface-200 text-ink-400 hover:text-ink-600 transition-colors" title="Copy Order Code">
+              <p className="text-[11px] font-semibold text-ink-400">رقم الطلب</p>
+              <div className="mt-1 flex items-center gap-2">
+                <p className="text-[18px] font-extrabold" dir="ltr">{orderNumber}</p>
+                <button
+                  type="button"
+                  onClick={copyOrderNumber}
+                  aria-label="نسخ رقم الطلب"
+                  className="grid h-8 w-8 place-items-center rounded-lg text-ink-400 transition-colors hover:bg-surface-200 hover:text-ink-700"
+                >
                   <Copy size={14} />
                 </button>
               </div>
             </div>
-            
             <button
+              type="button"
               onClick={() => downloadReceiptPDF(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-btn border border-surface-200 bg-white text-caption font-semibold text-ink-600 hover:border-ink-900 hover:text-ink-900 transition-colors"
-              title="Redownload Receipt PDF"
+              className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-surface-300 bg-white px-4 text-[12px] font-bold text-ink-700 sm:w-auto"
             >
-              <Download size={14} />
-              <span>Receipt PDF</span>
+              <Download size={15} />
+              تنزيل وصل الطلب
             </button>
           </div>
 
-          {/* Items */}
-          <div className="p-6 border-b border-surface-200">
-            <p className="text-caption font-semibold text-ink-600 uppercase tracking-wide mb-3">Items Ordered</p>
-            <div className="space-y-2">
-              {items?.map((item, i) => (
-                <div key={i} className="flex items-center justify-between py-1.5">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-btn bg-surface-100 flex items-center justify-center text-ink-400">
-                      <Package size={14} />
-                    </div>
-                    <div>
-                      <p className="text-[13px] font-medium text-ink-900">{item.name}</p>
-                      <p className="text-[11px] text-ink-400">Qty: {item.quantity}</p>
-                    </div>
+          <div className="border-b border-surface-200 p-4 sm:p-5">
+            <h2 className="mb-3 text-[13px] font-bold">المنتجات</h2>
+            <div className="divide-y divide-surface-200">
+              {items.map((item, index) => (
+                <article key={`${item.id || item.name}-${index}`} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
+                  <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-surface-100 text-ink-500">
+                    <Package size={15} />
                   </div>
-                  <p className="text-[13px] font-semibold text-ink-600">{formatPrice(item.price * item.quantity)}</p>
-                </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[13px] font-semibold">{item.name}</p>
+                    <p className="mt-0.5 text-[11px] text-ink-400">الكمية: {item.quantity}</p>
+                  </div>
+                  <p className="shrink-0 text-[13px] font-bold">
+                    {formatPrice(item.price * item.quantity)}
+                  </p>
+                </article>
               ))}
             </div>
           </div>
 
-          {/* Shipping & Payment */}
-          <div className="p-6 border-b border-surface-200 grid sm:grid-cols-2 gap-4">
-            <div>
-              <p className="text-caption font-semibold text-ink-600 uppercase tracking-wide mb-2">Shipping To</p>
-              <p className="text-[13px] text-ink-900 font-medium">{shippingAddress?.fullName}</p>
-              <p className="text-[12px] text-ink-400 mt-0.5">{shippingAddress?.address}</p>
-              <p className="text-[12px] text-ink-400">{shippingAddress?.city}</p>
-              <p className="text-[12px] text-ink-400">{shippingAddress?.phone}</p>
+          <div className="grid gap-5 border-b border-surface-200 p-4 sm:grid-cols-2 sm:p-5">
+            <div className="flex items-start gap-3">
+              <Truck size={18} className="mt-0.5 shrink-0 text-ink-600" />
+              <div className="min-w-0">
+                <h2 className="text-[13px] font-bold">معلومات التوصيل</h2>
+                <p className="mt-2 text-[13px] font-semibold">{shippingAddress?.fullName}</p>
+                <p className="mt-1 text-[12px] leading-6 text-ink-500">
+                  {shippingAddress?.address}
+                  {shippingAddress?.city ? `، ${shippingAddress.city}` : ''}
+                </p>
+                <p className="mt-1 text-[12px] text-ink-500" dir="ltr">
+                  {shippingAddress?.phone}
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-caption font-semibold text-ink-600 uppercase tracking-wide mb-2">Payment</p>
-              <p className="text-[13px] text-ink-900 font-medium">
-                {paymentMethod === 'cod' ? 'Cash on Delivery' : 'Credit Card'}
-              </p>
-              <p className="text-[12px] text-ink-400 mt-0.5">
-                {paymentMethod === 'cod' ? 'Pay when your order arrives' : 'Paid online'}
-              </p>
+
+            <div className="flex items-start gap-3">
+              <Banknote size={18} className="mt-0.5 shrink-0 text-ink-600" />
+              <div>
+                <h2 className="text-[13px] font-bold">طريقة الدفع</h2>
+                <p className="mt-2 text-[13px] font-semibold">
+                  {paymentMethod === 'cod' ? 'الدفع عند الاستلام' : 'الدفع بالبطاقة'}
+                </p>
+                <p className="mt-1 text-[12px] leading-6 text-ink-500">
+                  {paymentMethod === 'cod' ? 'يتم الدفع بعد وصول الطلب.' : 'تم تسجيل عملية الدفع.'}
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* Total */}
-          <div className="p-6 flex justify-between items-center bg-surface-50">
-            <p className="text-caption font-semibold text-ink-600 uppercase tracking-wide">Total Paid</p>
-          <p className="font-hero text-[20px] font-bold text-ink-900">{formatPrice(total)}</p>
+          <div className="flex items-center justify-between bg-surface-50 p-4 sm:p-5">
+            <p className="text-[13px] font-bold">المبلغ الإجمالي</p>
+            <p className="text-[20px] font-extrabold">{formatPrice(total)}</p>
           </div>
-        </motion.div>
+        </section>
 
-        <motion.div
-          initial={{ y: 16, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.58, duration: 0.5, ease }}
-          className="mt-5 rounded-panel border border-surface-200 bg-white p-5"
-        >
-          <div className="flex gap-4">
-            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-btn bg-surface-100 text-ink-600">
-              <MessageSquareText size={18} />
-            </div>
-            <div className="min-w-0">
-              <p className="text-caption font-semibold uppercase tracking-wide text-brand-500">Review after shipment</p>
-              <h2 className="mt-1 font-hero text-card-title font-bold text-ink-900">Tell us after the product arrives</h2>
-              <p className="mt-1 text-caption leading-relaxed text-ink-400">
-                Your review form will be waiting in My Reviews once this order is shipped or the delivery window has passed.
-              </p>
-              <Link
-                to="/reviews"
-                className="mt-3 inline-flex items-center gap-2 text-caption font-semibold text-ink-900 transition-colors hover:text-brand-500"
-              >
-                Open My Reviews <ArrowRight size={13} />
-              </Link>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Actions */}
-        <motion.div
-          initial={{ y: 12, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.65, duration: 0.5, ease }}
-          className="mt-6 flex flex-col sm:flex-row gap-3"
-        >
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row">
           <Link
             to="/shop"
-            className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-btn bg-ink-900 text-white font-hero text-btn font-bold uppercase tracking-wide hover:bg-ink-600 transition-colors min-h-[48px]"
+            className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-lg bg-ink-900 px-5 text-[14px] font-bold text-white transition-colors hover:bg-ink-600"
           >
-            Continue Shopping <ArrowRight size={15} />
+            متابعة التسوق
+            <ArrowLeft size={16} />
           </Link>
           <Link
-            to="/"
-            className="w-full sm:flex-1 inline-flex items-center justify-center py-3.5 px-6 rounded-btn border border-surface-300 text-ink-600 font-hero text-btn font-bold uppercase tracking-wide hover:border-ink-400 hover:text-ink-900 transition-colors min-h-[48px]"
+            to="/reviews"
+            className="inline-flex min-h-12 flex-1 items-center justify-center rounded-lg border border-surface-300 bg-white px-5 text-[14px] font-bold text-ink-700"
           >
-            Back to Home
+            طلباتي وآرائي
           </Link>
-        </motion.div>
+        </div>
 
-        {/* Delivery notice */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8, duration: 0.5 }}
-          className="text-center text-caption text-ink-400 mt-6"
-        >
-          Estimated delivery: from 24 to 48 hours
-        </motion.p>
+        <p className="mt-5 text-center text-[12px] leading-6 text-ink-400">
+          مدة التوصيل المتوقعة من 24 إلى 48 ساعة.
+        </p>
       </motion.div>
-    </div>
+    </main>
   );
 }

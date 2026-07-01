@@ -4,15 +4,15 @@
 // ─────────────────────────────────────────────
 
 import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, Search, X, Check, AlertTriangle } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, X, AlertTriangle } from 'lucide-react';
 import { api } from '../../services/api';
 import { formatPrice } from '../../utils/formatPrice';
 
 const badgeOptions = [null, 'Best Seller', 'New', 'Sale', 'Low Stock'];
 
 const emptyProduct = {
-  name: '', slug: '', price: '', originalPrice: '',
-  category_id: 1, description: '', stock: '',
+  name: '', name_ar: '', slug: '', price: '', originalPrice: '',
+  category_id: 1, description: '', description_ar: '', stock: '',
   badge: null, rating: 4.5, reviewCount: 0,
   images: ['', '', '', ''], colors: [], sizes: [], tags: [],
 };
@@ -97,6 +97,10 @@ function ProductModal({ product, categories, onSave, onClose }) {
               <label className="block text-white/50 text-xs mb-1.5">Product Name *</label>
               <input value={form.name} onChange={e => set('name', e.target.value)} className="w-full bg-[#222222]/50 border border-[#3a3a3a] text-white text-sm rounded-xl px-4 py-2.5 outline-none focus:border-white/30" placeholder="Arc Leather Tote" />
             </div>
+            <div className="col-span-full">
+              <label className="block text-white/50 text-xs mb-1.5">Arabic Product Name</label>
+              <input value={form.name_ar || ''} onChange={e => set('name_ar', e.target.value)} dir="rtl" className="w-full bg-[#222222]/50 border border-[#3a3a3a] text-white text-sm rounded-xl px-4 py-2.5 outline-none focus:border-white/30" placeholder="اسم المنتج بالعربية" />
+            </div>
             <div>
               <label className="block text-white/50 text-xs mb-1.5">Price (DH) *</label>
               <input type="number" value={form.price} onChange={e => set('price', e.target.value)} className="w-full bg-[#222222]/50 border border-[#3a3a3a] text-white text-sm rounded-xl px-4 py-2.5 outline-none focus:border-white/30" placeholder="2890" />
@@ -141,6 +145,10 @@ function ProductModal({ product, categories, onSave, onClose }) {
             <div className="col-span-full">
               <label className="block text-white/50 text-xs mb-1.5">Description</label>
               <textarea value={form.description} onChange={e => set('description', e.target.value)} rows={3} className="w-full bg-[#222222]/50 border border-[#3a3a3a] text-white text-sm rounded-xl px-4 py-2.5 outline-none focus:border-white/30 resize-none" placeholder="Product description..." />
+            </div>
+            <div className="col-span-full">
+              <label className="block text-white/50 text-xs mb-1.5">Arabic Description</label>
+              <textarea value={form.description_ar || ''} onChange={e => set('description_ar', e.target.value)} rows={3} dir="rtl" className="w-full bg-[#222222]/50 border border-[#3a3a3a] text-white text-sm rounded-xl px-4 py-2.5 outline-none focus:border-white/30 resize-none" placeholder="وصف المنتج بالعربية..." />
             </div>
             {[0,1,2,3].map(i => (
               <div key={i} className="flex flex-col">
@@ -210,7 +218,6 @@ function ProductModal({ product, categories, onSave, onClose }) {
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
   const [dbCategories, setDbCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   const fetchProductsAndCategories = async () => {
     try {
@@ -228,12 +235,12 @@ export default function ProductsPage() {
       setProducts(mapped);
     } catch (err) {
       console.error('Error fetching admin products/categories:', err);
-    } finally {
-      setLoading(false);
     }
   };
 
   useEffect(() => {
+    // Initial remote data synchronization for the admin table.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchProductsAndCategories();
   }, []);
 
@@ -241,6 +248,7 @@ export default function ProductsPage() {
     try {
       const payload = {
         name: formData.name,
+        name_ar: formData.name_ar || null,
         slug: formData.slug,
         price: parseFloat(formData.price),
         original_price: formData.originalPrice ? parseFloat(formData.originalPrice) : null,
@@ -250,6 +258,7 @@ export default function ProductsPage() {
         sizes: formData.sizes || [],
         tags: formData.tags || [],
         description: formData.description,
+        description_ar: formData.description_ar || null,
         stock: parseInt(formData.stock) || 0,
         badge: formData.badge || null,
         is_featured: true,
@@ -458,6 +467,8 @@ function CategoryManagerModal({ onClose, onRefresh }) {
   };
 
   useEffect(() => {
+    // Initial remote data synchronization for the category manager.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchCats();
   }, []);
 

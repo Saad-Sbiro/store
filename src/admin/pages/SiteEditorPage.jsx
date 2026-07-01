@@ -100,7 +100,7 @@ export default function SiteEditorPage() {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         {/* Branding */}
         <Section icon={Type} title="Branding & Identity">
-          <Field label="Store Name"><Input value={siteSettings.storeName} onChange={e => set('storeName', e.target.value)} placeholder="CUTPORTAL" /></Field>
+          <Field label="Store Name"><Input value={siteSettings.storeName} onChange={e => set('storeName', e.target.value)} placeholder="زادي" /></Field>
           <Field label="Tagline"><Input value={siteSettings.tagline} onChange={e => set('tagline', e.target.value)} placeholder="Curated desk technology" /></Field>
           <Field label="Hero Title" hint="Use \\n for line breaks">
             <Input value={siteSettings.heroTitle} onChange={e => set('heroTitle', e.target.value)} placeholder="Sharper\nSetups" textarea />

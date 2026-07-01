@@ -1,21 +1,24 @@
+import { Banknote, Truck } from 'lucide-react';
+
 import { HERO_IMAGE_URL } from '../../constants/media';
 import { useAdminStore } from '../../store/useAdminStore';
 
 export default function Hero() {
   const siteSettings = useAdminStore((s) => s.siteSettings);
-  const titleLines = (siteSettings.heroTitle?.trim() || 'Sharper\nSetups')
+  const titleLines = (siteSettings.heroTitle?.trim() || 'زادي\nاختياراتك اليومية')
     .split(/\n+/)
     .map((line) => line.trim())
     .filter(Boolean);
-  const eyebrow = siteSettings.tagline?.trim() || 'Curated desk technology';
+  const eyebrow = siteSettings.tagline?.trim() || 'اختيارات ذكية لحياة يومية أسهل';
   const subtitle = siteSettings.heroSubtitle?.trim()
-    || 'Quiet tools for focused rooms: stands, docks, lighting, and audio chosen for everyday work.';
+    || 'منتجات عملية ومختارة بعناية، مع توصيل سريع إلى جميع أنحاء المغرب.';
 
   return (
     <section
       id="hero"
-      aria-label="Workspace essentials"
-      className="relative isolate flex h-[100svh] min-h-[100svh] overflow-hidden bg-[#050505] text-white"
+      aria-label="زادي"
+      className="relative isolate flex h-[100svh] min-h-[100svh] overflow-hidden bg-[#050505] font-zain text-white"
+      dir="rtl"
     >
       <div className="absolute inset-0 -z-10" aria-hidden="true">
         <img
@@ -25,59 +28,62 @@ export default function Hero() {
           fetchPriority="high"
           decoding="async"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,5,5,0.94)_0%,rgba(5,5,5,0.72)_40%,rgba(5,5,5,0.34)_72%,rgba(5,5,5,0.5)_100%)]" />
-        <div className="absolute inset-x-0 bottom-0 h-48 bg-[linear-gradient(0deg,#050505_0%,rgba(5,5,5,0.78)_36%,rgba(5,5,5,0)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(270deg,rgba(5,5,5,0.96)_0%,rgba(5,5,5,0.82)_38%,rgba(5,5,5,0.36)_72%,rgba(5,5,5,0.58)_100%)]" />
+        <div className="absolute inset-x-0 bottom-0 h-52 bg-[linear-gradient(0deg,#050505_0%,rgba(5,5,5,0.72)_38%,rgba(5,5,5,0)_100%)]" />
       </div>
 
-      <div className="mx-auto flex w-full max-w-7xl items-end px-5 pb-12 pt-28 sm:px-8 sm:pb-14 lg:px-12 lg:pb-18">
-        <div className="hero-copy w-full max-w-[1180px]">
-          <p className="mb-5 inline-flex border-l border-white/35 pl-3 text-[11px] font-bold uppercase tracking-[0.24em] text-white/62">
+      <div className="mx-auto flex w-full max-w-7xl items-end px-5 pb-9 pt-24 sm:px-8 sm:pb-12 lg:px-12 lg:pb-14">
+        <div className="hero-copy ml-auto w-full max-w-[820px] text-right">
+          <p className="mb-4 inline-flex items-center border-r-2 border-[#d9dfff] pr-3 text-[15px] font-black leading-6 text-white/78 sm:text-[17px]">
             {eyebrow}
           </p>
 
           <h1
-            className="hero-title-font max-w-[1120px] text-[64px] font-extrabold uppercase leading-[0.88] tracking-normal text-white sm:text-[86px] lg:text-[124px] xl:text-[146px]"
+            className="hero-display max-w-[820px] font-lalezar text-[58px] font-black leading-[0.94] text-white sm:text-[78px] lg:text-[96px] xl:text-[108px]"
             aria-label={titleLines.join(' ')}
           >
             {titleLines.map((line, index) => (
-              <span key={line} className={index === 0 ? 'block' : 'block text-white/82'}>
+              <span key={line} className={index === 0 ? 'block' : 'mt-1 block text-white/88'}>
                 {line}
               </span>
             ))}
           </h1>
 
-          <div className="mt-8 grid w-full max-w-[1120px] gap-6 sm:mt-9 md:grid-cols-[minmax(0,620px)_minmax(280px,420px)] md:items-end">
-            <div className="min-w-0">
-              <p className="max-w-[620px] text-[16px] font-semibold leading-8 text-white/72 sm:text-[18px]">
-                {subtitle}
-              </p>
-            </div>
+          <p className="mt-5 max-w-[650px] text-[18px] font-extrabold leading-8 text-white/78 sm:mt-6 sm:text-[21px] sm:leading-9">
+            {subtitle}
+          </p>
 
+          <div className="mt-6 flex flex-col gap-5 sm:mt-7 sm:flex-row sm:items-center">
             <a
               href="#featured-products"
               id="hero-cta-shop"
-              className="hero-marquee-button group inline-flex h-[62px] min-h-0 w-full items-center overflow-hidden rounded-[999px] border border-white/55 bg-[#d9dfff] font-hero text-[17px] font-black uppercase tracking-[0.06em] text-[#302a72] shadow-[0_16px_42px_rgba(119,132,255,0.18)] transition-transform duration-300 ease-expo hover:scale-[1.025] md:h-[71px] md:max-w-[420px] md:self-end md:justify-self-end"
+              className="hero-marquee-button inline-flex h-14 w-full items-center overflow-hidden rounded-full border border-solid border-white/55 bg-[#d9dfff] font-zain text-[18px] font-black text-[#24204f] shadow-[0_14px_36px_rgba(119,132,255,0.2)] transition-[transform,background-color] duration-300 ease-expo hover:-translate-y-0.5 hover:bg-white sm:w-[360px]"
             >
               <span className="hero-marquee-track" aria-hidden="true">
-                <span className="hero-marquee-group">
-                  {Array.from({ length: 6 }).map((_, index) => (
-                    <span key={`a-${index}`} className="hero-marquee-item">
-                      START YOUR JOURNEY!
-                      <span className="hero-marquee-dot">{'\u2022'}</span>
-                    </span>
-                  ))}
-                </span>
-                <span className="hero-marquee-group">
-                  {Array.from({ length: 6 }).map((_, index) => (
-                    <span key={`b-${index}`} className="hero-marquee-item">
-                      START YOUR JOURNEY!
-                      <span className="hero-marquee-dot">{'\u2022'}</span>
-                    </span>
-                  ))}
-                </span>
+                {[0, 1].map((group) => (
+                  <span key={group} className="hero-marquee-group">
+                    {Array.from({ length: 4 }).map((_, index) => (
+                      <span key={`${group}-${index}`} className="hero-marquee-item" dir="rtl">
+                        اكتشف منتجات زادي
+                        <span className="hero-marquee-dot">{'\u2022'}</span>
+                      </span>
+                    ))}
+                  </span>
+                ))}
               </span>
-              <span className="sr-only">Shop essentials</span>
+              <span className="sr-only">اكتشف منتجات زادي</span>
             </a>
+
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] font-bold text-white/72 sm:text-[14px]">
+              <span className="inline-flex items-center gap-2">
+                <Truck size={17} strokeWidth={2} aria-hidden="true" />
+                توصيل لكل المغرب
+              </span>
+              <span className="inline-flex items-center gap-2">
+                <Banknote size={17} strokeWidth={2} aria-hidden="true" />
+                الدفع عند الاستلام
+              </span>
+            </div>
           </div>
         </div>
       </div>

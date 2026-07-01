@@ -44,9 +44,9 @@ export default function ExpandableSearchBar({ onSearch, className = '' }) {
       <button
         type="submit"
         aria-label={expanded ? 'Submit search' : 'Open search'}
-        className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-0 bg-transparent text-white/82 transition-transform duration-200 hover:scale-105 active:scale-95"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-0 bg-transparent p-0 text-white/82 transition-colors duration-200 hover:text-white"
       >
-        <Search size={17} strokeWidth={1.8} />
+        <Search size={18} strokeWidth={1.8} className="block" />
       </button>
 
       <input

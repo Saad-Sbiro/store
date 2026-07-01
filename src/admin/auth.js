@@ -8,7 +8,7 @@ export function completeLocalLogin() {
   localStorage.setItem('cutportal_user', JSON.stringify({
     id: 'local-admin',
     name: 'Admin',
-    email: 'admin@cutportal.com',
+    email: 'admin@zadi.ma',
     role: 'admin',
   }));
 }

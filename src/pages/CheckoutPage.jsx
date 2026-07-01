@@ -1,137 +1,204 @@
-// ─────────────────────────────────────────────
-// FILE: src/pages/CheckoutPage.jsx
-// Full checkout with shipping form, payment selector, order summary
-// ─────────────────────────────────────────────
-
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ShoppingBag, ChevronLeft, Truck, CreditCard, Banknote, Shield, Minus, Plus, Trash2, Tag } from 'lucide-react';
+import {
+  ArrowRight,
+  Banknote,
+  LoaderCircle,
+  Minus,
+  Plus,
+  ShieldCheck,
+  ShoppingBag,
+  Tag,
+  Trash2,
+  Truck,
+} from 'lucide-react';
+
+import { api } from '../services/api';
 import { useCartStore } from '../store/useCartStore';
 import { useToastStore } from '../store/useToastStore';
 import { formatPrice } from '../utils/formatPrice';
-import { api } from '../services/api';
-import SlideToConfirm from '../components/ui/SlideToConfirm';
 
-const fadeUp = {
-  hidden: { y: 20, opacity: 0 },
-  visible: (i = 0) => ({
-    y: 0, opacity: 1,
-    transition: { duration: 0.5, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] },
-  }),
-};
+const CHECKOUT_LEAD_TOKEN_KEY = 'cutportal_checkout_lead_token';
+const MOROCCAN_PHONE_PATTERN = /^(0[5-7]\d{8}|\+212[5-7]\d{8})$/;
 
 const createFallbackOrderNumber = () => {
   const now = new Date();
   const date = now.toISOString().slice(0, 10).replace(/-/g, '');
-  const suffix = String(now.getTime()).slice(-4);
-  return `VS-${date}-${suffix}`;
+  return `VS-${date}-${String(now.getTime()).slice(-4)}`;
+};
+
+const createCheckoutToken = () => {
+  if (window.crypto?.randomUUID) return window.crypto.randomUUID();
+
+  const bytes = window.crypto.getRandomValues(new Uint8Array(16));
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+};
+
+const getCheckoutToken = () => {
+  const existing = sessionStorage.getItem(CHECKOUT_LEAD_TOKEN_KEY);
+  if (existing) return existing;
+
+  const token = createCheckoutToken();
+  sessionStorage.setItem(CHECKOUT_LEAD_TOKEN_KEY, token);
+  return token;
 };
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const { items, updateQuantity, removeItem, totalPrice, clearCart } = useCartStore();
-  const toast = useToastStore((s) => s.toast);
-
+  const toast = useToastStore((state) => state.toast);
   const [form, setForm] = useState({
-    fullName: '', phone: '',
-    address: '', city: ''
+    fullName: '',
+    phone: '',
+    address: '',
+    city: '',
   });
-  const [paymentMethod, setPaymentMethod] = useState('cod');
   const [promoCode, setPromoCode] = useState('');
   const [promoApplied, setPromoApplied] = useState(false);
   const [appliedPromo, setAppliedPromo] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [dbProducts, setDbProducts] = useState([]);
+  const [leadToken] = useState(getCheckoutToken);
+  const latestLeadPayloadRef = useRef(null);
+  const orderSubmittedRef = useRef(false);
+  const abandonmentSentRef = useRef(false);
+  const paymentMethod = 'cod';
 
   useEffect(() => {
-    api.getProducts({ per_page: 100 }).then((res) => {
-      setDbProducts(res?.data || res || []);
-    }).catch(err => console.error(err));
+    api.getProducts({ per_page: 100 })
+      .then((response) => setDbProducts(response?.data || response || []))
+      .catch((error) => console.error('Product pricing load failed:', error));
   }, []);
 
-  const total = totalPrice();
+  const subtotal = totalPrice();
   const shipping = 0;
-  
-  // Calculate discount dynamically based on dbProducts
+  const hasProductPromo = items.some((item) => {
+    const product = dbProducts.find((candidate) => candidate.id === item.id) || item;
+    return product.tags?.some((tag) => /^promo:[^:]+:\d+$/i.test(tag));
+  });
   let discount = 0;
+
   if (promoApplied && appliedPromo) {
-    if (appliedPromo === 'void10') {
-      discount = Math.round(total * 0.1);
-    } else {
-      items.forEach((item) => {
-        const dbProd = dbProducts.find(p => p.id === item.id) || item;
-        const promoTag = dbProd.tags?.find(t => t.toLowerCase().startsWith(`promo:${appliedPromo.toLowerCase()}:`));
-        if (promoTag) {
-          const pct = parseInt(promoTag.split(':')[2]) || 0;
-          discount += Math.round(item.price * item.quantity * (pct / 100));
-        }
-      });
-    }
+    items.forEach((item) => {
+      const dbProduct = dbProducts.find(product => product.id === item.id) || item;
+      const promoTag = dbProduct.tags?.find(tag => tag.toLowerCase().startsWith(`promo:${appliedPromo.toLowerCase()}:`));
+      if (promoTag) {
+        const percentage = parseInt(promoTag.split(':')[2]) || 0;
+        discount += Math.round(item.price * item.quantity * (percentage / 100));
+      }
+    });
   }
 
-  const grandTotal = total - discount + shipping;
+  const total = Math.max(0, subtotal - discount + shipping);
+  const normalizedPhone = form.phone.replace(/\s/g, '');
+  const canSaveCheckoutLead = MOROCCAN_PHONE_PATTERN.test(normalizedPhone)
+    && items.length > 0;
 
-  const set = (key, val) => {
-    setForm((f) => ({ ...f, [key]: val }));
-    if (errors[key]) setErrors((e) => ({ ...e, [key]: '' }));
+  const latestLeadPayload = useMemo(() => (
+    canSaveCheckoutLead ? {
+      token: leadToken,
+      full_name: form.fullName.trim() || null,
+      phone: normalizedPhone,
+      address: form.address.trim() || null,
+      city: form.city.trim() || null,
+      payment_method: paymentMethod,
+      items: items.map((item) => ({
+        product_id: item.id,
+        quantity: item.quantity,
+        size: item.size || null,
+        color: item.color || null,
+      })),
+    } : null
+  ), [canSaveCheckoutLead, form, items, leadToken, normalizedPhone]);
+
+  useEffect(() => {
+    latestLeadPayloadRef.current = latestLeadPayload;
+    if (!latestLeadPayload) return undefined;
+
+    const timeout = window.setTimeout(() => {
+      if (orderSubmittedRef.current) return;
+
+      api.saveCheckoutLead({ ...latestLeadPayload, abandoned: false })
+        .catch(error => console.warn('Checkout recovery save failed:', error.message));
+    }, 1200);
+
+    return () => window.clearTimeout(timeout);
+  }, [latestLeadPayload]);
+
+  useEffect(() => {
+    const markAbandoned = () => {
+      const payload = latestLeadPayloadRef.current;
+      if (!payload || orderSubmittedRef.current || abandonmentSentRef.current) return;
+
+      abandonmentSentRef.current = true;
+      api.saveCheckoutLead(
+        { ...payload, abandoned: true },
+        { keepalive: true },
+      ).catch(error => console.warn('Checkout abandonment save failed:', error.message));
+    };
+
+    let settled = false;
+    const settleTimer = window.setTimeout(() => {
+      settled = true;
+    }, 0);
+    window.addEventListener('pagehide', markAbandoned);
+
+    return () => {
+      window.clearTimeout(settleTimer);
+      window.removeEventListener('pagehide', markAbandoned);
+      if (settled) markAbandoned();
+    };
+  }, []);
+
+  const setField = (field, value) => {
+    setForm(current => ({ ...current, [field]: value }));
+    if (errors[field]) {
+      setErrors(current => ({ ...current, [field]: '' }));
+    }
   };
 
   const validate = () => {
-    const e = {};
-    if (!form.fullName.trim()) e.fullName = 'أدخل اسمك';
-    if (!form.phone.trim()) e.phone = 'أدخل رقم الهاتف';
-    else if (!/^(0[5-7]\d{8}|\+212[5-7]\d{8})$/.test(form.phone.replace(/\s/g, ''))) e.phone = 'رقم غير صحيح';
-    if (!form.address.trim()) e.address = 'أدخل عنوانك';
-    if (!form.city.trim()) e.city = 'أدخل المدينة';
-    setErrors(e);
-    return Object.keys(e).length === 0;
+    const nextErrors = {};
+    if (!form.fullName.trim()) nextErrors.fullName = 'أدخل الاسم الكامل';
+    if (!form.phone.trim()) nextErrors.phone = 'أدخل رقم الهاتف';
+    else if (!MOROCCAN_PHONE_PATTERN.test(normalizedPhone)) nextErrors.phone = 'رقم الهاتف غير صحيح';
+    if (!form.address.trim()) nextErrors.address = 'أدخل عنوان التوصيل';
+    if (!form.city.trim()) nextErrors.city = 'أدخل المدينة';
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
   };
 
   const handleApplyPromo = () => {
     const code = promoCode.trim().toUpperCase();
-    if (code === 'VOID10') {
-      setAppliedPromo('void10');
-      setPromoApplied(true);
-      toast({ title: 'Promo Applied!', description: '10% discount has been applied.', variant: 'success' });
-      return;
-    }
-
-    // Check if code matches any item in the cart using fresh DB products
-    let matched = false;
-    items.forEach((item) => {
-      const dbProd = dbProducts.find(p => p.id === item.id) || item;
-      const promoTag = dbProd.tags?.find(t => t.toLowerCase().startsWith(`promo:${code.toLowerCase()}:`));
-      if (promoTag) matched = true;
+    const matched = items.some((item) => {
+      const dbProduct = dbProducts.find(product => product.id === item.id) || item;
+      return dbProduct.tags?.some(tag => tag.toLowerCase().startsWith(`promo:${code.toLowerCase()}:`));
     });
 
     if (matched) {
       setAppliedPromo(code);
       setPromoApplied(true);
-      toast({ title: 'Promo Applied!', description: `Promo code ${code} applied successfully to matching items.`, variant: 'success' });
+      toast({ title: 'تم تطبيق التخفيض', description: `تم قبول الكود ${code}.`, variant: 'success' });
     } else {
-      toast({ title: 'Invalid Code', description: 'This promo code is not valid for items in your cart.', variant: 'warning' });
+      toast({ title: 'الكود غير صالح', description: 'هذا الكود لا ينطبق على منتجات السلة.', variant: 'warning' });
     }
   };
 
   const handlePlaceOrder = async () => {
-    if (!validate()) throw new Error('Validation failed');
-    if (items.length === 0) return;
+    if (!validate() || items.length === 0) return;
     setLoading(true);
 
     try {
-      // Ensure auth
-      let token = localStorage.getItem('cutportal_token');
-      if (!token) {
-        const guestEmail = `guest_${Date.now()}_${Math.floor(Math.random() * 1000)}@cutportal.com`;
-        const guestName = form.fullName?.trim() || 'Guest Customer';
-        try {
-          await api.register(guestName, guestEmail, 'passpass', 'passpass');
-        } catch (regErr) {
-          console.error('Guest registration failed:', regErr);
-          throw new Error('Could not authenticate guest checkout. Please try again.');
-        }
+      orderSubmittedRef.current = true;
+
+      const leadPayload = latestLeadPayloadRef.current;
+      if (leadPayload) {
+        await api.saveCheckoutLead({ ...leadPayload, abandoned: false })
+          .catch(error => console.warn('Final checkout recovery save failed:', error.message));
       }
 
       const orderData = {
@@ -143,19 +210,22 @@ export default function CheckoutPage() {
         })),
         shipping_address: {
           name: form.fullName,
-          phone: form.phone,
+          phone: normalizedPhone,
           street: form.address,
           city: form.city,
           state: form.city,
           country: 'MA',
         },
-        payment_method: paymentMethod === 'cod' ? 'Cash on Delivery' : 'Card',
+        payment_method: 'Cash on Delivery',
         discount_amount: discount,
         shipping_cost: shipping,
+        checkout_token: leadToken,
       };
 
       const result = await api.createOrder(orderData);
-      await api.logEvent('purchase', '/checkout', null, { total: grandTotal });
+      sessionStorage.removeItem(CHECKOUT_LEAD_TOKEN_KEY);
+      api.logEvent('purchase', '/checkout', null, { total })
+        .catch(error => console.warn('Purchase analytics failed:', error.message));
 
       clearCart();
       navigate('/order-confirmation', {
@@ -164,241 +234,293 @@ export default function CheckoutPage() {
           orderId: result?.order?.id || result?.id || null,
           orderStatus: result?.order?.status || result?.status || 'pending',
           createdAt: result?.order?.created_at || new Date().toISOString(),
-          total: grandTotal,
-          items: items,
+          total: Number(result?.order?.total ?? total),
+          items,
           shippingAddress: form,
           paymentMethod,
         },
       });
-    } catch (err) {
-      console.error(err);
-      toast({ title: 'Order Failed', description: err.message || 'Please try again.', variant: 'warning' });
+    } catch (error) {
+      orderSubmittedRef.current = false;
+      console.error(error);
+      toast({
+        title: 'تعذر تأكيد الطلب',
+        description: error.message || 'حاول مرة أخرى.',
+        variant: 'warning',
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  // Empty cart state
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-surface-50 flex items-center justify-center" style={{ paddingTop: '120px' }}>
-        <div className="text-center">
-          <div className="w-20 h-20 rounded-full bg-surface-100 flex items-center justify-center mx-auto mb-6">
-            <ShoppingBag size={32} className="text-ink-400" />
+      <main
+        className="flex min-h-screen items-center justify-center bg-surface-50 px-5 pt-24 font-arabic"
+        dir="rtl"
+      >
+        <div className="max-w-sm text-center">
+          <div className="mx-auto mb-5 grid h-16 w-16 place-items-center rounded-full bg-white text-ink-500 shadow-sm">
+            <ShoppingBag size={27} />
           </div>
-          <h1 className="font-hero text-2xl font-bold text-ink-900 mb-2">Your cart is empty</h1>
-          <p className="text-ink-400 text-body mb-8">Add some products to your cart before checking out.</p>
+          <h1 className="text-2xl font-bold text-ink-900">سلة التسوق فارغة</h1>
+          <p className="mt-2 text-[14px] leading-7 text-ink-500">
+            أضف المنتج الذي تريده ثم عد لإتمام الطلب.
+          </p>
           <Link
             to="/shop"
-            className="inline-flex items-center gap-2 bg-ink-900 text-white px-6 py-3 rounded-btn text-btn font-semibold hover:bg-ink-600 transition-colors"
+            className="mt-6 inline-flex h-12 items-center justify-center rounded-lg bg-ink-900 px-6 text-[14px] font-bold text-white"
           >
-            Browse Products
+            تصفح المنتجات
           </Link>
         </div>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="min-h-screen bg-surface-50" style={{ paddingTop: '108px' }}>
-      {/* Breadcrumb */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <Link to="/" className="inline-flex items-center gap-1.5 text-caption text-ink-400 hover:text-ink-600 transition-colors">
-          <ChevronLeft size={14} /> Continue Shopping
-        </Link>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
-        <motion.h1
-          initial={{ y: 16, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className="font-hero text-section-sm md:text-section font-bold text-ink-900 mb-8"
-          style={{ letterSpacing: '-0.03em' }}
+    <main
+      className="min-h-screen bg-surface-50 pb-16 pt-[92px] font-arabic text-ink-900 sm:pt-[108px]"
+      dir="rtl"
+    >
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <Link
+          to="/shop"
+          className="inline-flex h-12 items-center gap-2 text-[13px] font-semibold text-ink-500"
         >
-          Checkout
-        </motion.h1>
+          <ArrowRight size={16} />
+          متابعة التسوق
+        </Link>
 
-        <div className="grid lg:grid-cols-[1fr_420px] gap-8 lg:gap-12">
-          {/* ── LEFT: Forms ── */}
-          <div className="space-y-6">
-            {/* Shipping Info */}
-            <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={0} className="bg-white rounded-panel border border-surface-200 p-4 sm:p-6">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-btn bg-ink-900 flex items-center justify-center text-white">
-                  <Truck size={18} />
-                </div>
+        <h1 className="mb-6 mt-1 text-[28px] font-bold leading-tight sm:text-[34px]">
+          تأكيد الطلب
+        </h1>
+
+        <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-8">
+          <section className="rounded-lg border border-surface-200 bg-white p-4 sm:p-6">
+            <div className="mb-6 flex items-center gap-3">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-ink-900 text-white">
+                <Truck size={18} />
+              </div>
+              <div>
+                <h2 className="text-[17px] font-bold">معلومات التوصيل</h2>
+                <p className="mt-0.5 text-[12px] text-ink-400">أدخل معلومات صحيحة لتأكيد الطلب بسرعة.</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="checkout-name" className="mb-1.5 block text-[13px] font-semibold text-ink-600">
+                  الاسم الكامل
+                </label>
+                <input
+                  id="checkout-name"
+                  value={form.fullName}
+                  onChange={(event) => setField('fullName', event.target.value)}
+                  autoComplete="name"
+                  className="input-field min-h-[50px] !rounded-lg !text-[16px]"
+                  placeholder="مثال: محمد العلوي"
+                />
+                {errors.fullName && <p className="mt-1 text-[12px] text-feedback-danger">{errors.fullName}</p>}
+              </div>
+
+              <div>
+                <label htmlFor="checkout-phone" className="mb-1.5 block text-[13px] font-semibold text-ink-600">
+                  رقم الهاتف
+                </label>
+                <input
+                  id="checkout-phone"
+                  value={form.phone}
+                  onChange={(event) => setField('phone', event.target.value)}
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  dir="ltr"
+                  className="input-field min-h-[50px] !rounded-lg !text-right !text-[16px]"
+                  placeholder="06 12 34 56 78"
+                />
+                {errors.phone && <p className="mt-1 text-[12px] text-feedback-danger">{errors.phone}</p>}
+              </div>
+
+              <div>
+                <label htmlFor="checkout-address" className="mb-1.5 block text-[13px] font-semibold text-ink-600">
+                  عنوان التوصيل
+                </label>
+                <input
+                  id="checkout-address"
+                  value={form.address}
+                  onChange={(event) => setField('address', event.target.value)}
+                  autoComplete="street-address"
+                  className="input-field min-h-[50px] !rounded-lg !text-[16px]"
+                  placeholder="الحي، الشارع ورقم المنزل"
+                />
+                {errors.address && <p className="mt-1 text-[12px] text-feedback-danger">{errors.address}</p>}
+              </div>
+
+              <div>
+                <label htmlFor="checkout-city" className="mb-1.5 block text-[13px] font-semibold text-ink-600">
+                  المدينة
+                </label>
+                <input
+                  id="checkout-city"
+                  value={form.city}
+                  onChange={(event) => setField('city', event.target.value)}
+                  autoComplete="address-level2"
+                  className="input-field min-h-[50px] !rounded-lg !text-[16px]"
+                  placeholder="مثال: الدار البيضاء"
+                />
+                {errors.city && <p className="mt-1 text-[12px] text-feedback-danger">{errors.city}</p>}
+              </div>
+
+              <div className="flex items-center gap-3 border-y border-surface-200 py-4">
+                <Banknote size={20} className="shrink-0 text-ink-700" />
                 <div>
-                  <h2 className="font-hero text-card-title font-bold text-ink-900">Shipping Information</h2>
-                  <p className="text-caption text-ink-400">Where should we deliver your order?</p>
+                  <p className="text-[13px] font-bold">الدفع عند الاستلام</p>
+                  <p className="mt-0.5 text-[11px] text-ink-400">لن تدفع أي مبلغ قبل وصول الطلب.</p>
                 </div>
               </div>
 
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="sm:col-span-2">
-                  <label className="block text-caption font-medium text-ink-600 mb-1.5">الاسم الكامل *</label>
-                  <input value={form.fullName} onChange={(e) => set('fullName', e.target.value)} className="input-field" placeholder="أدخل اسمك" dir="rtl" />
-                  {errors.fullName && <p className="text-caption text-feedback-danger mt-1">{errors.fullName}</p>}
-                </div>
-                <div className="sm:col-span-2">
-                  <label className="block text-caption font-medium text-ink-600 mb-1.5">رقم الهاتف *</label>
-                  <input value={form.phone} onChange={(e) => set('phone', e.target.value)} className="input-field" placeholder="أدخل رقم الهاتف" dir="rtl" />
-                  {errors.phone && <p className="text-caption text-feedback-danger mt-1">{errors.phone}</p>}
-                </div>
-                <div className="sm:col-span-2">
-                  <label className="block text-caption font-medium text-ink-600 mb-1.5">العنوان *</label>
-                  <input value={form.address} onChange={(e) => set('address', e.target.value)} className="input-field" placeholder="أدخل عنوانك" dir="rtl" />
-                  {errors.address && <p className="text-caption text-feedback-danger mt-1">{errors.address}</p>}
-                </div>
-                <div className="sm:col-span-2">
-                  <label className="block text-caption font-medium text-ink-600 mb-1.5">المدينة *</label>
-                  <input value={form.city} onChange={(e) => set('city', e.target.value)} className="input-field" placeholder="أدخل المدينة" dir="rtl" />
-                  {errors.city && <p className="text-caption text-feedback-danger mt-1">{errors.city}</p>}
-                </div>
-              </div>
-            </motion.div>
+            </div>
+          </section>
 
-            
-          </div>
+          <section className="rounded-lg border border-surface-200 bg-white p-4 sm:p-5 lg:sticky lg:top-28">
+            <h2 className="text-[17px] font-bold">ملخص الطلب</h2>
 
-          {/* ── RIGHT: Order Summary ── */}
-          <div className="lg:sticky lg:top-28 lg:self-start">
-            <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={2} className="bg-white rounded-panel border border-surface-200 p-4 sm:p-6">
-              <h2 className="font-hero text-card-title font-bold text-ink-900 mb-4">Order Summary</h2>
-
-              {/* Items */}
-              <div className="space-y-3 max-h-[300px] overflow-y-auto scrollbar-thin pr-1">
-                {items.map((item) => (
-                  <div key={`${item.id}-${item.color}-${item.size}`} className="flex gap-3 p-3 rounded-card bg-surface-50">
-                    <img src={item.image || item.images?.[0]} alt={item.name} className="w-16 h-16 rounded-btn object-cover flex-shrink-0 bg-surface-100" />
-                    
-                    <div className="flex-1 min-w-0 flex flex-col justify-between">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0">
-                          <p className="text-[13px] font-semibold text-ink-900 truncate">{item.name}</p>
-                          <p className="text-[11px] text-ink-400 flex items-center gap-1.5 mt-0.5">
-                            {item.size && <span>{item.size}</span>}
-                            {item.size && item.color && <span> · </span>}
-                            {item.color && <span className="inline-block w-2.5 h-2.5 rounded-full border border-surface-300" style={{ backgroundColor: item.color }} />}
-                          </p>
+            <div className="mt-4 max-h-[340px] divide-y divide-surface-200 overflow-y-auto">
+              {items.map((item) => (
+                <article key={`${item.id}-${item.color}-${item.size}`} className="flex gap-3 py-4 first:pt-0">
+                  <img
+                    src={item.image || item.images?.[0]}
+                    alt={item.name}
+                    className="h-16 w-16 shrink-0 rounded-lg bg-surface-100 object-cover"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <h3 className="truncate text-[13px] font-bold">{item.name}</h3>
+                        <div className="mt-1 flex items-center gap-2 text-[11px] text-ink-400">
+                          {item.size && <span>{item.size}</span>}
+                          {item.color && (
+                            <span
+                              className="h-3 w-3 rounded-full border border-surface-300"
+                              style={{ backgroundColor: item.color }}
+                              aria-label="لون المنتج"
+                            />
+                          )}
                         </div>
-                        
-                        <button 
-                          onClick={() => removeItem(item.id, item.color, item.size)} 
-                          className="w-7 h-7 rounded-btn flex items-center justify-center text-ink-400 hover:text-feedback-danger hover:bg-red-50 transition-colors flex-shrink-0"
-                          aria-label="Remove item"
-                        >
-                          <Trash2 size={13} />
-                        </button>
                       </div>
+                      <button
+                        type="button"
+                        onClick={() => removeItem(item.id, item.color, item.size)}
+                        aria-label={`حذف ${item.name}`}
+                        className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-ink-400 transition-colors hover:bg-red-50 hover:text-feedback-danger"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
 
-                      <div className="flex items-center justify-between mt-2 pt-1">
-                        <p className="text-[13px] font-semibold text-ink-600">{formatPrice(item.price)}</p>
-                        
-                        <div className="flex items-center gap-0.5 bg-white border border-surface-200 rounded-btn p-0.5 shadow-sm">
-                          <button 
-                            onClick={() => updateQuantity(item.id, item.color, item.size, Math.max(1, item.quantity - 1))} 
-                            className="w-6 h-6 rounded-btn flex items-center justify-center hover:bg-surface-100 transition-colors"
-                          >
-                            <Minus size={10} />
-                          </button>
-                          <span className="w-6 text-center text-caption font-semibold">{item.quantity}</span>
-                          <button 
-                            onClick={() => updateQuantity(item.id, item.color, item.size, item.quantity + 1)} 
-                            className="w-6 h-6 rounded-btn flex items-center justify-center hover:bg-surface-100 transition-colors"
-                          >
-                            <Plus size={10} />
-                          </button>
-                        </div>
+                    <div className="mt-3 flex items-center justify-between gap-3">
+                      <p className="text-[13px] font-bold">{formatPrice(item.price * item.quantity)}</p>
+                      <div className="inline-flex h-8 items-center overflow-hidden rounded-lg border border-surface-200">
+                        <button
+                          type="button"
+                          onClick={() => updateQuantity(item.id, item.color, item.size, Math.max(1, item.quantity - 1))}
+                          aria-label="تقليل الكمية"
+                          className="grid h-8 w-8 place-items-center"
+                        >
+                          <Minus size={11} />
+                        </button>
+                        <span className="w-7 text-center text-[12px] font-bold">{item.quantity}</span>
+                        <button
+                          type="button"
+                          onClick={() => updateQuantity(item.id, item.color, item.size, item.quantity + 1)}
+                          aria-label="زيادة الكمية"
+                          className="grid h-8 w-8 place-items-center"
+                        >
+                          <Plus size={11} />
+                        </button>
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
+                </article>
+              ))}
+            </div>
 
-              {/* Promo Code */}
-              <div className="mt-4 pt-4 border-t border-surface-200">
+            {hasProductPromo && (
+              <div className="border-t border-surface-200 pt-4">
                 <div className="flex gap-2">
-                  <div className="relative flex-1">
-                    <Tag size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+                  <div className="relative min-w-0 flex-1">
+                    <Tag size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-400" />
                     <input
                       value={promoCode}
-                      onChange={(e) => setPromoCode(e.target.value)}
+                      onChange={(event) => setPromoCode(event.target.value)}
                       disabled={promoApplied}
-                      placeholder="Promo code"
-                      className="input-field pl-9 !py-2.5 text-caption"
+                      className="input-field min-h-11 !rounded-lg !py-2 !pr-9 text-[13px]"
+                      placeholder="كود التخفيض"
+                      dir="ltr"
                     />
                   </div>
                   <button
+                    type="button"
                     onClick={handleApplyPromo}
                     disabled={promoApplied || !promoCode.trim()}
-                    className="px-4 py-2.5 rounded-btn bg-ink-900 text-white text-caption font-semibold hover:bg-ink-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="h-11 shrink-0 rounded-lg bg-ink-900 px-4 text-[12px] font-bold text-white disabled:opacity-40"
                   >
-                    {promoApplied ? 'Applied ✓' : 'Apply'}
+                    {promoApplied ? 'تم' : 'تطبيق'}
                   </button>
                 </div>
               </div>
+            )}
 
-              {/* Totals */}
-              <div className="mt-4 pt-4 border-t border-surface-200 space-y-2">
-                <div className="flex justify-between text-caption text-ink-600">
-                  <span>Subtotal ({items.reduce((a, i) => a + i.quantity, 0)} items)</span>
-                  <span>{formatPrice(total)}</span>
-                </div>
-                {discount > 0 && (
-                  <div className="flex justify-between text-caption text-feedback-success font-medium">
-                    <span>Discount (10%)</span>
-                    <span>-{formatPrice(discount)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-caption text-ink-600">
-                  <span>Shipping</span>
-                  <span>{shipping === 0 ? <span className="text-feedback-success font-medium">Free</span> : formatPrice(shipping)}</span>
-                </div>
-                <div className="flex justify-between text-[16px] font-bold text-ink-900 pt-2 border-t border-surface-200">
-                  <span>Total</span>
-                  <span>{formatPrice(grandTotal)}</span>
-                </div>
+            <div className="mt-4 space-y-2 border-t border-surface-200 pt-4 text-[13px]">
+              <div className="flex justify-between text-ink-600">
+                <span>المجموع الفرعي</span>
+                <span>{formatPrice(subtotal)}</span>
               </div>
-
-              <div className="mt-6">
-                <SlideToConfirm
-                  text="مرر لتأكيد الطلب"
-                  successText="تم تأكيد الطلب"
-                  onConfirm={handlePlaceOrder}
-                  disabled={loading}
-                />
-              </div>
-
-              {/* Place Order Button */}
-              <button
-                onClick={handlePlaceOrder}
-                disabled={loading}
-                className="hidden mt-6 w-full h-[52px] rounded-btn bg-ink-900 text-white font-hero text-btn font-bold uppercase tracking-wide hover:bg-ink-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed items-center justify-center gap-2"
-              >
-                {loading ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <>
-                    {paymentMethod === 'cod' ? 'Place Order — Cash on Delivery' : 'Place Order'}
-                  </>
-                )}
-              </button>
-
-              {/* Trust signals */}
-              <div className="mt-4 flex items-center justify-center gap-1.5 text-[11px] text-ink-400">
-                <Shield size={13} />
-                <span>Secure checkout · Free returns within 14 days</span>
-              </div>
-
-              {shipping > 0 && (
-                <p className="mt-2 text-center text-[11px] text-ink-400">
-                  Delivery is calculated before confirmation
-                </p>
+              {discount > 0 && (
+                <div className="flex justify-between font-semibold text-emerald-600">
+                  <span>التخفيض</span>
+                  <span>-{formatPrice(discount)}</span>
+                </div>
               )}
-            </motion.div>
-          </div>
+              <div className="flex justify-between text-ink-600">
+                <span>التوصيل</span>
+                <span className="font-semibold text-emerald-600">
+                  {shipping === 0 ? 'مجاني' : formatPrice(shipping)}
+                </span>
+              </div>
+              <div className="flex justify-between border-t border-surface-200 pt-3 text-[17px] font-extrabold">
+                <span>الإجمالي</span>
+                <span>{formatPrice(total)}</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handlePlaceOrder}
+              disabled={loading}
+              className="mt-5 flex h-[52px] w-full items-center justify-center gap-2 rounded-lg bg-ink-900 px-4 text-[14px] font-bold text-white transition-colors hover:bg-ink-600 disabled:cursor-not-allowed disabled:opacity-55"
+            >
+              {loading ? (
+                <>
+                  <LoaderCircle size={18} className="animate-spin" />
+                  جاري تأكيد الطلب
+                </>
+              ) : (
+                <>
+                  <ShoppingBag size={17} />
+                  تأكيد الطلب
+                </>
+              )}
+            </button>
+
+            <div className="mt-4 flex items-center justify-center gap-2 text-[11px] text-ink-400">
+              <ShieldCheck size={14} />
+              <span>معلوماتك محمية وتستخدم لتجهيز الطلب فقط</span>
+            </div>
+          </section>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

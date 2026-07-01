@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import logoImg from '../../assets/logo.png';
+import BrandLogo from './BrandLogo';
 
 export default function SplashScreen({ onComplete }) {
   const [visible, setVisible] = useState(true);
@@ -30,12 +30,11 @@ export default function SplashScreen({ onComplete }) {
   return (
     <div
       className={`cutportal-splash ${leaving ? 'cutportal-splash--leave' : ''}`}
-      aria-label="Welcome"
+      aria-label="مرحباً بكم في زادي"
       role="status"
     >
-      <div className="cutportal-splash__mark flex flex-col items-center gap-4">
-        <img src={logoImg} alt="Cutportal Logo" className="h-16 w-auto object-contain brightness-0 invert animate-pulse" draggable="false" />
-        <span className="cutportal-splash__logo tracking-[0.2em] uppercase font-bold text-[14px]">Cutportal</span>
+      <div className="cutportal-splash__mark flex flex-col items-center">
+        <BrandLogo inverse size="lg" className="animate-pulse" />
       </div>
     </div>
   );

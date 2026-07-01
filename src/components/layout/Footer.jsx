@@ -5,7 +5,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import { useAdminStore } from '../../store/useAdminStore';
-import logoImg from '../../assets/logo.png';
+import BrandLogo from '../ui/BrandLogo';
 
 const SHOP_LINKS = [
   { label: 'All Products', href: '/shop' },
@@ -46,9 +46,9 @@ const SocialIcons = {
 
 export default function Footer() {
   const siteSettings = useAdminStore((s) => s.siteSettings);
-  const storeName = siteSettings.storeName?.trim() || 'CUTPORTAL';
+  const storeName = siteSettings.storeName?.trim() || 'زادي';
   const tagline = siteSettings.tagline?.trim()
-    || 'Workspace essentials, smart devices, and refined tech gear for cleaner daily setups.';
+    || 'اختيارات ذكية ومفيدة لحياة يومية أسهل.';
   const social = [
     { Icon: SocialIcons.Instagram, label: 'Instagram', href: siteSettings.footerInstagram || '#' },
     { Icon: SocialIcons.Twitter,   label: 'Twitter',   href: siteSettings.footerTwitter || '#' },
@@ -64,11 +64,8 @@ export default function Footer() {
 
           {/* Brand Column */}
           <div className="lg:col-span-1">
-            <Link to="/" id="footer-logo" className="flex items-center gap-0 mb-4">
-              <img src={logoImg} alt="Cutportal Logo" className="h-7 w-auto object-contain brightness-0 invert -translate-y-[1.5px]" draggable="false" />
-              <span className="font-logo-brand text-2xl text-white hover:text-brand-400 transition-colors duration-200 -ml-[2px]">
-                ut portal
-              </span>
+            <Link to="/" id="footer-logo" aria-label="زادي" className="mb-4 inline-flex">
+              <BrandLogo inverse />
             </Link>
             <p className="text-caption text-ink-400 leading-relaxed max-w-[240px]">
               {tagline}

@@ -5,7 +5,7 @@
 
 import { useState, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { Mail, Phone, MapPin, MessageCircle, Send, ChevronDown } from 'lucide-react';
+import { Phone, MapPin, MessageCircle, Send, ChevronDown } from 'lucide-react';
 import { useToastStore } from '../store/useToastStore';
 
 const ease = [0.22, 1, 0.36, 1];
@@ -18,7 +18,7 @@ const fadeUp = {
 };
 
 const CONTACT_INFO = [
-  { icon: Mail, label: 'Email', value: 'support@cutportal.ma', href: 'mailto:support@cutportal.ma' },
+  { icon: Send, label: 'Telegram', value: '@Zaaadi_bot', href: 'https://t.me/Zaaadi_bot' },
   { icon: Phone, label: 'Phone', value: '+212 6 12 34 56 78', href: 'tel:+212612345678' },
   { icon: MessageCircle, label: 'WhatsApp', value: 'Chat with us', href: 'https://wa.me/212612345678', accent: true },
   { icon: MapPin, label: 'Address', value: 'Casablanca, Morocco', href: null },

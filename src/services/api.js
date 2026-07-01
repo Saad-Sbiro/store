@@ -2,7 +2,7 @@
 // FILE: src/services/api.js
 // ─────────────────────────────────────────────
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://localhost:8000/api' : '/api');
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 /**
  * Helper to build headers with token if present
@@ -20,6 +20,14 @@ function getHeaders(extraHeaders = {}) {
   }
 
   return headers;
+}
+
+function getPublicHeaders(extraHeaders = {}) {
+  return {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    ...extraHeaders,
+  };
 }
 
 /**
@@ -223,8 +231,52 @@ export const api = {
   async createOrder(orderData) {
     const res = await fetch(`${API_BASE_URL}/orders`, {
       method: 'POST',
-      headers: getHeaders(),
+      headers: getPublicHeaders(),
       body: JSON.stringify(orderData),
+    });
+    return handleResponse(res);
+  },
+
+  async saveCheckoutLead(leadData, { keepalive = false } = {}) {
+    const res = await fetch(`${API_BASE_URL}/checkout-leads`, {
+      method: 'POST',
+      headers: getPublicHeaders(),
+      keepalive,
+      body: JSON.stringify(leadData),
+    });
+    return handleResponse(res);
+  },
+
+  async deleteCheckoutLead(token) {
+    const res = await fetch(`${API_BASE_URL}/checkout-leads/${encodeURIComponent(token)}`, {
+      method: 'DELETE',
+      headers: getPublicHeaders(),
+      keepalive: true,
+    });
+
+    if (!res.ok) {
+      return handleResponse(res);
+    }
+
+    return null;
+  },
+
+  async getCheckoutLeads() {
+    const res = await fetch(`${API_BASE_URL}/admin/checkout-leads`, {
+      method: 'GET',
+      headers: getHeaders(),
+    });
+    return handleResponse(res);
+  },
+
+  async generateAiInsight(payload, nvidiaApiKey) {
+    const res = await fetch(`${API_BASE_URL}/admin/ai/chat`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({
+        ...payload,
+        api_key: nvidiaApiKey,
+      }),
     });
     return handleResponse(res);
   },

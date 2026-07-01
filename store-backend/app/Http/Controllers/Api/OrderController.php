@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\CheckoutLead;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Services\TelegramOrderNotifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -16,7 +18,7 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-        $user = $request->user();
+        $user = $request->user('sanctum');
 
         if ($user->isAdmin()) {
             $orders = Order::with(['user', 'items'])->orderBy('created_at', 'desc')->paginate(15);
@@ -30,7 +32,7 @@ class OrderController extends Controller
     /**
      * Store a newly created order.
      */
-    public function store(Request $request)
+    public function store(Request $request, TelegramOrderNotifier $telegram)
     {
         $validated = $request->validate([
             'items' => 'required|array|min:1',
@@ -40,6 +42,7 @@ class OrderController extends Controller
             'items.*.color' => 'nullable|string',
             'shipping_address' => 'required|array',
             'shipping_address.name' => 'required|string',
+            'shipping_address.phone' => 'required|string|max:30',
             'shipping_address.street' => 'required|string',
             'shipping_address.city' => 'required|string',
             'shipping_address.state' => 'required|string',
@@ -47,9 +50,12 @@ class OrderController extends Controller
             'shipping_address.country' => 'required|string',
             'payment_method' => 'required|string',
             'notes' => 'nullable|string',
+            'checkout_token' => 'nullable|uuid',
+            'discount_amount' => 'nullable|numeric|min:0',
+            'shipping_cost' => 'nullable|numeric|min:0',
         ]);
 
-        $user = $request->user();
+        $user = $request->user('sanctum');
 
         try {
             $result = DB::transaction(function () use ($validated, $user) {
@@ -82,20 +88,23 @@ class OrderController extends Controller
                     ];
                 }
 
-                $tax = $subtotal * 0.15; // 15% VAT calculation
-                $shipping = $subtotal > 150 ? 0 : 15.00; // Free shipping over $150
-                $total = $subtotal + $tax + $shipping;
+                $discount = min((float) ($validated['discount_amount'] ?? 0), $subtotal);
+                $tax = 0;
+                $shipping = (float) ($validated['shipping_cost'] ?? 0);
+                $total = max(0, $subtotal - $discount) + $shipping;
 
                 // 2. Create the main Order
                 $order = Order::create([
                     'order_number' => Order::generateOrderNumber(),
-                    'user_id' => $user->id,
+                    'user_id' => $user?->id,
                     'subtotal' => $subtotal,
                     'tax' => $tax,
                     'shipping' => $shipping,
                     'total' => $total,
                     'status' => 'pending',
-                    'payment_status' => 'paid', // Simulating successful checkout immediately
+                    'payment_status' => strcasecmp($validated['payment_method'], 'Cash on Delivery') === 0
+                        ? 'pending'
+                        : 'paid',
                     'payment_method' => $validated['payment_method'],
                     'shipping_address' => $validated['shipping_address'],
                     'notes' => $validated['notes'] ?? null,
@@ -110,14 +119,28 @@ class OrderController extends Controller
                 return $order;
             });
 
+            $order = $result->load('items');
+
+            if (! empty($validated['checkout_token'])) {
+                CheckoutLead::where('token', $validated['checkout_token'])
+                    ->where('status', '!=', 'converted')
+                    ->update([
+                        'status' => 'converted',
+                        'order_id' => $order->id,
+                        'last_activity_at' => now(),
+                    ]);
+            }
+
+            $telegram->sendNewOrder($order);
+
             return response()->json([
                 'message' => 'Order placed successfully',
-                'order' => Order::with('items')->find($result->id)
+                'order' => $order,
             ], 201);
 
         } catch (\Exception $e) {
             return response()->json([
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 400);
         }
     }
@@ -131,7 +154,7 @@ class OrderController extends Controller
         $user = $request->user();
 
         // Check permission: user must own the order or be an admin
-        if (!$user->isAdmin() && $order->user_id !== $user->id) {
+        if (! $user->isAdmin() && $order->user_id !== $user->id) {
             return response()->json(['error' => 'Unauthorized Access.'], 403);
         }
 
@@ -156,7 +179,7 @@ class OrderController extends Controller
 
         return response()->json([
             'message' => 'Order status updated successfully',
-            'order' => $order
+            'order' => $order,
         ]);
     }
 }

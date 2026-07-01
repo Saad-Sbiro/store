@@ -18,7 +18,7 @@ class ProductController extends Controller
         // Filter by category (ID or slug)
         if ($request->has('category')) {
             $categoryVal = $request->query('category');
-            $query->whereHas('category', function($q) use ($categoryVal) {
+            $query->whereHas('category', function ($q) use ($categoryVal) {
                 $q->where('id', $categoryVal)->orWhere('slug', $categoryVal);
             });
         }
@@ -26,10 +26,12 @@ class ProductController extends Controller
         // Search by name, description or tags
         if ($request->has('search')) {
             $search = $request->query('search');
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhere('tags', 'like', "%{$search}%");
+                    ->orWhere('name_ar', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('description_ar', 'like', "%{$search}%")
+                    ->orWhere('tags', 'like', "%{$search}%");
             });
         }
 
@@ -78,6 +80,7 @@ class ProductController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'name_ar' => 'nullable|string|max:255',
             'slug' => 'required|string|unique:products,slug',
             'price' => 'required|numeric|min:0',
             'original_price' => 'nullable|numeric|min:0',
@@ -87,6 +90,7 @@ class ProductController extends Controller
             'colors' => 'nullable|array',
             'sizes' => 'nullable|array',
             'description' => 'nullable|string',
+            'description_ar' => 'nullable|string',
             'tags' => 'nullable|array',
             'stock' => 'integer|min:0',
             'badge' => 'nullable|string',
@@ -98,7 +102,7 @@ class ProductController extends Controller
 
         return response()->json([
             'message' => 'Product created successfully',
-            'product' => $product
+            'product' => $product,
         ], 201);
     }
 
@@ -109,7 +113,7 @@ class ProductController extends Controller
     {
         $product = Product::where('is_active', true)
             ->with('category')
-            ->where(function($query) use ($id) {
+            ->where(function ($query) use ($id) {
                 $query->where('id', $id)->orWhere('slug', $id);
             })
             ->firstOrFail();
@@ -123,7 +127,7 @@ class ProductController extends Controller
 
         return response()->json([
             'product' => $product,
-            'related' => $relatedProducts
+            'related' => $relatedProducts,
         ]);
     }
 
@@ -136,7 +140,8 @@ class ProductController extends Controller
 
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
-            'slug' => 'sometimes|required|string|unique:products,slug,' . $product->id,
+            'name_ar' => 'nullable|string|max:255',
+            'slug' => 'sometimes|required|string|unique:products,slug,'.$product->id,
             'price' => 'sometimes|required|numeric|min:0',
             'original_price' => 'nullable|numeric|min:0',
             'category_id' => 'sometimes|required|exists:categories,id',
@@ -145,6 +150,7 @@ class ProductController extends Controller
             'colors' => 'nullable|array',
             'sizes' => 'nullable|array',
             'description' => 'nullable|string',
+            'description_ar' => 'nullable|string',
             'tags' => 'nullable|array',
             'stock' => 'integer|min:0',
             'badge' => 'nullable|string',
@@ -156,7 +162,7 @@ class ProductController extends Controller
 
         return response()->json([
             'message' => 'Product updated successfully',
-            'product' => $product
+            'product' => $product,
         ]);
     }
 
@@ -169,7 +175,7 @@ class ProductController extends Controller
         $product->delete();
 
         return response()->json([
-            'message' => 'Product deleted successfully'
+            'message' => 'Product deleted successfully',
         ]);
     }
 }

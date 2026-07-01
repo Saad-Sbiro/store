@@ -35,4 +35,15 @@ return [
         ],
     ],
 
+    'telegram' => [
+        'enabled' => env('TELEGRAM_ENABLED', false),
+        'bot_token' => env('TELEGRAM_BOT_TOKEN'),
+        'chat_id' => env('TELEGRAM_CHAT_ID'),
+        'timeout' => env('TELEGRAM_TIMEOUT', 5),
+    ],
+
+    'nvidia' => [
+        'endpoint' => env('NVIDIA_API_URL', 'https://integrate.api.nvidia.com/v1/chat/completions'),
+    ],
+
 ];

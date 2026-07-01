@@ -3,12 +3,12 @@
 // ─────────────────────────────────────────────
 
 import { useState, useEffect } from 'react';
-import { Search, ChevronUp, ChevronDown, ShoppingBag, Clock, CheckCircle, XCircle, Truck } from 'lucide-react';
+import { Search, ChevronUp, ChevronDown, ShoppingBag, Clock, CheckCircle, XCircle, Truck, AlertTriangle } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { api } from '../../services/api';
 import { formatPrice } from '../../utils/formatPrice';
 
-const STATUSES = ['All', 'Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
+const STATUSES = ['All', 'Not submitted', 'Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
 
 const statusStyle = {
   Delivered: { cls: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20', icon: CheckCircle },
@@ -16,6 +16,7 @@ const statusStyle = {
   Pending: { cls: 'bg-amber-500/15 text-amber-400 border-amber-500/20', icon: Clock },
   Cancelled: { cls: 'bg-rose-500/15 text-rose-400 border-rose-500/20', icon: XCircle },
   Processing: { cls: 'bg-white/10 text-white/60 border-white/20', icon: ShoppingBag },
+  'Not submitted': { cls: 'bg-orange-500/15 text-orange-300 border-orange-500/25', icon: AlertTriangle },
 };
 
 export default function OrdersPage() {
@@ -23,9 +24,9 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
 
   const fetchOrders = () => {
-    api.getOrders()
-      .then(res => {
-        const rawOrders = res.data || [];
+    Promise.all([api.getOrders(), api.getCheckoutLeads()])
+      .then(([ordersResponse, leadsResponse]) => {
+        const rawOrders = ordersResponse.data || [];
         const mapped = rawOrders.map(o => {
           const productSummary = o.items && o.items.length 
             ? o.items.map(item => `${item.product_name} (x${item.quantity})`).join(', ')
@@ -36,13 +37,31 @@ export default function OrdersPage() {
             dbId: o.id,
             customer: o.shipping_address?.name || o.user?.name || 'Guest User',
             email: o.user?.email || '',
+            phone: o.shipping_address?.phone || '',
             product: productSummary,
             amount: parseFloat(o.total),
             status: o.status.charAt(0).toUpperCase() + o.status.slice(1),
-            date: o.created_at
+            date: o.created_at,
+            isLead: false,
           };
         });
-        setOrders(mapped);
+
+        const leads = (leadsResponse.data || []).map(lead => ({
+          id: `LEAD-${lead.id}`,
+          dbId: null,
+          customer: lead.full_name || 'Unknown customer',
+          email: '',
+          phone: lead.phone || '',
+          product: lead.items?.length
+            ? lead.items.map(item => `${item.product_name} (x${item.quantity})`).join(', ')
+            : 'Checkout lead',
+          amount: parseFloat(lead.total || 0),
+          status: 'Not submitted',
+          date: lead.abandoned_at || lead.last_activity_at || lead.created_at,
+          isLead: true,
+        }));
+
+        setOrders([...mapped, ...leads]);
       })
       .catch(err => console.error('Error fetching orders:', err))
       .finally(() => setLoading(false));
@@ -76,7 +95,11 @@ export default function OrdersPage() {
 
   const filtered = orders
     .filter(o => {
-      const matchSearch = !search || o.customer.toLowerCase().includes(search.toLowerCase()) || o.email.toLowerCase().includes(search.toLowerCase()) || o.id.toLowerCase().includes(search.toLowerCase());
+      const matchSearch = !search
+        || o.customer.toLowerCase().includes(search.toLowerCase())
+        || o.email.toLowerCase().includes(search.toLowerCase())
+        || o.phone.toLowerCase().includes(search.toLowerCase())
+        || o.id.toLowerCase().includes(search.toLowerCase());
       const matchStatus = statusFilter === 'All' || o.status === statusFilter;
       return matchSearch && matchStatus;
     })
@@ -102,7 +125,7 @@ export default function OrdersPage() {
   return (
     <div className="space-y-4">
       {/* Summary */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
         <div className="col-span-2 sm:col-span-1 rounded-xl border border-[#2a2a2a] bg-[#1c1c1c]/60 px-4 py-3">
           <p className="text-white/40 text-xs">Total Revenue</p>
           <p className="text-xl font-bold text-white/70 mt-0.5">${totalRevenue.toFixed(0)}</p>
@@ -122,7 +145,7 @@ export default function OrdersPage() {
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <div className="relative w-full sm:max-w-sm">
           <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
-          <input value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} placeholder="Search by name, email, order ID..." className="w-full bg-[#222222]/50 border border-[#3a3a3a] text-white text-xs placeholder-white/30 rounded-xl pl-8 pr-3 py-2.5 outline-none focus:border-white/30" />
+          <input value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} placeholder="Search name, phone, or ID..." className="w-full bg-[#222222]/50 border border-[#3a3a3a] text-white text-xs placeholder-white/30 rounded-xl pl-8 pr-3 py-2.5 outline-none focus:border-white/30" />
         </div>
         <div className="flex gap-1.5 flex-wrap">
           {STATUSES.map(s => (
@@ -163,12 +186,12 @@ export default function OrdersPage() {
                     <td className="px-4 py-3 font-mono text-white/70">{order.id}</td>
                     <td className="px-4 py-3">
                       <p className="text-white font-medium">{order.customer}</p>
-                      <p className="text-white/40 text-[10px]">{order.email}</p>
+                      <p className="text-white/40 text-[10px]">{order.phone || order.email}</p>
                     </td>
                     <td className="px-4 py-3 text-white/60 max-w-[180px] truncate">{order.product}</td>
                     <td className="px-4 py-3 text-white font-semibold">{formatPrice(order.amount)}</td>
                     <td className="px-4 py-3">
-                      {editingId === order.id ? (
+                      {editingId === order.id && !order.isLead ? (
                         <select
                           defaultValue={order.status}
                           autoFocus
@@ -179,7 +202,10 @@ export default function OrdersPage() {
                           {STATUSES.slice(1).map(st => <option key={st} value={st}>{st}</option>)}
                         </select>
                       ) : (
-                        <button onClick={() => setEditingId(order.id)} className={`text-[10px] font-medium px-2 py-1 rounded-full border ${s.cls} hover:opacity-80 transition-opacity`}>
+                        <button
+                          onClick={() => !order.isLead && setEditingId(order.id)}
+                          className={`text-[10px] font-medium px-2 py-1 rounded-full border ${s.cls} ${order.isLead ? 'cursor-default' : 'hover:opacity-80'} transition-opacity`}
+                        >
                           {order.status}
                         </button>
                       )}
@@ -188,7 +214,11 @@ export default function OrdersPage() {
                       {order.date ? format(parseISO(order.date), 'MMM d, yyyy') : '—'}
                     </td>
                     <td className="px-4 py-3">
-                      <button onClick={() => setEditingId(order.id)} className="text-white/40 hover:text-white/70 text-[10px] hover:underline transition-colors">Update status</button>
+                      {order.isLead ? (
+                        <span className="text-orange-300/70 text-[10px]">Needs follow-up</span>
+                      ) : (
+                        <button onClick={() => setEditingId(order.id)} className="text-white/40 hover:text-white/70 text-[10px] hover:underline transition-colors">Update status</button>
+                      )}
                     </td>
                   </tr>
                 );

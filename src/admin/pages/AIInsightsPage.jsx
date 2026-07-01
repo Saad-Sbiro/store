@@ -9,9 +9,7 @@ import { Sparkles, Send, Key, Copy, Check, Trash2, RefreshCw, Bot, User, AlertCi
 import { useAdminStore } from '../../store/useAdminStore';
 import { format } from 'date-fns';
 import { getDisplayCountry } from '../../utils/geo';
-
-// NVIDIA NIM API — routed through Vite proxy to avoid CORS
-const NVIDIA_BASE_URL = '/nvidia-api/v1';
+import { api } from '../../services/api';
 
 const MODELS = [
   { id: 'z-ai/glm-5.1', label: 'GLM 5.1', sub: 'Z.ai · SOTA Reasoning' },
@@ -297,25 +295,12 @@ export default function AIInsightsPage() {
 
   const callNvidiaAPI = async (msgs) => {
     const model = aiConfig.model || MODELS[0].id;
-    const res = await fetch(`${NVIDIA_BASE_URL}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${aiConfig.apiKey}`,
-      },
-      body: JSON.stringify({
-        model,
-        messages: msgs,
-        temperature: 0.7,
-        max_tokens: 2048,
-        stream: false,
-      }),
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err?.detail || err?.message || `API error ${res.status}`);
-    }
-    const data = await res.json();
+    const data = await api.generateAiInsight({
+      model,
+      messages: msgs,
+      temperature: 0.7,
+      max_tokens: 2048,
+    }, aiConfig.apiKey);
     return data.choices?.[0]?.message?.content || 'No response received.';
   };
 
