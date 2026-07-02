@@ -17,7 +17,7 @@ export default function Hero() {
     <section
       id="hero"
       aria-label="زادي"
-      className="relative isolate flex h-[100svh] min-h-[100svh] overflow-hidden bg-[#050505] font-zain text-white"
+      className="relative isolate flex h-screen min-h-screen overflow-hidden bg-[#050505] font-zain text-white supports-[height:100dvh]:h-[100dvh] supports-[height:100dvh]:min-h-[100dvh]"
       dir="rtl"
     >
       <div className="absolute inset-0 -z-10" aria-hidden="true">
