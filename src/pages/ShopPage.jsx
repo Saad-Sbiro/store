@@ -25,12 +25,30 @@ const fadeUp = {
 };
 
 const SORT_OPTIONS = [
-  { value: 'newest', label: 'Newest' },
-  { value: 'price-low', label: 'Price: Low to High' },
-  { value: 'price-high', label: 'Price: High to Low' },
-  { value: 'rating', label: 'Top Rated' },
-  { value: 'name', label: 'Alphabetical' },
+  { value: 'newest', label: 'الأحدث' },
+  { value: 'price-low', label: 'السعر: من الأقل إلى الأعلى' },
+  { value: 'price-high', label: 'السعر: من الأعلى إلى الأقل' },
+  { value: 'rating', label: 'الأعلى تقييماً' },
+  { value: 'name', label: 'أبجدياً' },
 ];
+
+const CATEGORY_TRANSLATIONS = {
+  'All': 'الكل',
+  'Desk Accessories': 'ملحقات المكتب',
+  'Home Appliances': 'أجهزة المنزل',
+  'Peripherals': 'ملحقات الحاسوب',
+  'Audio': 'الأجهزة الصوتية',
+  'Lighting': 'الإضاءة',
+  'Connectivity': 'أجهزة الاتصال',
+};
+
+const formatProductCount = (count) => {
+  if (count === 0) return 'لا توجد منتجات';
+  if (count === 1) return 'منتج واحد';
+  if (count === 2) return 'منتجان';
+  if (count >= 3 && count <= 10) return `${count} منتجات`;
+  return `${count} منتج`;
+};
 
 export default function ShopPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -130,15 +148,15 @@ export default function ShopPage() {
   const activeSort = SORT_OPTIONS.find((option) => option.value === sortBy) || SORT_OPTIONS[0];
 
   return (
-    <div className="min-h-screen bg-surface-50" style={{ paddingTop: '108px' }}>
+    <div className="min-h-screen bg-surface-50" style={{ paddingTop: '108px' }} dir="rtl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* ── Header ── */}
-        <motion.div initial={{ y: 16, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="mb-8">
+        <motion.div initial={{ y: 16, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="mb-8 text-right">
           <h1 className="font-hero text-section-sm md:text-section font-bold text-ink-900" style={{ letterSpacing: '-0.03em' }}>
-            Shop
+            المتجر
           </h1>
           <p className="text-body text-ink-400 mt-1">
-            {loading ? 'Loading products...' : `${displayProducts.length} product${displayProducts.length !== 1 ? 's' : ''}`}
+            {loading ? 'جاري تحميل المنتجات...' : formatProductCount(displayProducts.length)}
           </p>
         </motion.div>
 
@@ -146,15 +164,15 @@ export default function ShopPage() {
         <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={0} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-6">
           {/* Search */}
           <div className="relative flex-1 max-w-md">
-            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-400" />
+            <Search size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-400" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search products..."
-              className="input-field pl-10"
+              placeholder="البحث عن المنتجات..."
+              className="input-field pr-10 pl-4 text-right"
             />
             {search && (
-              <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-400 hover:text-ink-600">
+              <button onClick={() => setSearch('')} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400 hover:text-ink-600">
                 <X size={14} />
               </button>
             )}
@@ -178,7 +196,7 @@ export default function ShopPage() {
                     key={opt.value}
                     type="button"
                     onClick={() => setSortBy(opt.value)}
-                    className={`rounded-[10px] px-3 py-2 text-left text-[13px] font-semibold transition-colors ${
+                    className={`rounded-[10px] px-3 py-2 text-right text-[13px] font-semibold transition-colors ${
                       sortBy === opt.value
                         ? 'bg-white text-ink-900'
                         : 'text-white/76 hover:bg-white/10 hover:text-white'
@@ -197,27 +215,27 @@ export default function ShopPage() {
               <TooltipTrigger asChild>
                 <button
                   type="button"
-                  aria-label="Grid view"
+                  aria-label="عرض الشبكة"
                   onClick={() => setViewMode('grid')}
                   className={`p-2.5 transition-colors ${viewMode === 'grid' ? 'bg-ink-900 text-white' : 'text-ink-400 hover:bg-surface-50'}`}
                 >
                   <Grid3X3 size={16} />
                 </button>
               </TooltipTrigger>
-              <TooltipContent>Grid view</TooltipContent>
+              <TooltipContent>عرض الشبكة</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
                   type="button"
-                  aria-label="List view"
+                  aria-label="عرض القائمة"
                   onClick={() => setViewMode('list')}
                   className={`p-2.5 transition-colors ${viewMode === 'list' ? 'bg-ink-900 text-white' : 'text-ink-400 hover:bg-surface-50'}`}
                 >
                   <LayoutList size={16} />
                 </button>
               </TooltipTrigger>
-              <TooltipContent>List view</TooltipContent>
+              <TooltipContent>عرض القائمة</TooltipContent>
             </Tooltip>
           </div>
 
@@ -226,7 +244,7 @@ export default function ShopPage() {
             onClick={() => setShowFilters(!showFilters)}
             className="sm:hidden inline-flex items-center gap-2 px-4 py-2.5 rounded-btn border border-surface-200 text-caption font-medium text-ink-600"
           >
-            <SlidersHorizontal size={14} /> Filters
+            <SlidersHorizontal size={14} /> تصفية
           </button>
         </motion.div>
 
@@ -248,27 +266,27 @@ export default function ShopPage() {
                   : 'bg-white text-ink-600 border border-surface-200 hover:border-ink-400 hover:text-ink-900'
               }`}
             >
-              {cat}
+              {CATEGORY_TRANSLATIONS[cat] || cat}
             </button>
           ))}
         </motion.div>
 
         {/* ── Product Grid ── */}
         <Sheet open={showFilters} onOpenChange={setShowFilters}>
-          <SheetContent side="bottom" className="sm:hidden">
+          <SheetContent side="bottom" className="sm:hidden" dir="rtl">
             <div className="flex items-center justify-between border-b border-surface-100 px-5 py-4">
-              <div>
+              <div className="text-right">
                 <SheetTitle className="font-hero text-xl font-bold text-ink-900">
-                  Filters
+                  تصفية
                 </SheetTitle>
-                <p className="mt-1 text-caption text-ink-400">{displayProducts.length} products</p>
+                <p className="mt-1 text-caption text-ink-400">{formatProductCount(displayProducts.length)}</p>
               </div>
             </div>
 
-            <div className="max-h-[calc(86vh-76px)] overflow-y-auto px-5 py-4">
+            <div className="max-h-[calc(86vh-76px)] overflow-y-auto px-5 py-4 text-right">
               <Accordion type="single" collapsible defaultValue="categories">
                 <AccordionItem value="categories">
-                  <AccordionTrigger>Categories</AccordionTrigger>
+                  <AccordionTrigger className="text-right">الفئات</AccordionTrigger>
                   <AccordionContent>
                     <RadioGroup
                       value={selectedCategory}
@@ -279,17 +297,17 @@ export default function ShopPage() {
                         <RadioGroupItem
                           key={cat}
                           value={cat}
-                          aria-label={`Filter by ${cat}`}
+                          aria-label={`تصفية حسب ${CATEGORY_TRANSLATIONS[cat] || cat}`}
                           className="min-h-[44px] justify-center rounded-pill px-3 text-[12px]"
                         >
-                          {cat}
+                          {CATEGORY_TRANSLATIONS[cat] || cat}
                         </RadioGroupItem>
                       ))}
                     </RadioGroup>
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="sort">
-                  <AccordionTrigger>Sort</AccordionTrigger>
+                  <AccordionTrigger className="text-right">الترتيب</AccordionTrigger>
                   <AccordionContent>
                     <RadioGroup
                       value={sortBy}
@@ -300,7 +318,7 @@ export default function ShopPage() {
                         <RadioGroupItem
                           key={option.value}
                           value={option.value}
-                          aria-label={`Sort by ${option.label}`}
+                          aria-label={`الترتيب حسب ${option.label}`}
                           className="min-h-[44px] justify-start rounded-btn px-4 text-[12px]"
                         >
                           {option.label}
@@ -316,7 +334,7 @@ export default function ShopPage() {
                 onClick={() => setShowFilters(false)}
                 className="mt-5 h-12 w-full rounded-btn bg-ink-900 text-caption font-semibold uppercase tracking-[0.14em] text-white"
               >
-                Apply
+                تطبيق
               </button>
             </div>
           </SheetContent>
@@ -333,13 +351,13 @@ export default function ShopPage() {
             <div className="w-16 h-16 rounded-full bg-surface-100 flex items-center justify-center mx-auto mb-4">
               <Search size={24} className="text-ink-400" />
             </div>
-            <h3 className="font-hero text-lg font-bold text-ink-900 mb-1">No products found</h3>
-            <p className="text-caption text-ink-400">Try adjusting your search or filters.</p>
+            <h3 className="font-hero text-lg font-bold text-ink-900 mb-1">لم يتم العثور على منتجات</h3>
+            <p className="text-caption text-ink-400">يرجى محاولة تعديل كلمات البحث أو الفئات المحددة.</p>
             <button
               onClick={() => { setSearch(''); setSelectedCategory('All'); }}
               className="mt-4 text-caption font-semibold text-brand-500 hover:text-brand-600"
             >
-              Clear all filters
+              إعادة تعيين الفلاتر
             </button>
           </div>
         ) : (
