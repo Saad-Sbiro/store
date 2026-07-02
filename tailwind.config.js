@@ -36,7 +36,7 @@ export default {
         },
       },
       fontFamily: {
-        sans:    ['Manrope', 'system-ui', 'sans-serif'],
+        sans:    ['Zain', 'Manrope', 'system-ui', 'sans-serif'],
         display: ['Comico', 'Georgia', 'serif'],
         comico:  ['Comico', 'Georgia', 'serif'],
         hero:    ['"Space Grotesk"', 'system-ui', 'sans-serif'],
