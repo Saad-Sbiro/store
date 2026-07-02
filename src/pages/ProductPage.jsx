@@ -10,6 +10,7 @@ import {
   RotateCcw,
   ShoppingBag,
   Truck,
+  X,
 } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa6';
 import clsx from 'clsx';
@@ -202,6 +203,8 @@ export default function ProductPage() {
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
   const [sizeError, setSizeError] = useState(false);
+  const [showSelectionModal, setShowSelectionModal] = useState(false);
+  const [modalActionType, setModalActionType] = useState('cart');
   const galleryRef = useRef(null);
 
   const addItem = useCartStore((state) => state.addItem);
@@ -296,7 +299,7 @@ export default function ProductPage() {
     }
   };
 
-  const validatePurchaseOptions = () => {
+  const validatePurchaseOptions = (actionType = 'cart') => {
     if (isOutOfStock) {
       toast({
         title: 'المنتج غير متوفر',
@@ -307,13 +310,8 @@ export default function ProductPage() {
     }
 
     if (!selectedSize) {
-      setSizeError(true);
-      window.setTimeout(() => setSizeError(false), 2000);
-      toast({
-        title: 'اختر النوع',
-        description: 'يرجى اختيار النوع المناسب قبل المتابعة.',
-        variant: 'warning',
-      });
+      setModalActionType(actionType);
+      setShowSelectionModal(true);
       return false;
     }
 
@@ -331,7 +329,7 @@ export default function ProductPage() {
   };
 
   const handleAddToCart = () => {
-    if (!validatePurchaseOptions()) return;
+    if (!validatePurchaseOptions('cart')) return;
 
     addCurrentSelectionToCart();
     setAddedToCart(true);
@@ -344,7 +342,7 @@ export default function ProductPage() {
   };
 
   const handleBuyNow = () => {
-    if (!validatePurchaseOptions()) return;
+    if (!validatePurchaseOptions('buy_now')) return;
     addCurrentSelectionToCart();
     navigate('/checkout');
   };
@@ -746,6 +744,170 @@ export default function ProductPage() {
           </a>
         </div>
       </div>
+
+      {/* ── Option Selection Modal ── */}
+      {showSelectionModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-fade-in">
+          {/* Backdrop click closes modal */}
+          <div className="absolute inset-0" onClick={() => setShowSelectionModal(false)} />
+
+          {/* Modal Container */}
+          <div className="relative z-10 w-full max-w-md animate-slide-up rounded-panel border border-surface-200 bg-white p-6 shadow-xl text-right" dir="rtl">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-surface-100 pb-3 mb-4">
+              <h3 className="font-zain text-[24px] font-black text-ink-900">
+                اختر مواصفات المنتج
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowSelectionModal(false)}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-ink-400 hover:text-ink-900 hover:bg-surface-100 transition-colors"
+                aria-label="إغلاق"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="space-y-5">
+              {/* Color Selector */}
+              {colors.length > 0 && (
+                <div>
+                  <p className="mb-2 text-[13px] font-bold text-ink-600">اللون</p>
+                  <div className="flex flex-wrap gap-2.5 justify-start">
+                    {colors.map((color, index) => (
+                      <button
+                        key={color}
+                        type="button"
+                        onClick={() => setSelectedColor(index)}
+                        className={clsx(
+                          'relative grid h-9 w-9 place-items-center rounded-full border-2 border-white transition-transform',
+                          selectedColor === index
+                            ? 'scale-110 shadow-[0_0_0_2px_#09090b]'
+                            : 'shadow-[0_0_0_1px_#d1d1d6]'
+                        )}
+                        style={{ backgroundColor: color }}
+                      >
+                        {selectedColor === index && (
+                          <Check
+                            size={14}
+                            strokeWidth={3}
+                            className="text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]"
+                          />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Type/Size Selector */}
+              <div>
+                <p className={clsx('mb-2 text-[13px] font-bold', sizeError ? 'text-feedback-danger' : 'text-ink-600')}>
+                  {sizeError ? 'اختر النوع للمتابعة' : 'النوع'}
+                </p>
+                <RadioGroup
+                  dir="rtl"
+                  value={selectedSize || ''}
+                  onValueChange={(value) => {
+                    setSelectedSize(value);
+                    setSizeError(false);
+                  }}
+                  className="flex flex-wrap justify-start gap-2"
+                  aria-label="اختيار نوع المنتج في النافذة المنبثقة"
+                >
+                  {variants.map((variant) => (
+                    <RadioGroupItem
+                      key={variant}
+                      value={variant}
+                      aria-label={`النوع ${variant}`}
+                      className={clsx(
+                        'min-h-11 min-w-[76px] px-3 font-arabic text-[13px]',
+                        sizeError && selectedSize !== variant && 'border-feedback-danger'
+                      )}
+                    >
+                      {variant}
+                    </RadioGroupItem>
+                  ))}
+                </RadioGroup>
+              </div>
+
+              {/* Quantity Selector */}
+              <div>
+                <p className="mb-2 text-[13px] font-bold text-ink-600">الكمية</p>
+                <div className="flex justify-start">
+                  <div className="inline-flex h-10 items-center overflow-hidden rounded-lg border border-surface-200">
+                    <button
+                      type="button"
+                      onClick={() => setQuantity((current) => Math.max(1, current - 1))}
+                      disabled={quantity <= 1 || isOutOfStock}
+                      className="grid h-10 w-10 place-items-center text-ink-600 hover:bg-surface-100 disabled:opacity-35"
+                    >
+                      <Minus size={14} />
+                    </button>
+                    <span className="w-10 text-center text-[14px] font-bold">
+                      {quantity}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setQuantity((current) => Math.min(stockLimit, current + 1))}
+                      disabled={isOutOfStock}
+                      className="grid h-10 w-10 place-items-center text-ink-600 hover:bg-surface-100 disabled:opacity-35"
+                    >
+                      <Plus size={14} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Button */}
+            <div className="mt-6 pt-4 border-t border-surface-100">
+              <Button
+                variant="primary"
+                size="lg"
+                fullWidth
+                onClick={() => {
+                  if (!selectedSize) {
+                    setSizeError(true);
+                    return;
+                  }
+                  setShowSelectionModal(false);
+                  if (modalActionType === 'buy_now') {
+                    const localizedProduct = { ...product, name: displayName };
+                    addItem(localizedProduct, quantity, colors[selectedColor] || colors[0], selectedSize);
+                    api.logEvent('add_to_cart', window.location.pathname, product.id, {
+                      quantity,
+                      size: selectedSize,
+                      color: colors[selectedColor] || colors[0],
+                    });
+                    navigate('/checkout');
+                  } else {
+                    const localizedProduct = { ...product, name: displayName };
+                    addItem(localizedProduct, quantity, colors[selectedColor] || colors[0], selectedSize);
+                    api.logEvent('add_to_cart', window.location.pathname, product.id, {
+                      quantity,
+                      size: selectedSize,
+                      color: colors[selectedColor] || colors[0],
+                    });
+                    setAddedToCart(true);
+                    toast({
+                      title: 'تمت الإضافة إلى السلة',
+                      description: `تمت إضافة ${quantity} من ${displayName}.`,
+                      variant: 'success',
+                    });
+                    window.setTimeout(() => setAddedToCart(false), 1000);
+                  }
+                }}
+                className="h-12 font-zain text-[18px] font-black"
+              >
+                {modalActionType === 'buy_now' ? 'تأكيد وشراء الآن' : 'تأكيد وإضافة للسلة'}
+              </Button>
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
   );
 }
