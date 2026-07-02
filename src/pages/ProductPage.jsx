@@ -206,6 +206,7 @@ export default function ProductPage() {
   const [colorError, setColorError] = useState(false);
   const [showSelectionModal, setShowSelectionModal] = useState(false);
   const [modalActionType, setModalActionType] = useState('cart');
+  const [showMobileStickyBar, setShowMobileStickyBar] = useState(true);
   const galleryRef = useRef(null);
 
   const addItem = useCartStore((state) => state.addItem);
@@ -251,6 +252,17 @@ export default function ProductPage() {
       window.scrollTo(0, 0);
     }
   }, [loading]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const threshold = 180;
+      const scrolledToBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - threshold;
+      setShowMobileStickyBar(!scrolledToBottom);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Show skeleton while loading — structured layout beats a blank spinner
   if (loading) return <ProductPageSkeleton />;
@@ -569,11 +581,6 @@ export default function ProductPage() {
                   {formatPrice(originalPrice)}
                 </span>
               )}
-              {savings > 0 && (
-                <span className="rounded bg-emerald-50 px-2 py-1 text-[11px] font-bold text-emerald-700">
-                  وفر {savings}%
-                </span>
-              )}
             </div>
 
             <div className="space-y-5 py-5 text-right" dir="rtl">
@@ -734,7 +741,12 @@ export default function ProductPage() {
         )}
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-40 isolate border-t border-surface-300 bg-white px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 text-ink-900 shadow-[0_-10px_30px_rgba(0,0,0,0.14)] lg:hidden">
+      <div
+        className={clsx(
+          "fixed inset-x-0 bottom-0 z-40 isolate border-t border-surface-300 bg-white px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 text-ink-900 shadow-[0_-10px_30px_rgba(0,0,0,0.14)] lg:hidden transition-all duration-300 ease-in-out",
+          showMobileStickyBar ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
+        )}
+      >
         <div className="mx-auto flex max-w-lg items-center gap-3">
           <div className="min-w-0 max-w-[34%] shrink-0">
             <p className="text-[10px] text-ink-400">المجموع</p>

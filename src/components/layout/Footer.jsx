@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import { useAdminStore } from '../../store/useAdminStore';
 import BrandLogo from '../ui/BrandLogo';
+import footerBg from '../../assets/footerimage.png';
 
 const SHOP_LINKS = [
   { label: 'All Products', href: '/shop' },
@@ -56,7 +57,15 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="bg-ink-900 text-surface-200" aria-label="Site footer">
+    <footer
+      className="relative bg-ink-900 text-surface-200 overflow-hidden"
+      style={{
+        backgroundImage: `linear-gradient(to bottom, rgba(9, 9, 11, 0.94), rgba(9, 9, 11, 0.97)), url(${footerBg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+      aria-label="Site footer"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8">
 
         {/* ── Main Grid ── */}
