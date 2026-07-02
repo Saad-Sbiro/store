@@ -60,7 +60,7 @@ export default function Hero() {
               className="hero-marquee-button inline-flex h-14 w-full items-center overflow-hidden rounded-full border border-solid border-white/55 bg-[#d9dfff] font-zain text-[18px] font-black text-[#24204f] shadow-[0_14px_36px_rgba(119,132,255,0.2)] transition-[transform,background-color] duration-300 ease-expo hover:-translate-y-0.5 hover:bg-white sm:w-[360px]"
             >
               <span className="hero-marquee-track" aria-hidden="true">
-                {[0, 1].map((group) => (
+                {[0, 1, 2].map((group) => (
                   <span key={group} className="hero-marquee-group">
                     {Array.from({ length: 4 }).map((_, index) => (
                       <span key={`${group}-${index}`} className="hero-marquee-item" dir="rtl">

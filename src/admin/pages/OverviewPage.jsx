@@ -144,16 +144,14 @@ const TooltipBox = ({ active, payload, label }) => {
 };
 
 export default function OverviewPage() {
+  const [skipDashboardFetch] = useState(isLocalSession);
   const [dbData, setDbData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!skipDashboardFetch);
   const [error, setError] = useState('');
 
   useEffect(() => {
     // Local dev login uses a fake token — skip the protected API call.
-    if (isLocalSession()) {
-      setLoading(false);
-      return;
-    }
+    if (skipDashboardFetch) return;
 
     api.getAdminDashboard()
       .then((data) => {
@@ -165,7 +163,7 @@ export default function OverviewPage() {
         setError(err.message || 'Unable to load dashboard data.');
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [skipDashboardFetch]);
 
   const metrics = Object.fromEntries(
     Object.entries(EMPTY_METRICS).map(([key, fallback]) => [

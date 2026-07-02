@@ -4,7 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently --kill-others --names api,web --prefix-colors blue,magenta \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "php store-backend/artisan serve --host=127.0.0.1 --port=8000",
+    "dev:web": "vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -32,7 +34,6 @@
     "react-icons": "^5.7.0",
     "react-is": "^19.2.7",
     "react-router-dom": "^7.17.0",
-    "react-simple-maps": "^3.0.0",
     "recharts": "^3.8.1",
     "tailwind-merge": "^3.6.0",
     "three": "^0.184.0",
@@ -44,6 +45,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
     "autoprefixer": "^10.5.0",
+    "concurrently": "^9.2.3",
     "eslint": "^10.3.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",

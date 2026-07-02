@@ -68,14 +68,11 @@ export function AlertDialogDescription({ children, className }) {
 /**
  * AlertDialogContent
  * @prop {('bottom'|'top'|'center')} from - entry direction
- * @prop {'danger'|'default'} intent       - colours the action button
  */
 export function AlertDialogContent({
   children,
   className,
   from = 'bottom',
-  intent = 'default',
-  open,          // for AnimatePresence controlled mode
 }) {
   const contentVars = getContentVariants(from);
 

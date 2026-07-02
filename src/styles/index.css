@@ -331,6 +331,7 @@
   isolation: isolate;
   direction: ltr;
   justify-content: flex-start;
+  border-radius: 9999px;
   padding-inline: 0;
 }
 
@@ -481,7 +482,7 @@
 
 @keyframes hero-cta-marquee {
   from {
-    transform: translate3d(-50%, 0, 0);
+    transform: translate3d(-33.333333%, 0, 0);
   }
   to {
     transform: translate3d(0, 0, 0);

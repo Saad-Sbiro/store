@@ -6,7 +6,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Heart, ShoppingBag, ArrowRight } from 'lucide-react';
+import { Heart, ArrowRight } from 'lucide-react';
 import { useWishlistStore } from '../store/useWishlistStore';
 import { api } from '../services/api';
 import ProductCard from '../components/ui/ProductCard';

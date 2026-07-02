@@ -1,4 +1,19 @@
-# React + Vite
+# Zadi Store
+
+## Local Development
+
+Install dependencies, then start Laravel and Vite together:
+
+```bash
+npm install --legacy-peer-deps
+npm run dev
+```
+
+The storefront runs at `http://127.0.0.1:5173` and Laravel runs at
+`http://127.0.0.1:8000`. Do not start Vite by itself because local `/api`
+requests are proxied to Laravel.
+
+## Frontend
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

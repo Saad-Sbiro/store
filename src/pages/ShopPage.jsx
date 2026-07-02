@@ -47,6 +47,8 @@ export default function ShopPage() {
   const [viewMode, setViewMode] = useState('grid'); // grid | list
 
   useEffect(() => {
+    // The URL is an external source that may change while this page stays mounted.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSearch(searchParams.get('search') || '');
   }, [searchParams]);
 
