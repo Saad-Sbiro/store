@@ -44,6 +44,19 @@ return [
 
     'nvidia' => [
         'endpoint' => env('NVIDIA_API_URL', 'https://integrate.api.nvidia.com/v1/chat/completions'),
+        'api_key' => env('NVIDIA_API_KEY'),
+        'model' => env('NVIDIA_AI_MODEL', 'qwen/qwen3-next-80b-a3b-instruct'),
+        'timeout' => env('NVIDIA_TIMEOUT', 90),
+    ],
+
+    'whatsapp' => [
+        'access_token' => env('WHATSAPP_ACCESS_TOKEN'),
+        'phone_number_id' => env('WHATSAPP_PHONE_NUMBER_ID'),
+        'business_account_id' => env('WHATSAPP_BUSINESS_ACCOUNT_ID'),
+        'verify_token' => env('WHATSAPP_VERIFY_TOKEN'),
+        'app_secret' => env('WHATSAPP_APP_SECRET'),
+        'graph_version' => env('WHATSAPP_GRAPH_VERSION', 'v23.0'),
+        'timeout' => env('WHATSAPP_TIMEOUT', 15),
     ],
 
 ];

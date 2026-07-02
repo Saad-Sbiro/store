@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CheckoutLeadController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\WhatsAppWebhookController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -29,6 +30,10 @@ Route::get('/categories/{id}', [CategoryController::class, 'show']);
 Route::post('/checkout-leads', [CheckoutLeadController::class, 'upsert'])->middleware('throttle:20,1');
 Route::delete('/checkout-leads/{token}', [CheckoutLeadController::class, 'destroy'])->middleware('throttle:20,1');
 Route::post('/orders', [OrderController::class, 'store'])->middleware('throttle:10,1');
+
+Route::get('/webhooks/whatsapp', [WhatsAppWebhookController::class, 'verify']);
+Route::post('/webhooks/whatsapp', [WhatsAppWebhookController::class, 'receive'])
+    ->middleware('throttle:120,1');
 
 // Public endpoint to log page visits/clicks, handles both anonymous and authenticated sessions
 Route::post('/analytics/log', [AnalyticsController::class, 'logEvent'])->middleware('api');
