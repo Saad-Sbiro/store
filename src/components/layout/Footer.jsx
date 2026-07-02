@@ -60,7 +60,7 @@ export default function Footer() {
     <footer
       className="relative bg-ink-900 text-surface-200 overflow-hidden"
       style={{
-        backgroundImage: `linear-gradient(to bottom, rgba(9, 9, 11, 0.94), rgba(9, 9, 11, 0.97)), url(${footerBg})`,
+        backgroundImage: `linear-gradient(to bottom, rgba(9, 9, 11, 0.4), rgba(9, 9, 11, 0.6)), url(${footerBg})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
@@ -69,10 +69,10 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8">
 
         {/* ── Main Grid ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12 mb-16">
 
           {/* Brand Column */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 flex flex-col items-center lg:items-start text-center lg:text-right">
             <Link to="/" id="footer-logo" aria-label="زادي" className="mb-4 inline-flex">
               <BrandLogo inverse compact />
             </Link>
@@ -80,7 +80,7 @@ export default function Footer() {
               {tagline}
             </p>
             {/* Social */}
-            <div className="flex items-center gap-3 mt-6">
+            <div className="flex items-center gap-3 mt-6 justify-center lg:justify-start">
               {social.map(({ Icon, label, href }) => (
                 <a
                   key={label}
@@ -143,35 +143,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Newsletter Column */}
-          <div>
-            <h3 className="text-nav font-semibold text-white uppercase tracking-widest mb-4">
-              Stay in the Loop
-            </h3>
-            <p className="text-caption text-ink-400 mb-4 leading-relaxed">
-              New arrivals, setup notes, and early access - delivered weekly.
-            </p>
-            <form
-              onSubmit={(e) => e.preventDefault()}
-              className="flex flex-col gap-2"
-              aria-label="Newsletter signup"
-            >
-              <input
-                id="footer-newsletter-email"
-                type="email"
-                placeholder="your@email.com"
-                className="w-full px-4 py-2.5 rounded-btn bg-white/5 border border-white/10 text-caption text-white placeholder-ink-400 focus:outline-none focus:border-brand-400 focus:bg-white/10 transition-all duration-200"
-                required
-              />
-              <button
-                id="footer-newsletter-submit"
-                type="submit"
-                className="w-full h-10 rounded-btn bg-brand-500 hover:bg-brand-600 active:bg-brand-700 text-white text-btn font-medium transition-colors duration-200"
-              >
-                Subscribe
-              </button>
-            </form>
-          </div>
+
         </div>
 
         {/* ── Divider ── */}
