@@ -198,11 +198,12 @@ export default function ProductPage() {
   const [related, setRelated] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedColor, setSelectedColor] = useState(0);
+  const [selectedColor, setSelectedColor] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
   const [sizeError, setSizeError] = useState(false);
+  const [colorError, setColorError] = useState(false);
   const [showSelectionModal, setShowSelectionModal] = useState(false);
   const [modalActionType, setModalActionType] = useState('cart');
   const galleryRef = useRef(null);
@@ -309,7 +310,12 @@ export default function ProductPage() {
       return false;
     }
 
-    if (!selectedSize) {
+    const needsColor = colors.length > 0 && selectedColor === null;
+    const needsSize = !selectedSize;
+
+    if (needsColor || needsSize) {
+      if (needsColor) setColorError(true);
+      if (needsSize) setSizeError(true);
       setModalActionType(actionType);
       setShowSelectionModal(true);
       return false;
@@ -320,11 +326,12 @@ export default function ProductPage() {
 
   const addCurrentSelectionToCart = () => {
     const localizedProduct = { ...product, name: displayName };
-    addItem(localizedProduct, quantity, colors[selectedColor] || colors[0], selectedSize);
+    const chosenColor = selectedColor !== null ? colors[selectedColor] : null;
+    addItem(localizedProduct, quantity, chosenColor, selectedSize);
     api.logEvent('add_to_cart', window.location.pathname, product.id, {
       quantity,
       size: selectedSize,
-      color: colors[selectedColor] || colors[0],
+      color: chosenColor,
     });
   };
 
@@ -564,22 +571,28 @@ export default function ProductPage() {
             </div>
 
             <div className="space-y-5 py-5 text-right" dir="rtl">
-              {colors.length > 0 && (
+               {colors.length > 0 && (
                 <div>
-                  <p className="mb-3 text-[13px] font-bold">اللون</p>
+                  <p className={clsx('mb-3 text-[13px] font-bold', colorError && 'text-feedback-danger')}>
+                    {colorError ? 'اختر اللون للمتابعة' : 'اللون'}
+                  </p>
                   <div className="flex items-center justify-start gap-3">
                     {colors.map((color, index) => (
                       <button
                         type="button"
                         key={color}
-                        onClick={() => setSelectedColor(index)}
+                        onClick={() => {
+                          setSelectedColor(index);
+                          setColorError(false);
+                        }}
                         aria-label={`اختيار اللون ${index + 1}`}
                         aria-pressed={selectedColor === index}
                         className={clsx(
                           'relative grid h-9 w-9 place-items-center rounded-full border-2 border-white transition-transform',
                           selectedColor === index
                             ? 'scale-110 shadow-[0_0_0_2px_#09090b]'
-                            : 'shadow-[0_0_0_1px_#d1d1d6]'
+                            : 'shadow-[0_0_0_1px_#d1d1d6]',
+                          colorError && selectedColor !== index && 'border-feedback-danger ring-2 ring-feedback-danger/30'
                         )}
                         style={{ backgroundColor: color }}
                       >
@@ -773,18 +786,24 @@ export default function ProductPage() {
               {/* Color Selector */}
               {colors.length > 0 && (
                 <div>
-                  <p className="mb-2 text-[13px] font-bold text-ink-600">اللون</p>
+                  <p className={clsx('mb-2 text-[13px] font-bold', colorError ? 'text-feedback-danger' : 'text-ink-600')}>
+                    {colorError ? 'اختر اللون للمتابعة' : 'اللون'}
+                  </p>
                   <div className="flex flex-wrap gap-2.5 justify-start">
                     {colors.map((color, index) => (
                       <button
                         key={color}
                         type="button"
-                        onClick={() => setSelectedColor(index)}
+                        onClick={() => {
+                          setSelectedColor(index);
+                          setColorError(false);
+                        }}
                         className={clsx(
                           'relative grid h-9 w-9 place-items-center rounded-full border-2 border-white transition-transform',
                           selectedColor === index
                             ? 'scale-110 shadow-[0_0_0_2px_#09090b]'
-                            : 'shadow-[0_0_0_1px_#d1d1d6]'
+                            : 'shadow-[0_0_0_1px_#d1d1d6]',
+                          colorError && selectedColor !== index && 'border-feedback-danger ring-2 ring-feedback-danger/30'
                         )}
                         style={{ backgroundColor: color }}
                       >
@@ -868,28 +887,29 @@ export default function ProductPage() {
                 size="lg"
                 fullWidth
                 onClick={() => {
-                  if (!selectedSize) {
-                    setSizeError(true);
+                  const needsColor = colors.length > 0 && selectedColor === null;
+                  const needsSize = !selectedSize;
+
+                  if (needsColor || needsSize) {
+                    if (needsColor) setColorError(true);
+                    if (needsSize) setSizeError(true);
                     return;
                   }
+                  
                   setShowSelectionModal(false);
+                  
+                  const localizedProduct = { ...product, name: displayName };
+                  const chosenColor = selectedColor !== null ? colors[selectedColor] : null;
+                  addItem(localizedProduct, quantity, chosenColor, selectedSize);
+                  api.logEvent('add_to_cart', window.location.pathname, product.id, {
+                    quantity,
+                    size: selectedSize,
+                    color: chosenColor,
+                  });
+
                   if (modalActionType === 'buy_now') {
-                    const localizedProduct = { ...product, name: displayName };
-                    addItem(localizedProduct, quantity, colors[selectedColor] || colors[0], selectedSize);
-                    api.logEvent('add_to_cart', window.location.pathname, product.id, {
-                      quantity,
-                      size: selectedSize,
-                      color: colors[selectedColor] || colors[0],
-                    });
                     navigate('/checkout');
                   } else {
-                    const localizedProduct = { ...product, name: displayName };
-                    addItem(localizedProduct, quantity, colors[selectedColor] || colors[0], selectedSize);
-                    api.logEvent('add_to_cart', window.location.pathname, product.id, {
-                      quantity,
-                      size: selectedSize,
-                      color: colors[selectedColor] || colors[0],
-                    });
                     setAddedToCart(true);
                     toast({
                       title: 'تمت الإضافة إلى السلة',
