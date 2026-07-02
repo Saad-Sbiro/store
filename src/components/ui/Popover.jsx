@@ -12,7 +12,7 @@ export function PopoverContent({ children, className = '', sideOffset = 10, alig
         sideOffset={sideOffset}
         align={align}
         className={clsx(
-          'popover-content z-[150] rounded-[14px] border border-white/12 bg-ink-900/82 p-2 text-white shadow-2xl backdrop-blur-2xl',
+          'popover-content z-[150] rounded-[14px] border border-white/12 bg-[#09090b] p-2 text-white shadow-2xl',
           className
         )}
         {...props}

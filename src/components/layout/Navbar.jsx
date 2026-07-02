@@ -250,7 +250,7 @@ function SearchOverlay({ open, onClose }) {
 
   return (
     <Sheet open={open} onOpenChange={(next) => { if (!next) onClose(); }}>
-      <SheetContent side="top" className="h-[min(82vh,560px)] max-h-none bg-white/96 backdrop-blur-2xl">
+      <SheetContent side="top" className="h-[min(82vh,560px)] max-h-none bg-white">
         <div className="mx-auto flex h-full w-full max-w-3xl flex-col justify-center px-6 pt-14 sm:px-10">
           <SheetTitle className="mb-6 text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-ink-400">
             البحث
