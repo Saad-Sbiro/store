@@ -52,6 +52,12 @@ function ScrollToTop() {
   const { pathname, hash } = useLocation();
 
   useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+  }, []);
+
+  useEffect(() => {
     if (!hash) {
       window.scrollTo({ top: 0, behavior: 'instant' });
       return;

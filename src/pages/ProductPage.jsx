@@ -246,6 +246,12 @@ export default function ProductPage() {
     };
   }, [slug]);
 
+  useEffect(() => {
+    if (!loading) {
+      window.scrollTo(0, 0);
+    }
+  }, [loading]);
+
   // Show skeleton while loading — structured layout beats a blank spinner
   if (loading) return <ProductPageSkeleton />;
 
