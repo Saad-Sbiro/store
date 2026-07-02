@@ -209,8 +209,8 @@ export default function ShopPage() {
             </PopoverContent>
           </Popover>
 
-          {/* View toggle */}
-          <div className="flex shrink-0 w-fit overflow-hidden rounded-btn border border-surface-200 bg-white self-start sm:self-auto">
+          {/* View toggle (desktop only) */}
+          <div className="hidden sm:flex shrink-0 w-fit overflow-hidden rounded-btn border border-surface-200 bg-white">
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
@@ -239,13 +239,44 @@ export default function ShopPage() {
             </Tooltip>
           </div>
 
-          {/* Mobile filter toggle */}
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="sm:hidden inline-flex items-center gap-2 px-4 py-2.5 rounded-btn border border-surface-200 text-caption font-medium text-ink-600"
-          >
-            <SlidersHorizontal size={14} /> تصفية
-          </button>
+          {/* Mobile Filter & View Toggle Row */}
+          <div className="flex sm:hidden items-center justify-between gap-3 w-full">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-btn border border-surface-200 text-caption font-medium text-ink-600 bg-white"
+            >
+              <SlidersHorizontal size={14} /> تصفية
+            </button>
+
+            <div className="flex shrink-0 w-fit overflow-hidden rounded-btn border border-surface-200 bg-white">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    aria-label="عرض الشبكة"
+                    onClick={() => setViewMode('grid')}
+                    className={`p-2.5 transition-colors ${viewMode === 'grid' ? 'bg-ink-900 text-white' : 'text-ink-400 hover:bg-surface-50'}`}
+                  >
+                    <Grid3X3 size={16} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>عرض الشبكة</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    aria-label="عرض القائمة"
+                    onClick={() => setViewMode('list')}
+                    className={`p-2.5 transition-colors ${viewMode === 'list' ? 'bg-ink-900 text-white' : 'text-ink-400 hover:bg-surface-50'}`}
+                  >
+                    <LayoutList size={16} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>عرض القائمة</TooltipContent>
+              </Tooltip>
+            </div>
+          </div>
         </motion.div>
 
         {/* ── Category Filters ── */}
