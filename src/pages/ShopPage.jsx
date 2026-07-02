@@ -152,7 +152,7 @@ export default function ShopPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* ── Header ── */}
         <motion.div initial={{ y: 16, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="mb-8 text-right">
-          <h1 className="font-hero text-section-sm md:text-section font-bold text-ink-900" style={{ letterSpacing: '-0.03em' }}>
+          <h1 className="font-zain font-black text-[38px] md:text-[46px] leading-tight text-ink-900">
             المتجر
           </h1>
           <p className="text-body text-ink-400 mt-1">
