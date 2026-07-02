@@ -1,23 +1,47 @@
+import { useEffect, useRef } from 'react';
 import { Banknote, Truck } from 'lucide-react';
 
 import { HERO_IMAGE_URL } from '../../constants/media';
 import { useAdminStore } from '../../store/useAdminStore';
+import wordmarkLogo from '../../assets/zadinoback.png';
 
 export default function Hero() {
+  const sectionRef = useRef(null);
   const siteSettings = useAdminStore((s) => s.siteSettings);
   const titleLines = (siteSettings.heroTitle?.trim() || 'زادي\nاختياراتك اليومية')
     .split(/\n+/)
     .map((line) => line.trim())
     .filter(Boolean);
+  const hasZadi = titleLines[0] === 'زادي';
+  const remainingLines = hasZadi ? titleLines.slice(1) : titleLines;
+  const finalTitleLines = remainingLines.length > 0 ? remainingLines : ['اختياراتك اليومية'];
   const eyebrow = siteSettings.tagline?.trim() || 'اختيارات ذكية لحياة يومية أسهل';
   const subtitle = siteSettings.heroSubtitle?.trim()
     || 'منتجات عملية ومختارة بعناية، مع توصيل سريع إلى جميع أنحاء المغرب.';
 
+  // Use JS-measured innerHeight — the only 100% reliable way to get
+  // the true visible viewport height across all browsers/devices.
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+
+    const setHeight = () => {
+      el.style.height = `${window.innerHeight}px`;
+      el.style.minHeight = `${window.innerHeight}px`;
+    };
+
+    setHeight();
+    window.addEventListener('resize', setHeight);
+    return () => window.removeEventListener('resize', setHeight);
+  }, []);
+
   return (
     <section
+      ref={sectionRef}
       id="hero"
       aria-label="زادي"
-      className="relative isolate flex h-screen min-h-screen overflow-hidden bg-[#050505] font-zain text-white supports-[height:100dvh]:h-[100dvh] supports-[height:100dvh]:min-h-[100dvh]"
+      className="relative isolate flex overflow-hidden bg-[#050505] font-zain text-white"
+      style={{ height: '100vh', minHeight: '100vh' }}
       dir="rtl"
     >
       <div className="absolute inset-0 -z-10" aria-hidden="true">
@@ -28,28 +52,45 @@ export default function Hero() {
           fetchPriority="high"
           decoding="async"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(270deg,rgba(5,5,5,0.96)_0%,rgba(5,5,5,0.82)_38%,rgba(5,5,5,0.36)_72%,rgba(5,5,5,0.58)_100%)]" />
-        <div className="absolute inset-x-0 bottom-0 h-52 bg-[linear-gradient(0deg,#050505_0%,rgba(5,5,5,0.72)_38%,rgba(5,5,5,0)_100%)]" />
+        <div className="absolute inset-0 bg-black/30" />
+        <div className="absolute inset-x-0 bottom-0 h-64 bg-[linear-gradient(0deg,rgba(5,5,5,0.85)_0%,rgba(5,5,5,0.4)_50%,rgba(5,5,5,0)_100%)]" />
       </div>
 
-      <div className="mx-auto flex w-full max-w-7xl items-end px-5 pb-9 pt-24 sm:px-8 sm:pb-12 lg:px-12 lg:pb-14">
-        <div className="hero-copy ml-auto w-full max-w-[820px] text-right">
-          <p className="mb-4 inline-flex items-center border-r-2 border-[#d9dfff] pr-3 text-[15px] font-black leading-6 text-white/78 sm:text-[17px]">
+      {/* Extra top gradient for title readability */}
+      <div className="absolute inset-x-0 top-0 h-48 bg-[linear-gradient(180deg,rgba(5,5,5,0.55)_0%,rgba(5,5,5,0)_100%)]" aria-hidden="true" />
+
+      <div className="mx-auto flex h-full w-full max-w-7xl flex-col justify-between px-5 pb-9 pt-24 sm:px-8 sm:pb-12 lg:px-12 lg:pb-14">
+
+        {/* ── TOP: eyebrow + headline ── */}
+        <div className="hero-copy mx-auto w-full max-w-[820px] text-center flex flex-col items-center">
+          <p className="mb-4 inline-flex items-center border-x border-[#d9dfff]/30 px-4 text-[15px] font-black leading-6 text-white/78 sm:text-[17px]">
             {eyebrow}
           </p>
 
-          <h1
-            className="hero-display max-w-[820px] font-lalezar text-[58px] font-black leading-[0.94] text-white sm:text-[78px] lg:text-[96px] xl:text-[108px]"
-            aria-label={titleLines.join(' ')}
-          >
-            {titleLines.map((line, index) => (
-              <span key={line} className={index === 0 ? 'block' : 'mt-1 block text-white/88'}>
-                {line}
-              </span>
-            ))}
-          </h1>
+          <div className="mt-6 flex flex-col items-center gap-3">
+            <img
+              src={wordmarkLogo}
+              alt="زادي"
+              className="h-28 sm:h-36 md:h-40 lg:h-48 w-auto object-contain brightness-0 invert"
+              fetchPriority="high"
+            />
+            <h1
+              className="hero-display -mt-8 sm:-mt-12 md:-mt-16 lg:-mt-20 text-[48px] font-bold leading-[0.94] text-white sm:text-[68px] lg:text-[86px] xl:text-[96px]"
+              style={{ fontFamily: '"Aref Ruqaa", serif' }}
+              aria-label={finalTitleLines.join(' ')}
+            >
+              {finalTitleLines.map((line) => (
+                <span key={line} className="block mt-1">
+                  {line}
+                </span>
+              ))}
+            </h1>
+          </div>
+        </div>
 
-          <p className="mt-5 max-w-[650px] text-[18px] font-extrabold leading-8 text-white/78 sm:mt-6 sm:text-[21px] sm:leading-9">
+        {/* ── BOTTOM: subtitle + CTA + trust badges ── */}
+        <div className="hero-copy ml-auto w-full max-w-[820px] text-right" style={{ animationDelay: '120ms' }}>
+          <p className="max-w-[650px] text-[18px] font-extrabold leading-8 text-white/78 sm:text-[21px] sm:leading-9">
             {subtitle}
           </p>
 
@@ -74,7 +115,7 @@ export default function Hero() {
               <span className="sr-only">اكتشف منتجات زادي</span>
             </a>
 
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] font-bold text-white/72 sm:text-[14px]">
+            <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[13px] font-bold text-white/72 sm:text-[14px]">
               <span className="inline-flex items-center gap-2">
                 <Truck size={17} strokeWidth={2} aria-hidden="true" />
                 توصيل لكل المغرب
@@ -86,7 +127,9 @@ export default function Hero() {
             </div>
           </div>
         </div>
+
       </div>
+
     </section>
   );
 }

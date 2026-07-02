@@ -35,7 +35,83 @@ import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
 import RatingStars from '../components/ui/RatingStars';
 import RecommendedProducts from '../components/ui/RecommendedProducts';
-import RingLoader from '../components/ui/RingLoader';
+
+// ── Skeleton loading UI ───────────────────────────────────────────────────────
+// Shown while the product data is fetching. Mirrors the exact layout of the
+// real page so the user immediately sees structure (good LCP + no layout shift).
+function ProductPageSkeleton() {
+  return (
+    <div
+      className="min-h-screen bg-white pb-32 pt-[92px] font-arabic text-ink-900 sm:pt-[108px] lg:pb-16"
+      dir="rtl"
+      aria-busy="true"
+      aria-label="جاري تحميل المنتج"
+    >
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Breadcrumb */}
+        <div className="flex h-12 items-center">
+          <div className="h-4 w-28 animate-pulse rounded bg-surface-200" />
+        </div>
+
+        <div className="grid items-start gap-6 pb-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)] lg:gap-12">
+          {/* Left — image */}
+          <div>
+            <div className="aspect-square w-full animate-pulse rounded-lg bg-surface-200 sm:aspect-[4/3] lg:aspect-square" />
+            <div className="mt-3 flex gap-2">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-16 w-16 animate-pulse rounded-lg bg-surface-200 sm:h-20 sm:w-20" />
+              ))}
+            </div>
+          </div>
+
+          {/* Right — info */}
+          <div className="space-y-4 lg:pt-1">
+            <div className="h-3 w-24 animate-pulse rounded bg-surface-200" />
+            <div className="space-y-2">
+              <div className="h-8 w-3/4 animate-pulse rounded bg-surface-200" />
+              <div className="h-8 w-1/2 animate-pulse rounded bg-surface-200" />
+            </div>
+            <div className="h-4 w-28 animate-pulse rounded bg-surface-200" />
+            <div className="h-8 w-32 animate-pulse rounded bg-surface-200 pb-5" />
+
+            <div className="space-y-3 border-t border-surface-100 pt-4">
+              <div className="h-3 w-16 animate-pulse rounded bg-surface-200" />
+              <div className="flex gap-2">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-12 w-20 animate-pulse rounded-lg bg-surface-200" />
+                ))}
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <div className="hidden h-[52px] flex-1 animate-pulse rounded-lg bg-surface-200 lg:block" />
+              <div className="hidden h-[52px] w-[52px] animate-pulse rounded-lg bg-surface-200 lg:block" />
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 border-y border-surface-100 py-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="flex flex-col items-center gap-2">
+                  <div className="h-5 w-5 animate-pulse rounded-full bg-surface-200" />
+                  <div className="h-3 w-16 animate-pulse rounded bg-surface-200" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile sticky bar skeleton */}
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-surface-300 bg-white px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-10px_30px_rgba(0,0,0,0.14)] lg:hidden">
+        <div className="mx-auto flex max-w-lg items-center gap-3">
+          <div className="h-12 w-[34%] animate-pulse rounded-lg bg-surface-200" />
+          <div className="h-12 flex-1 animate-pulse rounded-lg bg-surface-200" />
+          <div className="h-12 w-12 animate-pulse rounded-lg bg-surface-200" />
+        </div>
+      </div>
+    </div>
+  );
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 const badgeLabels = {
   'Best Seller': 'الأكثر مبيعاً',
@@ -166,16 +242,9 @@ export default function ProductPage() {
     };
   }, [slug]);
 
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-white pt-16 font-arabic" dir="rtl">
-        <div className="flex flex-col items-center gap-4">
-          <RingLoader className="h-20 w-20" />
-          <p className="text-[14px] font-medium text-ink-600">جاري تحميل المنتج...</p>
-        </div>
-      </div>
-    );
-  }
+  // Show skeleton while loading — structured layout beats a blank spinner
+  if (loading) return <ProductPageSkeleton />;
+
 
   if (!product) {
     return (
@@ -307,78 +376,153 @@ export default function ProductPage() {
 
         <main className="grid items-start gap-6 pb-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)] lg:gap-12">
           <section className="min-w-0 lg:sticky lg:top-28">
-            <div className="relative aspect-square overflow-hidden rounded-lg bg-surface-100 sm:aspect-[4/3] lg:aspect-square">
-              {images.length > 0 ? (
+
+            {/* ── Desktop gallery: vertical thumbnail strip + main image ── */}
+            <div className="hidden lg:flex lg:gap-3">
+
+              {/* Thumbnail strip — all images always visible */}
+              {images.length > 1 && (
                 <div
-                  ref={galleryRef}
-                  onScroll={handleGalleryScroll}
-                  className="flex h-full w-full touch-pan-x snap-x snap-mandatory overflow-x-auto overscroll-x-contain no-scrollbar"
-                  dir="ltr"
-                  aria-label="صور المنتج القابلة للسحب"
+                  className="flex flex-col gap-2 overflow-y-auto no-scrollbar"
+                  style={{ maxHeight: 'min(520px, 70vh)' }}
+                  aria-label="صور المنتج"
                 >
                   {images.map((src, index) => (
-                    <img
+                    <button
+                      type="button"
                       key={src}
-                      src={src}
-                      alt={`${displayName} - صورة ${index + 1}`}
-                      draggable="false"
-                      fetchPriority={index === 0 ? 'high' : undefined}
-                      className="h-full w-full shrink-0 snap-center object-cover object-center"
-                    />
+                      onClick={() => goToImage(index)}
+                      aria-label={`عرض الصورة ${index + 1}`}
+                      aria-pressed={selectedImage === index}
+                      className={clsx(
+                        'h-[78px] w-[78px] shrink-0 overflow-hidden rounded-lg border-2 transition-all duration-200',
+                        selectedImage === index
+                          ? 'border-ink-900 opacity-100 shadow-sm'
+                          : 'border-transparent opacity-50 hover:opacity-90 hover:border-surface-300'
+                      )}
+                    >
+                      <img src={src} alt="" loading="lazy" className="h-full w-full object-cover" />
+                    </button>
                   ))}
                 </div>
-              ) : (
+              )}
+
+              {/* Main image */}
+              <div className="relative flex-1 overflow-hidden rounded-lg bg-surface-100" style={{ aspectRatio: '1 / 1' }}>
+                {images.length > 0 ? (
+                  <img
+                    key={images[selectedImage]}
+                    src={images[selectedImage]}
+                    alt={`${displayName} - صورة ${selectedImage + 1}`}
+                    fetchPriority="high"
+                    className="h-full w-full object-cover object-center transition-opacity duration-200"
+                  />
+                ) : (
                   <div className="flex h-full items-center justify-center px-6 text-center text-[14px] text-ink-400">
                     صورة المنتج ستتوفر قريباً
                   </div>
-              )}
+                )}
 
-              {product.badge && (
-                <div className="absolute right-3 top-3 z-10">
-                  <Badge label={badgeLabels[product.badge] || product.badge} />
-                </div>
-              )}
+                {product.badge && (
+                  <div className="absolute right-3 top-3 z-10">
+                    <Badge label={badgeLabels[product.badge] || product.badge} />
+                  </div>
+                )}
 
-              <button
-                type="button"
-                onClick={handleWishlistToggle}
-                aria-label={wishlisted ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}
-                className="absolute left-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-full border border-white/70 bg-white/90 text-ink-700 shadow-sm backdrop-blur-sm transition-transform active:scale-95"
-              >
-                <Heart
-                  size={19}
-                  className={wishlisted ? 'fill-feedback-danger text-feedback-danger' : 'text-current'}
-                  fill={wishlisted ? 'currentColor' : 'none'}
-                />
-              </button>
+                <button
+                  type="button"
+                  onClick={handleWishlistToggle}
+                  aria-label={wishlisted ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}
+                  className="absolute left-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-full border border-white/70 bg-white/90 text-ink-700 shadow-sm backdrop-blur-sm transition-transform active:scale-95"
+                >
+                  <Heart
+                    size={19}
+                    className={wishlisted ? 'fill-feedback-danger text-feedback-danger' : 'text-current'}
+                    fill={wishlisted ? 'currentColor' : 'none'}
+                  />
+                </button>
+              </div>
             </div>
 
-            {images.length > 1 && (
-              <div
-                className="mt-3 flex w-full justify-start gap-2 overflow-x-auto pb-1 no-scrollbar"
-                dir="rtl"
-                aria-label="صور المنتج"
-              >
-                {images.map((src, index) => (
-                  <button
-                    type="button"
-                    key={src}
-                    onClick={() => goToImage(index)}
-                    aria-label={`عرض الصورة ${index + 1}`}
-                    aria-pressed={selectedImage === index}
-                    className={clsx(
-                      'h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 transition-opacity sm:h-20 sm:w-20',
-                      selectedImage === index
-                        ? 'border-ink-900 opacity-100'
-                        : 'border-transparent opacity-55 hover:opacity-100'
-                    )}
+            {/* ── Mobile gallery: swipe carousel + horizontal thumbnails ── */}
+            <div className="lg:hidden">
+              <div className="relative aspect-square overflow-hidden rounded-lg bg-surface-100 sm:aspect-[4/3]">
+                {images.length > 0 ? (
+                  <div
+                    ref={galleryRef}
+                    onScroll={handleGalleryScroll}
+                    className="flex h-full w-full touch-pan-x snap-x snap-mandatory overflow-x-auto overscroll-x-contain no-scrollbar"
+                    dir="ltr"
+                    aria-label="صور المنتج القابلة للسحب"
                   >
-                    <img src={src} alt="" className="h-full w-full object-cover" />
-                  </button>
-                ))}
+                    {images.map((src, index) => (
+                      <img
+                        key={src}
+                        src={src}
+                        alt={`${displayName} - صورة ${index + 1}`}
+                        draggable="false"
+                        fetchPriority={index === 0 ? 'high' : undefined}
+                        loading={index === 0 ? undefined : 'lazy'}
+                        className="h-full w-full shrink-0 snap-center object-cover object-center"
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex h-full items-center justify-center px-6 text-center text-[14px] text-ink-400">
+                    صورة المنتج ستتوفر قريباً
+                  </div>
+                )}
+
+                {product.badge && (
+                  <div className="absolute right-3 top-3 z-10">
+                    <Badge label={badgeLabels[product.badge] || product.badge} />
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={handleWishlistToggle}
+                  aria-label={wishlisted ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}
+                  className="absolute left-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-full border border-white/70 bg-white/90 text-ink-700 shadow-sm backdrop-blur-sm transition-transform active:scale-95"
+                >
+                  <Heart
+                    size={19}
+                    className={wishlisted ? 'fill-feedback-danger text-feedback-danger' : 'text-current'}
+                    fill={wishlisted ? 'currentColor' : 'none'}
+                  />
+                </button>
               </div>
-            )}
+
+              {/* Mobile horizontal thumbnails */}
+              {images.length > 1 && (
+                <div
+                  className="mt-3 flex w-full justify-start gap-2 overflow-x-auto pb-1 no-scrollbar"
+                  dir="rtl"
+                  aria-label="صور المنتج"
+                >
+                  {images.map((src, index) => (
+                    <button
+                      type="button"
+                      key={src}
+                      onClick={() => goToImage(index)}
+                      aria-label={`عرض الصورة ${index + 1}`}
+                      aria-pressed={selectedImage === index}
+                      className={clsx(
+                        'h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 transition-opacity sm:h-20 sm:w-20',
+                        selectedImage === index
+                          ? 'border-ink-900 opacity-100'
+                          : 'border-transparent opacity-55 hover:opacity-100'
+                      )}
+                    >
+                      <img src={src} alt="" loading="lazy" className="h-full w-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
           </section>
+
 
           <section className="min-w-0 lg:pt-1">
             <div className="flex items-center justify-between gap-3">

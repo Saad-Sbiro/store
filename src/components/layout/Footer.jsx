@@ -65,7 +65,7 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="lg:col-span-1">
             <Link to="/" id="footer-logo" aria-label="زادي" className="mb-4 inline-flex">
-              <BrandLogo inverse />
+              <BrandLogo inverse compact />
             </Link>
             <p className="text-caption text-ink-400 leading-relaxed max-w-[240px]">
               {tagline}

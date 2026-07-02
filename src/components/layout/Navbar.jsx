@@ -22,104 +22,104 @@ import clsx from 'clsx';
 // ─── Mega-menu data ───────────────────────────
 const SHOP_MENU = {
   categories: [
-    { label: 'All Products',     sub: 'Browse everything',   href: '/shop' },
-    { label: 'Desk Accessories', sub: 'Ergonomic setup',      href: '/shop?category=Desk+Accessories' },
-    { label: 'Home Appliances',  sub: 'Comfort devices',      href: '/shop?category=Home+Appliances' },
-    { label: 'Peripherals',      sub: 'Input tools',          href: '/shop?category=Peripherals' },
-    { label: 'Audio',            sub: 'Sound gear',           href: '/shop?category=Audio' },
-    { label: 'Lighting',         sub: 'Focus lights',         href: '/shop?category=Lighting' },
-    { label: 'Connectivity',     sub: 'Hubs & docks',         href: '/shop?category=Connectivity' },
+    { label: 'جميع المنتجات',     sub: 'تصفح كل شيء',   href: '/shop' },
+    { label: 'إكسسوارات المكتب', sub: 'تجهيزات مريحة للعمل',  href: '/shop?category=Desk+Accessories' },
+    { label: 'الأجهزة المنزلية',  sub: 'أجهزة مريحة للمنزل',  href: '/shop?category=Home+Appliances' },
+    { label: 'ملحقات الحاسوب',  sub: 'أدوات الإدخال والتحكم',  href: '/shop?category=Peripherals' },
+    { label: 'الصوتيات',        sub: 'أجهزة صوتية ممتازة',   href: '/shop?category=Audio' },
+    { label: 'الإضاءة',         sub: 'إضاءة مريحة للتركيز',   href: '/shop?category=Lighting' },
+    { label: 'أجهزة الاتصال',    sub: 'الموزعات والمنصات',   href: '/shop?category=Connectivity' },
   ],
   cards: [
     {
-      label: 'Top Picks',
+      label: 'أفضل المختارات',
       bgColor: '#171717',
       textColor: '#ffffff',
       links: [
-        { label: 'New Arrivals', ariaLabel: 'Shop new arrivals', href: '/shop' },
-        { label: 'Best Sellers', ariaLabel: 'Shop best sellers', href: '/shop' },
+        { label: 'وصل حديثاً', ariaLabel: 'تسوق المنتجات الجديدة', href: '/shop' },
+        { label: 'الأكثر مبيعاً', ariaLabel: 'تسوق الأكثر مبيعاً', href: '/shop' },
       ],
     },
     {
-      label: 'Workspace',
+      label: 'مساحة العمل',
       bgColor: '#eef2f4',
       textColor: '#111111',
       links: [
-        { label: 'Desk Accessories', ariaLabel: 'Shop desk accessories', href: '/shop?category=Desk+Accessories' },
-        { label: 'Peripherals', ariaLabel: 'Shop peripherals', href: '/shop?category=Peripherals' },
-        { label: 'Connectivity', ariaLabel: 'Shop connectivity', href: '/shop?category=Connectivity' },
+        { label: 'إكسسوارات المكتب', ariaLabel: 'تسوق إكسسوارات المكتب', href: '/shop?category=Desk+Accessories' },
+        { label: 'ملحقات الحاسوب', ariaLabel: 'تسوق ملحقات الحاسوب', href: '/shop?category=Peripherals' },
+        { label: 'أجهزة الاتصال', ariaLabel: 'تسوق أجهزة الاتصال', href: '/shop?category=Connectivity' },
       ],
     },
     {
-      label: 'Atmosphere',
+      label: 'الأجواء والراحة',
       bgColor: '#d6c9bd',
       textColor: '#111111',
       links: [
-        { label: 'Audio', ariaLabel: 'Shop audio', href: '/shop?category=Audio' },
-        { label: 'Lighting', ariaLabel: 'Shop lighting', href: '/shop?category=Lighting' },
-        { label: 'Home Appliances', ariaLabel: 'Shop home appliances', href: '/shop?category=Home+Appliances' },
+        { label: 'الصوتيات', ariaLabel: 'تسوق الصوتيات', href: '/shop?category=Audio' },
+        { label: 'الإضاءة', ariaLabel: 'تسوق الإضاءة', href: '/shop?category=Lighting' },
+        { label: 'الأجهزة المنزلية', ariaLabel: 'تسوق الأجهزة المنزلية', href: '/shop?category=Home+Appliances' },
       ],
     },
   ],
-  cta: 'Shop all',
+  cta: 'تسوق الكل',
   featured: {
     image: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=600&q=82',
-    label: 'Ergonomic Monitor Stand',
-    sub:   'Aluminum USB-C hub',
+    label: 'حامل شاشة مريح',
+    sub:   'موزع USB-C من الألمنيوم',
     href:  '/product/ergonomic-monitor-stand',
   },
 };
 
 const COLLECTIONS_MENU = {
   categories: [
-    { label: 'Workspace Setup', sub: 'Desk-ready tools',      href: '/shop?category=Desk+Accessories' },
-    { label: 'Creator Audio',   sub: 'Listening & focus',     href: '/shop?category=Audio' },
-    { label: 'Home Comfort',    sub: 'Cooling & lighting',    href: '/shop?category=Home+Appliances' },
-    { label: 'All Products',    sub: 'Browse everything',     href: '/shop' },
+    { label: 'تجهيز مساحة العمل', sub: 'أدوات جاهزة للمكتب',   href: '/shop?category=Desk+Accessories' },
+    { label: 'صوتيات صناع المحتوى', sub: 'الاستماع والتركيز',   href: '/shop?category=Audio' },
+    { label: 'راحة المنزل',       sub: 'التبريد والإضاءة',     href: '/shop?category=Home+Appliances' },
+    { label: 'جميع المنتجات',      sub: 'تصفح كل شيء',        href: '/shop' },
   ],
   cards: [
     {
-      label: 'Workstation',
+      label: 'محطة العمل',
       bgColor: '#f4f4f5',
       textColor: '#111111',
       links: [
-        { label: 'Desk Setup', ariaLabel: 'Shop desk setup', href: '/shop?category=Desk+Accessories' },
-        { label: 'Peripherals', ariaLabel: 'Shop peripherals', href: '/shop?category=Peripherals' },
+        { label: 'تجهيز المكتب', ariaLabel: 'تسوق تجهيز المكتب', href: '/shop?category=Desk+Accessories' },
+        { label: 'ملحقات الحاسوب', ariaLabel: 'تسوق ملحقات الحاسوب', href: '/shop?category=Peripherals' },
       ],
     },
     {
-      label: 'Creator',
+      label: 'صناع المحتوى',
       bgColor: '#171717',
       textColor: '#ffffff',
       links: [
-        { label: 'Audio Gear', ariaLabel: 'Shop audio gear', href: '/shop?category=Audio' },
-        { label: 'Keyboards', ariaLabel: 'Shop mechanical keyboards', href: '/shop?category=Peripherals' },
+        { label: 'أجهزة الصوت', ariaLabel: 'تسوق أجهزة الصوت', href: '/shop?category=Audio' },
+        { label: 'لوحات المفاتيح', ariaLabel: 'تسوق لوحات المفاتيح', href: '/shop?category=Peripherals' },
       ],
     },
     {
-      label: 'Comfort',
+      label: 'الراحة',
       bgColor: '#c9d3d7',
       textColor: '#111111',
       links: [
-        { label: 'Cooling', ariaLabel: 'Shop cooling products', href: '/shop?category=Home+Appliances' },
-        { label: 'Lighting', ariaLabel: 'Shop lighting', href: '/shop?category=Lighting' },
+        { label: 'التبريد', ariaLabel: 'تسوق أجهزة التبريد', href: '/shop?category=Home+Appliances' },
+        { label: 'الإضاءة', ariaLabel: 'تسوق الإضاءة', href: '/shop?category=Lighting' },
       ],
     },
   ],
-  cta: 'View collections',
+  cta: 'عرض المجموعات',
   featured: {
     image: 'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?auto=format&fit=crop&w=600&q=82',
-    label: 'Desk Setup Edit',
-    sub:   'Keyboards, docks, lighting',
+    label: 'تنسيق تجهيزات المكتب',
+    sub:   'لوحات المفاتيح، المنصات، الإضاءة',
     href:  '/shop',
   },
 };
 
 const NAV_ITEMS = [
-  { label: 'Shop',        menu: SHOP_MENU        },
-  { label: 'Collections', menu: COLLECTIONS_MENU },
-  { label: 'About',       href: '/about',   menu: null },
-  { label: 'Contact',     href: '/contact',  menu: null },
+  { label: 'المتجر',        menu: SHOP_MENU        },
+  { label: 'المجموعات',     menu: COLLECTIONS_MENU },
+  { label: 'عن زادي',       href: '/about',   menu: null },
+  { label: 'تواصل معنا',     href: '/contact',  menu: null },
 ];
 
 // ─── Sub-components ───────────────────────────
@@ -167,7 +167,7 @@ function CardMegaMenu({ data }) {
         className="overflow-hidden rounded-[8px] border border-surface-200 bg-white shadow-xl"
       >
         <div className="h-[60px] px-4 flex items-center justify-between border-b border-surface-200">
-          <BrandLogo size="sm" />
+          <BrandLogo size="sm" compact />
           <Link
             to={data.featured.href}
             className="inline-flex h-10 items-center gap-2 rounded-[6px] bg-ink-900 px-4 text-[12px] font-semibold uppercase tracking-[0.13em] text-white hover:bg-ink-600 transition-colors"
@@ -253,7 +253,7 @@ function SearchOverlay({ open, onClose }) {
       <SheetContent side="top" className="h-[min(82vh,560px)] max-h-none bg-white/96 backdrop-blur-2xl">
         <div className="mx-auto flex h-full w-full max-w-3xl flex-col justify-center px-6 pt-14 sm:px-10">
           <SheetTitle className="mb-6 text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-ink-400">
-            Search
+            البحث
           </SheetTitle>
           <form
             onSubmit={(e) => {
@@ -266,7 +266,7 @@ function SearchOverlay({ open, onClose }) {
               ref={inputRef}
               id="search-input"
               type="text"
-              placeholder="What are you looking for?"
+              placeholder="ما الذي تبحث عنه؟"
               className="w-full bg-transparent border-b-2 border-ink-200 focus:border-ink-900 pb-4 pr-10 text-[28px] font-display font-normal text-ink-900 placeholder-ink-300 outline-none transition-colors duration-300 sm:text-[36px]"
             />
             <button
@@ -388,7 +388,7 @@ export default function Navbar() {
                 aria-label="زادي - الصفحة الرئيسية"
                 className="flex items-center text-white"
               >
-                <BrandLogo inverse />
+                <BrandLogo inverse compact />
               </Link>
             </div>
 
@@ -441,7 +441,7 @@ export default function Navbar() {
                       <Star size={17} strokeWidth={1.75} />
                     </Link>
                   </TooltipTrigger>
-                  <TooltipContent>My reviews</TooltipContent>
+                  <TooltipContent>تقييماتي</TooltipContent>
                 </Tooltip>
               )}
 
@@ -470,7 +470,7 @@ export default function Navbar() {
                     </AnimatePresence>
                   </Link>
                 </TooltipTrigger>
-                <TooltipContent>Wishlist</TooltipContent>
+                <TooltipContent>المفضلة</TooltipContent>
               </Tooltip>
 
               {/* Cart */}
@@ -498,7 +498,7 @@ export default function Navbar() {
                     </AnimatePresence>
                   </button>
                 </TooltipTrigger>
-                <TooltipContent>Cart</TooltipContent>
+                <TooltipContent>السلة</TooltipContent>
               </Tooltip>
 
               {/* Mobile hamburger */}
@@ -507,14 +507,14 @@ export default function Navbar() {
                   <button
                     id="nav-hamburger"
                     onClick={() => setMobileOpen((o) => !o)}
-                    aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+                    aria-label={mobileOpen ? 'إغلاق القائمة' : 'فتح القائمة'}
                     aria-expanded={mobileOpen}
                     className="lg:hidden w-10 h-10 flex items-center justify-center transition-all duration-200 text-white hover:bg-white/10 rounded"
                   >
                     <HamburgerIcon open={mobileOpen} />
                   </button>
                 </TooltipTrigger>
-                <TooltipContent>{mobileOpen ? 'Close menu' : 'Open menu'}</TooltipContent>
+                <TooltipContent>{mobileOpen ? 'إغلاق القائمة' : 'فتح القائمة'}</TooltipContent>
               </Tooltip>
             </div>
           </div>
@@ -563,7 +563,7 @@ export default function Navbar() {
             >
               {/* Mobile header */}
               <div className="flex items-center justify-between px-6 h-16 border-b border-surface-100 shrink-0">
-                <BrandLogo size="sm" />
+                <BrandLogo size="sm" compact />
                 <button
                   id="mobile-close"
                   onClick={() => setMobileOpen(false)}
@@ -659,7 +659,7 @@ export default function Navbar() {
                   className="w-full flex items-center gap-3 text-[13px] text-ink-600 hover:text-ink-900 transition-colors"
                 >
                   <Search size={16} strokeWidth={1.75} />
-                  Search products
+                  البحث عن المنتجات
                 </button>
                 {hasOrders && (
                   <Link
@@ -668,7 +668,7 @@ export default function Navbar() {
                     className="flex items-center gap-3 text-[13px] text-ink-600 hover:text-ink-900 transition-colors"
                   >
                     <Star size={16} strokeWidth={1.75} />
-                    My reviews
+                    تقييماتي
                   </Link>
                 )}
                 <div className="flex items-center gap-5 pt-2">
@@ -677,7 +677,7 @@ export default function Navbar() {
                     className="flex items-center gap-2 text-[13px] font-medium text-ink-600 hover:text-ink-900 transition-colors"
                   >
                     <ShoppingBag size={16} strokeWidth={1.75} />
-                    Cart {totalItems > 0 && `(${totalItems})`}
+                    السلة {totalItems > 0 && `(${totalItems})`}
                   </button>
                   <Link
                     to="/wishlist"
@@ -685,7 +685,7 @@ export default function Navbar() {
                     className="flex items-center gap-2 text-[13px] font-medium text-ink-600 hover:text-ink-900 transition-colors"
                   >
                     <Heart size={16} strokeWidth={1.75} />
-                    Wishlist {totalWish > 0 && `(${totalWish})`}
+                    المفضلة {totalWish > 0 && `(${totalWish})`}
                   </Link>
                 </div>
                 {siteSettings.showAnnouncementBar && announcementText && (

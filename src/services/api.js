@@ -4,6 +4,68 @@
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
+// ─── In-memory response cache ────────────────────────────────────────────────
+// Simple Map-based cache with TTL. Eliminates redundant network requests when
+// a user navigates back to a product they already visited, or revisits the
+// shop page. Cache lives for the browser session (cleared on full page reload).
+
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const _cache = new Map(); // key → { data, expiresAt }
+
+function cacheGet(key) {
+  const entry = _cache.get(key);
+  if (!entry) return null;
+  if (Date.now() > entry.expiresAt) {
+    _cache.delete(key);
+    return null;
+  }
+  return entry.data;
+}
+
+function cacheSet(key, data) {
+  _cache.set(key, { data, expiresAt: Date.now() + CACHE_TTL });
+}
+
+/** Manually invalidate a cached product (e.g. after cart mutation). */
+export function invalidateProductCache(slug) {
+  _cache.delete(`product:${slug}`);
+}
+
+/** Clear the entire cache (e.g. after admin updates). */
+export function clearApiCache() {
+  _cache.clear();
+}
+
+// ─── In-flight deduplication ──────────────────────────────────────────────────
+// If two components simultaneously call getProduct('same-slug'), only one HTTP
+// request fires. Both callers share the same Promise.
+
+const _inflight = new Map(); // key → Promise
+
+async function dedupe(key, fetcher) {
+  // Cache hit — instant return
+  const cached = cacheGet(key);
+  if (cached !== null) return cached;
+
+  // Already in-flight — share the same promise
+  if (_inflight.has(key)) return _inflight.get(key);
+
+  // New request
+  const promise = fetcher().then((data) => {
+    cacheSet(key, data);
+    _inflight.delete(key);
+    return data;
+  }).catch((err) => {
+    _inflight.delete(key);
+    throw err;
+  });
+
+  _inflight.set(key, promise);
+  return promise;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 /**
  * Helper to build headers with token if present
  */
@@ -61,6 +123,10 @@ function mapProduct(p) {
 
 export const api = {
   // ── Products ──
+
+  /**
+   * Fetch a list of products. Results are cached per unique param set.
+   */
   async getProducts(params = {}) {
     const query = new URLSearchParams();
     Object.entries(params).forEach(([key, val]) => {
@@ -69,53 +135,71 @@ export const api = {
       }
     });
 
-    const url = `${API_BASE_URL}/products?${query.toString()}`;
-    const res = await fetch(url, {
-      method: 'GET',
-      headers: getHeaders(),
+    const cacheKey = `products:${query.toString()}`;
+
+    return dedupe(cacheKey, async () => {
+      const url = `${API_BASE_URL}/products?${query.toString()}`;
+      const res = await fetch(url, { method: 'GET', headers: getHeaders() });
+      const json = await handleResponse(res);
+
+      // Support Laravel pagination structure
+      if (json && json.data) {
+        return { ...json, data: json.data.map(mapProduct) };
+      }
+
+      // Support simple array response fallback
+      if (Array.isArray(json)) {
+        return json.map(mapProduct);
+      }
+
+      return json;
     });
-    const json = await handleResponse(res);
-    
-    // Support Laravel pagination structure
-    if (json && json.data) {
-      return {
-        ...json,
-        data: json.data.map(mapProduct)
-      };
-    }
-    
-    // Support simple array response fallback
-    if (Array.isArray(json)) {
-      return json.map(mapProduct);
-    }
-    
-    return json;
   },
 
+  /**
+   * Fetch a single product by slug or ID.
+   * Results are cached for CACHE_TTL ms — navigating back is instant.
+   */
   async getProduct(idOrSlug) {
-    const res = await fetch(`${API_BASE_URL}/products/${idOrSlug}`, {
-      method: 'GET',
-      headers: getHeaders(),
+    const cacheKey = `product:${idOrSlug}`;
+
+    return dedupe(cacheKey, async () => {
+      const res = await fetch(`${API_BASE_URL}/products/${idOrSlug}`, {
+        method: 'GET',
+        headers: getHeaders(),
+      });
+      const data = await handleResponse(res);
+
+      if (data && data.product) {
+        data.product = mapProduct(data.product);
+      }
+      if (data && data.related) {
+        data.related = data.related.map(mapProduct);
+      }
+
+      return data;
     });
-    const data = await handleResponse(res);
-    
-    if (data && data.product) {
-      data.product = mapProduct(data.product);
-    }
-    if (data && data.related) {
-      data.related = data.related.map(mapProduct);
-    }
-    
-    return data;
+  },
+
+  /**
+   * Warm the cache for a product without blocking — call this on ProductCard hover
+   * so the product page loads instantly when the user clicks.
+   */
+  prefetchProduct(slug) {
+    if (!slug) return;
+    // Fire and forget — populates cache silently
+    this.getProduct(slug).catch(() => {});
   },
 
   // ── Categories ──
   async getCategories() {
-    const res = await fetch(`${API_BASE_URL}/categories`, {
-      method: 'GET',
-      headers: getHeaders(),
+    return dedupe('categories', async () => {
+      const res = await fetch(`${API_BASE_URL}/categories`, {
+        method: 'GET',
+        headers: getHeaders(),
+      });
+      return handleResponse(res);
     });
-    return handleResponse(res);
   },
 
   async createCategory(categoryData) {

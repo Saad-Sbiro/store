@@ -54,7 +54,7 @@ export default function BrandLogo({
       </span>
 
       {!compact && (
-        <span className={clsx('relative block shrink-0 translate-y-[3px] overflow-hidden', dimensions.wordmarkFrame)}>
+        <span className={clsx('relative block shrink-0 translate-y-[4px] overflow-hidden', dimensions.wordmarkFrame)}>
           <img
             src={wordmarkLogo}
             alt=""

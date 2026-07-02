@@ -52,19 +52,20 @@ export default function FeaturedProducts() {
   return (
     <section
       id="featured-products"
-      aria-label="Featured Products"
-      className="relative z-10 -mt-3 bg-surface-0 py-16 md:py-24"
+      aria-label="المنتجات المميزة"
+      className="relative z-10 bg-surface-0 py-16 md:py-24"
+      dir="rtl"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* ── Section Header ── */}
         <div className="flex items-end justify-between mb-10 md:mb-12">
-          <div>
+          <div className="text-right">
             <p className="text-[11px] font-semibold uppercase tracking-widest text-brand-500 mb-2">
-              Top Picks
+              اخترنا لكم
             </p>
-            <h2 className="font-display font-semibold text-section-sm md:text-section text-ink-900">
-              Featured Products
+            <h2 className="font-zain font-black text-section-sm md:text-section text-ink-900">
+              المنتجات المميزة
             </h2>
           </div>
 
@@ -74,8 +75,8 @@ export default function FeaturedProducts() {
               id="featured-view-all"
               className="hidden sm:inline-flex items-center gap-1.5 text-btn font-medium text-ink-600 hover:text-brand-500 transition-colors duration-200 group"
             >
-              View all
-              <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform duration-200" />
+              عرض الكل
+              <ArrowRight size={14} className="group-hover:-translate-x-1 transition-transform duration-200 rotate-180" />
             </Link>
           </div>
         </div>
@@ -100,9 +101,9 @@ export default function FeaturedProducts() {
         ) : (
           <div className="flex min-h-[240px] items-center justify-center rounded-panel border border-surface-200 bg-surface-50 px-6 text-center">
             <div>
-              <p className="font-display text-[24px] text-ink-900">No featured products yet</p>
+              <p className="font-display text-[24px] text-ink-900">لا توجد منتجات مميزة بعد</p>
               <p className="mt-2 max-w-sm text-caption text-ink-600">
-                Products marked as featured in the dashboard will appear here automatically.
+                المنتجات المحددة كمميزة في لوحة التحكم ستظهر هنا تلقائياً.
               </p>
             </div>
           </div>
@@ -115,8 +116,8 @@ export default function FeaturedProducts() {
             id="featured-view-all-mobile"
             className="inline-flex items-center gap-2 text-btn font-medium text-brand-500 border border-brand-500 px-6 py-3 rounded-btn hover:bg-brand-50 transition-colors duration-200"
           >
-            View All Products
-            <ArrowRight size={14} />
+            عرض جميع المنتجات
+            <ArrowRight size={14} className="rotate-180" />
           </Link>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Heart, ShoppingBag } from 'lucide-react';
@@ -12,6 +12,7 @@ import { useWishlistStore } from '../../store/useWishlistStore';
 import { useToastStore } from '../../store/useToastStore';
 import { formatPrice } from '../../utils/formatPrice';
 import { scaleIn } from '../../utils/motionVariants';
+import { api } from '../../services/api';
 import {
   getPrimaryProductImage,
   getProductColors,
@@ -22,6 +23,19 @@ import {
 } from '../../utils/productData';
 
 export default function ProductCard({ product }) {
+  const prefetchTimer = useRef(null);
+
+  // Warm the product cache while the user is hovering — so clicking feels instant.
+  const handleMouseEnter = () => {
+    if (!product.slug) return;
+    prefetchTimer.current = window.setTimeout(() => {
+      api.prefetchProduct(product.slug);
+    }, 150);
+  };
+
+  const handleMouseLeave = () => {
+    window.clearTimeout(prefetchTimer.current);
+  };
   const [imgLoaded, setImgLoaded] = useState(false);
   const addItem = useCartStore((s) => s.addItem);
   const { isWishlisted, toggleWishlist } = useWishlistStore();
@@ -85,6 +99,8 @@ export default function ProductCard({ product }) {
     <motion.article
       variants={scaleIn}
       className="product-card group/product relative h-full"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <motion.div
         whileHover={{ y: -3 }}

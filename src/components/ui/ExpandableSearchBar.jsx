@@ -33,14 +33,15 @@ export default function ExpandableSearchBar({ onSearch, className = '' }) {
   };
 
   return (
-    <form
-      onSubmit={submit}
-      className={clsx(
-        'liquid-search relative flex h-10 items-center overflow-hidden rounded-full border border-transparent text-white transition-[width,transform,box-shadow] duration-300 ease-expo',
-        expanded ? 'w-[min(76vw,310px)]' : 'liquid-search--compact w-10',
-        className
-      )}
-    >
+    <div className="relative h-10 w-10 shrink-0">
+      <form
+        onSubmit={submit}
+        className={clsx(
+          'liquid-search absolute right-0 top-0 flex h-10 items-center overflow-hidden rounded-full border border-transparent text-white transition-[width,transform,box-shadow] duration-300 ease-expo',
+          expanded ? 'w-[min(calc(100vw-9rem),210px)] z-50' : 'liquid-search--compact w-10 z-0',
+          className
+        )}
+      >
       <button
         type="submit"
         aria-label={expanded ? 'Submit search' : 'Open search'}
@@ -59,7 +60,7 @@ export default function ExpandableSearchBar({ onSearch, className = '' }) {
             setQuery('');
           }
         }}
-        placeholder="Search"
+        placeholder="البحث..."
         className="min-w-0 flex-1 bg-transparent pr-9 text-[13px] font-semibold text-white placeholder:text-white/45 outline-none"
       />
 
@@ -77,5 +78,6 @@ export default function ExpandableSearchBar({ onSearch, className = '' }) {
         </button>
       )}
     </form>
+    </div>
   );
 }

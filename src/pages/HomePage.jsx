@@ -13,7 +13,7 @@ export default function HomePage() {
   const siteSettings = useAdminStore((s) => s.siteSettings);
 
   return (
-    <main id="main-content">
+    <main id="main-content" className="flex-1">
       {siteSettings.showHero && <Hero />}
       {siteSettings.showFeatured && <FeaturedProducts />}
       {(siteSettings.showCategories || siteSettings.showTestimonials) && (

@@ -5,36 +5,36 @@ import { ArrowUpRight } from 'lucide-react';
 
 const CATEGORY_CARDS = [
   {
-    title: 'Desk Accessories',
-    label: 'Setup',
+    title: 'إكسسوارات المكتب',
+    label: 'تنظيم مساحة العمل',
     href: '/shop?category=Desk+Accessories',
     className: 'md:col-span-4',
     gradient: 'from-sky-300 to-indigo-400',
-    detail: 'Stands organizers cable calm',
+    detail: 'حوامل، منظمات، ترتيب الكابلات',
   },
   {
-    title: 'Peripherals',
-    label: 'Input',
+    title: 'ملحقات الحاسوب',
+    label: 'أدوات الإدخال والتحكم',
     href: '/shop?category=Peripherals',
     className: 'md:col-span-8',
     gradient: 'from-emerald-300 to-cyan-500',
-    detail: 'Keys mice daily control',
+    detail: 'لوحات مفاتيح، فئران، تحكم يومي',
   },
   {
-    title: 'Audio Gear',
-    label: 'Sound',
+    title: 'الأجهزة الصوتية',
+    label: 'جودة الصوت',
     href: '/shop?category=Audio',
     className: 'md:col-span-8',
     gradient: 'from-amber-300 to-rose-400',
-    detail: 'Headphones speakers focus',
+    detail: 'سماعات رأس، مكبرات صوت، تركيز كامل',
   },
   {
-    title: 'Lighting',
-    label: 'Glow',
+    title: 'الإضاءة',
+    label: 'إضاءة ذكية',
     href: '/shop?category=Lighting',
     className: 'md:col-span-4',
     gradient: 'from-violet-300 to-fuchsia-500',
-    detail: 'Light bars lamps mood',
+    detail: 'مصابيح مكتب، إضاءة شاشة، أجواء هادئة',
   },
 ];
 
@@ -51,16 +51,16 @@ function BounceCard({ category }) {
         aria-label={`Shop ${category.title}`}
       />
       <div className="relative z-10 flex items-start justify-between gap-4">
-        <div>
+        <div className="text-right">
           <p className="mb-3 text-[11px] font-black uppercase tracking-[0.18em] text-slate-500">
             {category.label}
           </p>
-          <h3 className="max-w-[12ch] text-3xl font-black leading-none tracking-[-0.02em] md:text-4xl">
+          <h3 className="max-w-[12ch] font-zain text-3xl font-black leading-none tracking-[-0.02em] md:text-4xl">
             {category.title}
           </h3>
         </div>
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-slate-950 text-white shadow-sm transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5">
-          <ArrowUpRight size={17} />
+          <ArrowUpRight size={17} className="rotate-90" />
         </span>
       </div>
       <div className={`absolute bottom-0 left-4 right-4 top-32 translate-y-8 rounded-t-card bg-gradient-to-br ${category.gradient} p-5 shadow-[0_-18px_60px_rgba(15,23,42,0.16)] transition-transform duration-[420ms] ease-expo group-hover:translate-y-4 group-hover:rotate-[1.5deg]`}>
@@ -79,9 +79,10 @@ export default function Categories() {
   return (
     <section
       id="categories"
-      aria-label="Shop by Category"
+      aria-label="تسوق حسب الفئات"
       ref={sectionRef}
       className="relative isolate overflow-x-clip overflow-y-visible bg-transparent py-16 md:py-24"
+      dir="rtl"
     >
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
@@ -89,12 +90,13 @@ export default function Categories() {
             initial={{ opacity: 0, y: 18 }}
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="text-right"
           >
             <p className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-brand-500">
-              Browse
+              تصفح
             </p>
-            <h2 className="max-w-lg font-display text-section-sm font-semibold leading-tight text-ink-900 md:text-section">
-              Shop by Category
+            <h2 className="max-w-lg font-zain text-section-sm font-black leading-tight text-ink-900 md:text-section">
+              تسوق حسب الفئات
             </h2>
           </motion.div>
         </div>

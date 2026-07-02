@@ -59,9 +59,10 @@ export default function Testimonials() {
   return (
     <section
       id="testimonials"
-      aria-label="Ara dyal clients"
+      aria-label="آراء العملاء"
       ref={sectionRef}
       className="relative z-10 bg-transparent py-14 md:py-24"
+      dir="ltr"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-3 md:mb-4">
         {/* ── Header ── */}
@@ -72,13 +73,13 @@ export default function Testimonials() {
           className="text-center"
         >
           <p className="text-[11px] font-semibold uppercase tracking-widest text-brand-500 mb-2">
-            Ara dyal nass
+            آراء عملائنا
           </p>
-          <h2 className="font-display font-semibold text-section-sm md:text-section text-ink-900">
-            Ach kaygolo clients dyalna
+          <h2 className="font-zain font-black text-section-sm md:text-section text-ink-900">
+            ماذا يقول عملاؤنا عنا
           </h2>
           <p className="text-body text-ink-600 mt-3 max-w-md mx-auto">
-            Hadchi men nass li khdaw products w st3mlohom f setup dyalhom
+            آراء حقيقية من عملائنا الذين جربوا منتجاتنا واستمتعوا بتجربتها.
           </p>
         </motion.div>
       </div>
@@ -93,11 +94,12 @@ export default function Testimonials() {
         onPointerEnter={() => { marqueeTargetSpeedRef.current = 0; }}
         onPointerLeave={() => { marqueeTargetSpeedRef.current = marqueeSpeed; }}
       >
-        <div ref={marqueeRef} className="flex w-max gap-4 will-change-transform sm:gap-6">
+        <div ref={marqueeRef} className="flex flex-nowrap w-max gap-4 will-change-transform sm:gap-6" dir="ltr">
           {duplicatedTestimonials.map((t, index) => (
             <div
               key={`${t.id}-${index}`}
-              className="flex w-[min(78vw,260px)] shrink-0 flex-col gap-3 rounded-card border border-surface-200 bg-surface-50 p-4 shadow-sm transition-all duration-300 ease-expo hover:-translate-y-1 hover:shadow-md sm:w-[380px] sm:gap-5 sm:rounded-panel sm:p-6"
+              className="flex w-[min(78vw,260px)] shrink-0 flex-col gap-3 rounded-card border border-surface-200 bg-surface-50 p-4 shadow-sm transition-all duration-300 ease-expo hover:-translate-y-1 hover:shadow-md sm:w-[380px] sm:gap-5 sm:rounded-panel sm:p-6 text-right"
+              dir="rtl"
             >
               {/* Quote icon */}
               <Quote size={22} className="shrink-0 text-brand-400 sm:h-7 sm:w-7" />
@@ -136,10 +138,10 @@ export default function Testimonials() {
           className="flex flex-col sm:flex-row items-center justify-center gap-3 text-center"
         >
           <div className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full text-xs">
-            <Check size={13} /> Verified Purchases
+            <Check size={13} /> عمليات شراء موثقة
           </div>
           <p className="text-caption text-ink-600">
-            <span className="font-semibold text-ink-900">4.9/5</span> average from verified reviews
+            متوسط تقييم <span className="font-semibold text-ink-900">4.9/5</span> من مراجعات العملاء
           </p>
         </motion.div>
       </div>

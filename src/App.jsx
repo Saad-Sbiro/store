@@ -2,28 +2,33 @@
 // FILE: src/App.jsx
 // ─────────────────────────────────────────────
 
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
-import HomePage from './pages/HomePage';
-import ProductPage from './pages/ProductPage';
-import ShopPage from './pages/ShopPage';
-import CheckoutPage from './pages/CheckoutPage';
-import OrderConfirmationPage from './pages/OrderConfirmationPage';
-import ReviewsPage from './pages/ReviewsPage';
-import AboutPage from './pages/AboutPage';
-import ContactPage from './pages/ContactPage';
-import WishlistPage from './pages/WishlistPage';
 import Toaster from './components/ui/Toast';
 import SplashScreen from './components/ui/SplashScreen';
-import AdminApp from './admin/AdminApp';
-import { useVisitorTracking } from './hooks/useVisitorTracking';
-import { useAdminStore } from './store/useAdminStore';
 import TopLoader from './components/ui/TopLoader';
 import { TooltipProvider } from './components/ui/Tooltip';
+import { useVisitorTracking } from './hooks/useVisitorTracking';
+import { useAdminStore } from './store/useAdminStore';
+
+// ── Lazy-loaded pages — each becomes its own JS chunk ──
+// Only the page the client is actually visiting gets downloaded.
+const HomePage             = lazy(() => import('./pages/HomePage'));
+const ProductPage          = lazy(() => import('./pages/ProductPage'));
+const ShopPage             = lazy(() => import('./pages/ShopPage'));
+const CheckoutPage         = lazy(() => import('./pages/CheckoutPage'));
+const OrderConfirmationPage = lazy(() => import('./pages/OrderConfirmationPage'));
+const ReviewsPage          = lazy(() => import('./pages/ReviewsPage'));
+const AboutPage            = lazy(() => import('./pages/AboutPage'));
+const ContactPage          = lazy(() => import('./pages/ContactPage'));
+const WishlistPage         = lazy(() => import('./pages/WishlistPage'));
+// Admin dashboard is completely separate — never loads for storefront users
+const AdminApp             = lazy(() => import('./admin/AdminApp'));
 
 const normalizeHex = (value) => {
   if (typeof value !== 'string') return '#6366f1';
@@ -120,6 +125,12 @@ function HomeSplashGate() {
   return show ? <SplashScreen /> : null;
 }
 
+// Minimal fallback shown while a lazy page chunk is downloading.
+// Intentionally lightweight — just the TopLoader bar already handles the UX.
+function PageFallback() {
+  return null;
+}
+
 // Storefront layout (with Navbar + Footer)
 function StoreFront() {
   return (
@@ -129,17 +140,20 @@ function StoreFront() {
         <VisitorTracker />
         <Navbar />
         <AnimatePresence mode="wait">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/shop" element={<ShopPage />} />
-            <Route path="/product/:slug" element={<ProductPage />} />
-            <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
-            <Route path="/reviews" element={<ReviewsPage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/wishlist" element={<WishlistPage />} />
-          </Routes>
+          {/* Suspense catches lazy page chunks loading */}
+          <Suspense fallback={<PageFallback />}>
+            <Routes>
+              <Route path="/"                  element={<HomePage />} />
+              <Route path="/shop"              element={<ShopPage />} />
+              <Route path="/product/:slug"     element={<ProductPage />} />
+              <Route path="/checkout"          element={<CheckoutPage />} />
+              <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
+              <Route path="/reviews"           element={<ReviewsPage />} />
+              <Route path="/about"             element={<AboutPage />} />
+              <Route path="/contact"           element={<ContactPage />} />
+              <Route path="/wishlist"          element={<WishlistPage />} />
+            </Routes>
+          </Suspense>
         </AnimatePresence>
         <Footer />
         <Toaster />
@@ -155,8 +169,12 @@ export default function App() {
       <RouteTopLoader />
       <ScrollToTop />
       <Routes>
-        {/* Admin dashboard — completely separate layout */}
-        <Route path="/admin/*" element={<AdminApp />} />
+        {/* Admin dashboard — completely separate layout, lazy chunk */}
+        <Route path="/admin/*" element={
+          <Suspense fallback={<PageFallback />}>
+            <AdminApp />
+          </Suspense>
+        } />
         {/* Main storefront */}
         <Route path="/*" element={<StoreFront />} />
       </Routes>
