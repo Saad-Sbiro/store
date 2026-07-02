@@ -226,7 +226,7 @@ export default function ProductPage() {
         setProduct(data.product);
         setRelated(data.related || []);
         setSelectedImage(0);
-        setSelectedColor(0);
+        setSelectedColor(null);
         setSelectedSize(variants.length === 1 ? variants[0] : null);
         setQuantity(1);
         api.logEvent('product_click', window.location.pathname, data.product.id);
