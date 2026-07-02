@@ -210,7 +210,7 @@ export default function ShopPage() {
           </Popover>
 
           {/* View toggle */}
-          <div className="flex overflow-hidden rounded-btn border border-surface-200 bg-white">
+          <div className="flex shrink-0 w-fit overflow-hidden rounded-btn border border-surface-200 bg-white self-start sm:self-auto">
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
